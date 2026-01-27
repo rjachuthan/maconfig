@@ -16,7 +16,14 @@ volume_change() {
     "34-66:$VOLUME_66" \
     "67-100:$VOLUME_100")
 
-  update_item volume_icon label="$icon"
+  # Add colorful accents based on volume level
+  local color=$(select_color_by_range "$INFO" \
+    "0:$GREY" \
+    "1-33:$BLUE" \
+    "34-66:$CYAN" \
+    "67-100:$GREEN")
+
+  update_item volume_icon label="$icon" label.color="$color"
   update_slider volume "$INFO" "$WIDTH"
 
   sleep 2

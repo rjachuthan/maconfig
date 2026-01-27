@@ -61,6 +61,14 @@ source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
 source "$MODULE_DIR/system/cpu.item.sh"
 
+# Add bracket around right-side items for grouped background
+sketchybar --add bracket status brew github.bell battery volume_icon \
+           --set status background.color=$BACKGROUND_1                 \
+                        background.border_color=$BACKGROUND_2          \
+                        background.border_width=2                      \
+                        background.corner_radius=9                     \
+                        background.height=30
+
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
 
