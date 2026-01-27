@@ -54,6 +54,8 @@ The theme switcher must:
 
 - GNU Stow (symlink management)
 - yq (YAML processor for configs)
+- jq (JSON processor for API parsing)
+- gh (GitHub CLI for notifications)
 - Homebrew (package management)
 - Python 3 (optional, for generator scripts)
 
@@ -217,3 +219,22 @@ Edit this function to change which items hide in zen mode.
 - Sans-serif: SF Pro
 - Sizes: 13pt normal, 12pt for bars
 - Sketchybar app font: `sketchybar-app-font` (auto-generated)
+
+## JankyBorders Configuration
+
+JankyBorders provides visual window borders that integrate with the Aerospace window manager:
+
+**Configuration** (`jankyborders/.config/borders/bordersrc`):
+- Thin 2px borders with round style
+- Active window: vibrant magenta (#af5fff) matching workspace indicators
+- Inactive windows: muted grey (#6b6b6b)
+- HiDPI/Retina display support enabled
+- Started automatically via Aerospace after-startup-command
+
+**Service Management**:
+```bash
+brew services start borders    # Start service
+brew services stop borders     # Stop service
+brew services restart borders  # Restart service
+borders                        # Run manually (testing)
+```
