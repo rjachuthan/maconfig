@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Generated files (theme cache)
+active-theme.sh
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Compiled files
+*.pyc
+__pycache__/
+
+# Local overrides (for user-specific settings)
+*.local
+*.local.sh
