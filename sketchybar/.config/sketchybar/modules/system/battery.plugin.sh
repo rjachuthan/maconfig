@@ -32,12 +32,8 @@ update() {
     "30-59:$ORANGE" \
     "60-100:$WHITE")
 
-  # Show battery only when low or medium
-  local drawing=$(select_by_range "$percentage" \
-    "0-59:on" \
-    "60-100:off")
-
-  update_item "$NAME" icon="$icon" icon.color="$color" drawing="$drawing"
+  # Always show battery item
+  update_item "$NAME" icon="$icon" icon.color="$color" drawing=on
 }
 
 update
