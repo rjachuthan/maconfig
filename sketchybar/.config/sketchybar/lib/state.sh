@@ -165,7 +165,7 @@ cache_clear() {
 # Get list of items to hide in zen mode
 # This is the central source of truth for zen mode items
 get_zen_items() {
-  echo "apple.logo brew github.bell battery volume volume_icon cpu.top cpu.percent cpu.sys cpu.user"
+  echo "apple.logo separator brew github.bell battery volume volume_icon cpu.top cpu.percent cpu.sys cpu.user"
 }
 
 # Check if zen mode is active
