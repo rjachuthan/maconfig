@@ -1,7 +1,5 @@
 #!/bin/sh
 
-FRONT_APP_SCRIPT='sketchybar --set $NAME label="$INFO"'
-
 sketchybar --add       event        window_focus                  \
            --add       event        windows_on_spaces             \
            --add       item         system.yabai left             \
@@ -17,8 +15,8 @@ sketchybar --add       event        window_focus                  \
                                     mouse.clicked                 \
                                                                   \
            --add       item         front_app left                \
-           --set       front_app    script="$FRONT_APP_SCRIPT"    \
-                                    icon.drawing=off              \
+           --set       front_app    script="$PLUGIN_DIR/front_app.sh" \
+                                    icon.font="sketchybar-app-font:Regular:16.0" \
                                     padding_left=0                \
                                     label.color=$WHITE            \
                                     label.font="$FONT:Black:12.0" \

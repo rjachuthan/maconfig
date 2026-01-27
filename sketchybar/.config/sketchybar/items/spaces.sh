@@ -6,28 +6,26 @@ SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
 sketchybar --add event aerospace_workspace_change
 
 sid=0
-spaces=()
 for i in "${!SPACE_ICONS[@]}"
 do
   sid=$(($i+1))
-  sketchybar --add space      space.$sid left                               \
-             --set space.$sid space=$sid                                    \
-                              icon=${SPACE_ICONS[i]}                        \
-                              icon.padding_left=10                          \
-                              icon.padding_right=15                         \
-                              padding_left=2                                \
-                              padding_right=2                               \
-                              label.padding_right=20                        \
-                              icon.highlight_color=$RED                     \
-                              label.font="sketchybar-app-font:Regular:16.0" \
-                              label.background.height=26                    \
-                              label.background.drawing=on                   \
-                              label.background.color=$BACKGROUND_2          \
-                              label.background.corner_radius=8              \
-                              label.drawing=off                             \
-                              script="$PLUGIN_DIR/space.sh"                 \
-             --subscribe      space.$sid mouse.clicked                      \
-                              aerospace_workspace_change
+  sketchybar --add item        space.$sid left                               \
+             --set space.$sid  icon=${SPACE_ICONS[i]}                        \
+                               icon.padding_left=10                          \
+                               icon.padding_right=15                         \
+                               padding_left=2                                \
+                               padding_right=2                               \
+                               label.padding_right=20                        \
+                               icon.highlight_color=$RED                     \
+                               label.font="sketchybar-app-font:Regular:16.0" \
+                               label.background.height=26                    \
+                               label.background.drawing=on                   \
+                               label.background.color=$BACKGROUND_2          \
+                               label.background.corner_radius=8              \
+                               label.drawing=off                             \
+                               script="$PLUGIN_DIR/space.sh"                 \
+             --subscribe       space.$sid mouse.clicked                      \
+                               aerospace_workspace_change
 done
 
 sketchybar --add bracket spaces '/space\..*/'                  \
