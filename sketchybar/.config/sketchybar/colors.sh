@@ -1,52 +1,28 @@
 #!/bin/bash
-# Sketchybar Colors - Generated from theme
-# This file is sourced by sketchybarrc
 
-# Load active theme (fallback to shiny-black if not set)
-THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/maconfig/active-theme.sh"
-if [[ -f "$THEME_FILE" ]]; then
-    source "$THEME_FILE"
-else
-    # Fallback: shiny-black defaults
-    color_background="0f0f12"
-    color_foreground="e8e8ed"
-    color5="c678dd"
-    color8="3e4452"
-    color13="e48bff"
-    color15="ffffff"
-    gradient_start="c678dd"
-    gradient_end="e06c9f"
-fi
+# Sketchybar Colors - Catppuccin Macchiato inspired (FelixKratz style)
+# This file defines all color constants used throughout the sketchybar config
 
-# Convert hex to sketchybar format (0xAARRGGBB)
-hex_to_sketchybar() {
-    local hex="${1#\#}"
-    local alpha="${2:-ff}"
-    echo "0x${alpha}${hex}"
-}
+# Color Palette
+export BLACK=0xff181926
+export WHITE=0xffcad3f5
+export RED=0xffed8796
+export GREEN=0xffa6da95
+export BLUE=0xff8aadf4
+export YELLOW=0xffeed49f
+export ORANGE=0xfff5a97f
+export MAGENTA=0xffc6a0f6
+export GREY=0xff939ab7
+export TRANSPARENT=0x00000000
 
-# Bar colors
-export BAR_COLOR=$(hex_to_sketchybar "$color_background" "e6")
-export BAR_BORDER_COLOR=$(hex_to_sketchybar "$color8" "80")
+# General bar colors
+export BAR_COLOR=0xcc24273a
+export ICON_COLOR=$WHITE
+export LABEL_COLOR=$WHITE
+export BACKGROUND_1=0xff3c3e4f
+export BACKGROUND_2=0xff494d64
 
-# Item colors
-export ITEM_BG_COLOR=$(hex_to_sketchybar "$color8" "60")
-export ACCENT_COLOR=$(hex_to_sketchybar "$color5" "ff")
-export ACCENT_BRIGHT=$(hex_to_sketchybar "$color13" "ff")
+export POPUP_BACKGROUND_COLOR=$BLACK
+export POPUP_BORDER_COLOR=$WHITE
 
-# Text colors
-export TEXT_COLOR=$(hex_to_sketchybar "$color_foreground" "ff")
-export TEXT_BRIGHT=$(hex_to_sketchybar "$color15" "ff")
-export TEXT_DIM=$(hex_to_sketchybar "$color8" "ff")
-
-# Gradient for active workspace
-export GRADIENT_START=$(hex_to_sketchybar "$gradient_start" "ff")
-export GRADIENT_END=$(hex_to_sketchybar "$gradient_end" "ff")
-
-# Transparent
-export TRANSPARENT="0x00000000"
-
-# Status colors
-export SUCCESS_COLOR=$(hex_to_sketchybar "98c379" "ff")
-export WARNING_COLOR=$(hex_to_sketchybar "e5c07b" "ff")
-export ERROR_COLOR=$(hex_to_sketchybar "e06c75" "ff")
+export SHADOW_COLOR=$BLACK
