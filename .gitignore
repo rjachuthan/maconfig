@@ -34,3 +34,4 @@ sketchybar/.config/sketchybar/native/helper
 
 # Claude Code settings
 .claude/
+.cursor/
