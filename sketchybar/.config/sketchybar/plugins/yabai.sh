@@ -60,6 +60,7 @@ window_state() {
 }
 
 windows_on_spaces () {
+  source "$HOME/.config/sketchybar/helpers/icon_map.sh"
   if command -v aerospace &> /dev/null; then
     # Aerospace-based window listing
     args=()
@@ -68,7 +69,8 @@ windows_on_spaces () {
       apps=$(aerospace list-windows --workspace $space --format '%{app-name}' 2>/dev/null)
       if [ "$apps" != "" ]; then
         while IFS= read -r app; do
-          icon_strip+=" $($HOME/.config/sketchybar/plugins/icon_map.sh "$app")"
+          __icon_map "$app"
+          icon_strip+=" $icon_result"
         done <<< "$apps"
       fi
       args+=(--set space.$space label="$icon_strip" label.drawing=on)
@@ -87,7 +89,8 @@ windows_on_spaces () {
         apps=$(yabai -m query --windows --space $space | jq -r ".[].app")
         if [ "$apps" != "" ]; then
           while IFS= read -r app; do
-            icon_strip+=" $($HOME/.config/sketchybar/plugins/icon_map.sh "$app")"
+            __icon_map "$app"
+            icon_strip+=" $icon_result"
           done <<< "$apps"
         fi
         args+=(--set space.$space label="$icon_strip" label.drawing=on)
