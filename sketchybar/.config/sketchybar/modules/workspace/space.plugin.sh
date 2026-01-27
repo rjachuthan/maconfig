@@ -20,6 +20,9 @@ update() {
   [[ "$selected" == "true" ]] && width="0"
 
   sketchybar --animate tanh 20 --set "$NAME" icon.highlight="$selected" label.width="$width"
+
+  # Update zen mode space visibility if in zen mode
+  update_zen_spaces
 }
 
 mouse_clicked() {

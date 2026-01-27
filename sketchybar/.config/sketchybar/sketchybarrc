@@ -50,6 +50,12 @@ source "$MODULE_DIR/workspace/spaces.item.sh"
 source "$MODULE_DIR/workspace/yabai.item.sh"
 source "$MODULE_DIR/apps/front_app.item.sh"
 
+# Zen mode workspace handler
+sketchybar --add item zen_spaces_handler left \
+           --set zen_spaces_handler drawing=off \
+                                     script="$MODULE_DIR/workspace/zen_spaces.plugin.sh" \
+           --subscribe zen_spaces_handler aerospace_workspace_change
+
 # Center
 source "$MODULE_DIR/apps/spotify.item.sh"
 
