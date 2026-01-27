@@ -1,19 +1,12 @@
 #!/bin/sh
 
-source "$HOME/.config/sketchybar/colors.sh" # Loads all defined colors
-source "$HOME/.config/sketchybar/icons.sh" # Loads all defined icons
-
-ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are configured
-PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
-
-FONT="SF Pro" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
-PADDINGS=3 # All paddings use this value (icon, label, background)
+# Load central configuration and libraries
+source "$HOME/.config/sketchybar/config.sh"
 
 # Setting up and starting the helper process
-HELPER=git.felix.helper
 killall helper 2>/dev/null
-cd $HOME/.config/sketchybar/helper && make 2>/dev/null
-$HOME/.config/sketchybar/helper/helper $HELPER > /dev/null 2>&1 &
+cd "$NATIVE_DIR" && make 2>/dev/null
+"$NATIVE_DIR/helper" "$HELPER_NAME" > /dev/null 2>&1 &
 
 # Unload the macOS on screen indicator overlay for volume change
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /dev/null 2>&1 &
@@ -52,19 +45,21 @@ sketchybar --bar     height=39                                         \
                      popup.background.shadow.drawing=on
 
 # Left
-source "$ITEM_DIR/apple.sh"
-source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/front_app.sh"
+source "$MODULE_DIR/ui/apple.item.sh"
+source "$MODULE_DIR/workspace/spaces.item.sh"
+source "$MODULE_DIR/workspace/yabai.item.sh"
+source "$MODULE_DIR/apps/front_app.item.sh"
 
 # Center
-source "$ITEM_DIR/spotify.sh"
+source "$MODULE_DIR/apps/spotify.item.sh"
 
 # Right
-source "$ITEM_DIR/calendar.sh"
-source "$ITEM_DIR/brew.sh"
-source "$ITEM_DIR/battery.sh"
-source "$ITEM_DIR/volume.sh"
-source "$ITEM_DIR/cpu.sh"
+source "$MODULE_DIR/ui/calendar.item.sh"
+source "$MODULE_DIR/integrations/brew.item.sh"
+source "$MODULE_DIR/integrations/github.item.sh"  # CRITICAL FIX: This was missing!
+source "$MODULE_DIR/system/battery.item.sh"
+source "$MODULE_DIR/system/volume.item.sh"
+source "$MODULE_DIR/system/cpu.item.sh"
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
