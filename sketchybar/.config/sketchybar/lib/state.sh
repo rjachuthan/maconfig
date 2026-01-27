@@ -165,7 +165,7 @@ cache_clear() {
 # Get list of items to hide in zen mode
 # This is the central source of truth for zen mode items
 get_zen_items() {
-  echo "calendar brew battery volume cpu"
+  echo "apple.logo brew github.bell battery volume volume_icon cpu.top cpu.percent cpu.sys cpu.user"
 }
 
 # Check if zen mode is active
@@ -180,10 +180,14 @@ is_zen_mode() {
 enable_zen_mode() {
   save_state zen_mode on
 
+  # Hide regular items
   local items=$(get_zen_items)
   for item in $items; do
     hide_item "$item"
   done
+
+  # Hide all spaces except the focused one
+  update_zen_spaces
 }
 
 # Disable zen mode
@@ -191,9 +195,35 @@ enable_zen_mode() {
 disable_zen_mode() {
   save_state zen_mode off
 
+  # Show regular items
   local items=$(get_zen_items)
   for item in $items; do
     show_item "$item"
+  done
+
+  # Show all spaces
+  for i in {1..10}; do
+    show_item "space.$i"
+  done
+}
+
+# Update space visibility in zen mode
+# Usage: update_zen_spaces
+update_zen_spaces() {
+  if ! is_zen_mode; then
+    return
+  fi
+
+  # Get focused workspace
+  local focused=$(aerospace list-workspaces --focused 2>/dev/null)
+
+  # Hide all spaces, show only focused
+  for i in {1..10}; do
+    if [[ "$i" == "$focused" ]]; then
+      show_item "space.$i"
+    else
+      hide_item "space.$i"
+    fi
   done
 }
 
