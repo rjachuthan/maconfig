@@ -1,8 +1,7 @@
 #!/bin/sh
 
 zen_on() {
-  sketchybar --set github.bell drawing=off \
-             --set apple.logo drawing=off \
+  sketchybar --set apple.logo drawing=off \
              --set '/cpu.*/' drawing=off \
              --set calendar icon.drawing=off \
              --set system.yabai drawing=off \
@@ -15,8 +14,7 @@ zen_on() {
 }
 
 zen_off() {
-  sketchybar --set github.bell drawing=on \
-             --set apple.logo drawing=on \
+  sketchybar --set apple.logo drawing=on \
              --set '/cpu.*/' drawing=on \
              --set calendar icon.drawing=on \
              --set separator drawing=on \
