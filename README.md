@@ -6,8 +6,10 @@ A unified macOS dotfiles system with dynamic theme switching.
 
 - **GNU Stow-based** symlink management for clean, modular configs
 - **Dynamic theme switching** across all applications
-- **Shiny Black theme** with variants (cool, warm, high/low contrast)
+- **Deep Black theme** with vibrant accents and zen mode
 - **Pywal-compatible** 16-color scheme system
+- **Window borders** with JankyBorders integration
+- **Modular Sketchybar** with GitHub notifications, Brew updates, and system monitoring
 
 ## Quick Start
 
@@ -45,6 +47,8 @@ maconfig/
 │   └── .config/aerospace/
 ├── sketchybar/             # Stow package: status bar
 │   └── .config/sketchybar/
+├── jankyborders/           # Stow package: window borders
+│   └── .config/borders/
 ├── scripts/                # Utility scripts
 │   └── theme-switch.sh
 └── install.sh              # Bootstrap script
@@ -60,13 +64,25 @@ maconfig/
 | `Alt + Shift + H/J/K/L` | Move window |
 | `Alt + Shift + 1-9` | Move window to workspace |
 | `Alt + Tab` | Previous workspace |
-| `Alt + /` | Toggle tile/accordion layout |
+| `Alt + /` | Toggle tiles layout |
+| `Alt + ,` | Toggle accordion layout |
+| `Alt + -` | Resize window smaller |
+| `Alt + =` | Resize window larger |
+| `Alt + Shift + ;` | Enter service mode |
 
 ## Applications
 
 **Configured:**
 - Aerospace (window manager)
-- Sketchybar (status bar)
+- Sketchybar (status bar with modules)
+- JankyBorders (window borders)
+
+**Sketchybar Modules:**
+- System: Battery, CPU, Volume
+- Integrations: GitHub notifications, Brew updates
+- Apps: Front app, Spotify
+- Workspace: Aerospace spaces
+- UI: Calendar, Apple menu, Zen mode
 
 **Planned:**
 - Neovim
@@ -74,7 +90,6 @@ maconfig/
 - WezTerm
 - Yazi
 - ZSH
-- JankyBorders
 
 ## Requirements
 
@@ -82,6 +97,12 @@ maconfig/
 - Homebrew (installed automatically)
 - GNU Stow
 - yq (YAML processor)
+- jq (JSON processor)
+- gh (GitHub CLI)
+
+**Optional but recommended:**
+- WezTerm or iTerm2
+- SF Symbols app
 
 ## License
 
