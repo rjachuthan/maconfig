@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# JankyBorders Configuration
+# Aligned with Sketchybar Deep Black theme with Vibrant Accents
+
+# Border options
+options=(
+  # Thin borders for subtle visual separation
+  style=round
+  width=2.0
+
+  # HiDPI support for retina displays
+  hidpi=on
+
+  # Active window - vibrant magenta (matching workspace indicators)
+  active_color=0xffaf5fff
+
+  # Inactive windows - muted grey (subtle presence)
+  inactive_color=0xff6b6b6b
+
+  # Blacklist specific applications (e.g., those that don't play well with borders)
+  # blacklist="System Preferences,System Settings"
+)
+
+borders "${options[@]}"
