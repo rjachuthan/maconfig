@@ -13,6 +13,7 @@ export THEME_DIR="$CONFIG_DIR/theme"
 export MODULE_DIR="$CONFIG_DIR/modules"
 export UTILS_DIR="$CONFIG_DIR/utils"
 export NATIVE_DIR="$CONFIG_DIR/native"
+export HELPERS_DIR="$CONFIG_DIR/helpers"
 
 # Legacy paths (for backward compatibility during migration)
 export ITEM_DIR="$CONFIG_DIR/items"
