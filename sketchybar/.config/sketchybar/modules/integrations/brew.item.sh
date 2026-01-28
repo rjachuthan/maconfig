@@ -10,7 +10,8 @@ source "$CONFIG_DIR/config.sh"
 
 sketchybar --add event brew_update                              \
            --add item brew right                                \
-           --set brew script="$MODULE_DIR/integrations/brew.plugin.sh" \
+           --set brew update_freq=1800                          \
+                      script="$MODULE_DIR/integrations/brew.plugin.sh" \
                       icon=􀐛                                    \
                       icon.color=$ORANGE                        \
                       label=?                                   \
