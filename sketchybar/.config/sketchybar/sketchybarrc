@@ -1,139 +1,81 @@
-#!/bin/bash
+#!/bin/sh
 
-# Sketchybar Configuration
-# https://felixkratz.github.io/SketchyBar
+# Load central configuration and libraries
+source "$HOME/.config/sketchybar/config.sh"
 
-PLUGIN_DIR="$CONFIG_DIR/plugins"
+# Setting up and starting the helper process
+killall helper 2>/dev/null
+cd "$NATIVE_DIR" && make 2>/dev/null
+"$NATIVE_DIR/helper" "$HELPER_NAME" > /dev/null 2>&1 &
 
-# Load colors from theme
-source "$CONFIG_DIR/colors.sh"
+# Unload the macOS on screen indicator overlay for volume change
+launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /dev/null 2>&1 &
 
-##### Bar Appearance #####
-sketchybar --bar position=top                \
-                 height=40                   \
-                 blur_radius=30              \
-                 color=$BAR_COLOR            \
-                 margin=10                   \
-                 y_offset=6                  \
-                 corner_radius=12            \
-                 border_width=1              \
-                 border_color=$BAR_BORDER_COLOR \
-                 padding_left=12             \
-                 padding_right=12            \
-                 shadow=on                   \
-                 sticky=on
+# Setting up the general bar appearance and default values
+sketchybar --bar     height=39                                         \
+                     color=$BAR_COLOR                                  \
+                     shadow=on                                         \
+                     position=top                                      \
+                     sticky=on                                         \
+                     padding_right=10                                  \
+                     padding_left=10                                   \
+                     corner_radius=9                                   \
+                     y_offset=10                                       \
+                     margin=10                                         \
+                     blur_radius=20                                    \
+                     notch_width=0                                     \
+                                                                       \
+           --default updates=when_shown                                \
+                     icon.font="$FONT:Bold:14.0"                       \
+                     icon.color=$ICON_COLOR                            \
+                     icon.padding_left=$PADDINGS                       \
+                     icon.padding_right=$PADDINGS                      \
+                     label.font="$FONT:Semibold:13.0"                  \
+                     label.color=$LABEL_COLOR                          \
+                     label.padding_left=$PADDINGS                      \
+                     label.padding_right=$PADDINGS                     \
+                     padding_right=$PADDINGS                           \
+                     padding_left=$PADDINGS                            \
+                     background.height=30                              \
+                     background.corner_radius=9                        \
+                     popup.background.border_width=2                   \
+                     popup.background.corner_radius=9                  \
+                     popup.background.border_color=$POPUP_BORDER_COLOR \
+                     popup.background.color=$POPUP_BACKGROUND_COLOR    \
+                     popup.background.shadow.drawing=on
 
-##### Default Item Appearance #####
-sketchybar --default icon.font="SF Pro:Semibold:14.0"   \
-                     icon.color=$TEXT_COLOR             \
-                     label.font="SF Pro:Semibold:13.0"  \
-                     label.color=$TEXT_COLOR            \
-                     background.color=$TRANSPARENT      \
-                     background.corner_radius=8         \
-                     background.height=28               \
-                     padding_left=4                     \
-                     padding_right=4                    \
-                     label.padding_left=6               \
-                     label.padding_right=6              \
-                     icon.padding_left=8                \
-                     icon.padding_right=4
+# Left
+source "$MODULE_DIR/ui/apple.item.sh"
+source "$MODULE_DIR/workspace/spaces.item.sh"
+source "$MODULE_DIR/workspace/yabai.item.sh"
+source "$MODULE_DIR/apps/front_app.item.sh"
 
-##### Left Items #####
+# Zen mode workspace handler
+sketchybar --add item zen_spaces_handler left \
+           --set zen_spaces_handler drawing=off \
+                                     script="$MODULE_DIR/workspace/zen_spaces.plugin.sh" \
+           --subscribe zen_spaces_handler aerospace_workspace_change
 
-# Clock (left side like reference)
-sketchybar --add item clock left                            \
-           --set clock update_freq=10                       \
-                       icon.drawing=off                     \
-                       label.font="SF Pro:Bold:14.0"        \
-                       label.color=$TEXT_BRIGHT             \
-                       background.color=$ITEM_BG_COLOR      \
-                       background.corner_radius=10          \
-                       background.height=28                 \
-                       background.padding_left=2            \
-                       background.padding_right=2           \
-                       label.padding_left=12                \
-                       label.padding_right=12               \
-                       script="$PLUGIN_DIR/clock.sh"
+# Center
+source "$MODULE_DIR/apps/spotify.item.sh"
 
-# Front App with icon
-sketchybar --add item front_app left                                  \
-           --set front_app icon.font="sketchybar-app-font:Regular:16.0" \
-                           icon.color=$ACCENT_COLOR                   \
-                           label.font="SF Pro:Semibold:13.0"          \
-                           label.color=$TEXT_COLOR                    \
-                           background.color=$ITEM_BG_COLOR            \
-                           background.corner_radius=10                \
-                           background.height=28                       \
-                           icon.padding_left=10                       \
-                           icon.padding_right=6                       \
-                           label.padding_right=12                     \
-                           script="$PLUGIN_DIR/front_app.sh"          \
-           --subscribe front_app front_app_switched
+# Right
+source "$MODULE_DIR/ui/calendar.item.sh"
+source "$MODULE_DIR/integrations/brew.item.sh"
+source "$MODULE_DIR/integrations/github.item.sh"  # CRITICAL FIX: This was missing!
+source "$MODULE_DIR/system/battery.item.sh"
+source "$MODULE_DIR/system/volume.item.sh"
+source "$MODULE_DIR/system/cpu.item.sh"
 
-##### Center Items - Workspaces #####
+# Add bracket around right-side items for grouped background
+sketchybar --add bracket status brew github.bell battery volume_icon \
+           --set status background.color=$BACKGROUND_1                 \
+                        background.border_color=$BACKGROUND_2          \
+                        background.border_width=2                      \
+                        background.corner_radius=9                     \
+                        background.height=30
 
-# Register aerospace workspace change event
-sketchybar --add event aerospace_workspace_change
-
-# Add workspace items
-for sid in 1 2 3 4 5; do
-    sketchybar --add item space.$sid center                         \
-               --subscribe space.$sid aerospace_workspace_change    \
-               --set space.$sid icon="$sid"                         \
-                                icon.font="SF Pro:Bold:13.0"        \
-                                icon.color=$TEXT_DIM                \
-                                label.drawing=off                   \
-                                background.color=$TRANSPARENT       \
-                                background.corner_radius=10         \
-                                background.height=28                \
-                                icon.padding_left=12                \
-                                icon.padding_right=12               \
-                                click_script="aerospace workspace $sid" \
-                                script="$PLUGIN_DIR/aerospace.sh $sid"
-done
-
-##### Right Items #####
-
-# Battery
-sketchybar --add item battery right                       \
-           --set battery update_freq=120                  \
-                         icon.font="SF Pro:Regular:16.0"  \
-                         icon.color=$TEXT_COLOR           \
-                         label.drawing=off                \
-                         background.color=$ITEM_BG_COLOR  \
-                         background.corner_radius=10      \
-                         background.height=28             \
-                         icon.padding_left=10             \
-                         icon.padding_right=10            \
-                         script="$PLUGIN_DIR/battery.sh"  \
-           --subscribe battery system_woke power_source_change
-
-# WiFi
-sketchybar --add item wifi right                          \
-           --set wifi icon=󰖩                              \
-                      icon.font="SF Pro:Regular:16.0"     \
-                      icon.color=$TEXT_COLOR              \
-                      label.drawing=off                   \
-                      background.color=$ITEM_BG_COLOR     \
-                      background.corner_radius=10         \
-                      background.height=28                \
-                      icon.padding_left=10                \
-                      icon.padding_right=10               \
-                      script="$PLUGIN_DIR/wifi.sh"        \
-                      update_freq=30
-
-# Volume
-sketchybar --add item volume right                        \
-           --set volume icon.font="SF Pro:Regular:16.0"   \
-                        icon.color=$TEXT_COLOR            \
-                        label.drawing=off                 \
-                        background.color=$ITEM_BG_COLOR   \
-                        background.corner_radius=10       \
-                        background.height=28              \
-                        icon.padding_left=10              \
-                        icon.padding_right=10             \
-                        script="$PLUGIN_DIR/volume.sh"    \
-           --subscribe volume volume_change
-
-##### Force Initial Update #####
+# Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
+
+echo "sketchybar configuration loaded.."

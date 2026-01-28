@@ -57,6 +57,8 @@ install_brew_packages() {
     local packages=(
         "stow"                  # Symlink manager
         "yq"                    # YAML processor
+        "jq"                    # JSON processor
+        "gh"                    # GitHub CLI
     )
 
     # Window management
@@ -131,7 +133,7 @@ backup_configs() {
     print_header "Backing Up Existing Configurations"
 
     local backup_dir="$HOME/.config-backup/$(date +%Y%m%d_%H%M%S)"
-    local configs_to_backup=("aerospace" "sketchybar")
+    local configs_to_backup=("aerospace" "sketchybar" "borders")
     local backed_up=false
 
     for config in "${configs_to_backup[@]}"; do
@@ -156,7 +158,7 @@ create_symlinks() {
 
     cd "$SCRIPT_DIR"
 
-    local packages=("aerospace" "sketchybar")
+    local packages=("aerospace" "sketchybar" "jankyborders")
 
     for pkg in "${packages[@]}"; do
         if [[ -d "$pkg" ]]; then
@@ -186,14 +188,26 @@ apply_default_theme() {
 start_services() {
     print_header "Starting Services"
 
-    # Start Aerospace
+    # Start Sketchybar as a service
+    if command -v sketchybar &>/dev/null; then
+        print_status "Starting Sketchybar..."
+        brew services start sketchybar 2>/dev/null || true
+        print_success "Sketchybar service started"
+    fi
+
+    # Start JankyBorders as a service
+    if command -v borders &>/dev/null; then
+        print_status "Starting JankyBorders..."
+        brew services start borders 2>/dev/null || true
+        print_success "JankyBorders service started"
+    fi
+
+    # Start Aerospace (which will also trigger services via after-startup-command)
     if command -v aerospace &>/dev/null; then
         print_status "Starting Aerospace..."
         open -a AeroSpace 2>/dev/null || true
         print_success "Aerospace started"
     fi
-
-    # Note: Sketchybar is started by Aerospace via after-startup-command
 }
 
 # Print completion message
@@ -201,21 +215,25 @@ print_completion() {
     print_header "Installation Complete!"
 
     echo -e "${CYAN}What's been set up:${NC}"
-    echo "  • Homebrew packages installed"
+    echo "  • Homebrew packages and CLI tools (gh, jq, yq) installed"
     echo "  • Aerospace window manager configured"
-    echo "  • Sketchybar status bar configured"
-    echo "  • Shiny Black theme applied"
+    echo "  • Sketchybar status bar configured (with GitHub, Brew, system monitors)"
+    echo "  • JankyBorders window borders configured"
+    echo "  • Services started (Sketchybar, JankyBorders, Aerospace)"
+    echo "  • Deep Black theme applied"
     echo ""
     echo -e "${CYAN}Next steps:${NC}"
     echo "  • Log out and back in (or restart) for all changes to take effect"
-    echo "  • Use 'theme-switch.sh <theme>' to change themes"
-    echo "  • Available themes: shiny-black, shiny-black-cool, shiny-black-warm"
+    echo "  • Run 'gh auth login' to enable GitHub notifications in Sketchybar"
+    echo "  • Use './scripts/theme-switch.sh <theme>' to change themes"
     echo ""
     echo -e "${CYAN}Keybindings (Aerospace):${NC}"
     echo "  • Alt + Enter: Open WezTerm"
     echo "  • Alt + 1-9: Switch workspace"
-    echo "  • Alt + H/J/K/L: Focus window"
+    echo "  • Alt + H/J/K/L: Focus window (vim-style)"
     echo "  • Alt + Shift + H/J/K/L: Move window"
+    echo "  • Alt + /: Toggle tiles layout"
+    echo "  • Alt + ,: Toggle accordion layout"
     echo ""
 }
 
