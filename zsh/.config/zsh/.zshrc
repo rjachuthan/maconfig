@@ -62,9 +62,12 @@ tm() {
   local session
   session="$(basename "$PWD")"
 
-  if tmux has-session -t "$session" 2>/dev/null; then
+  # Check if session exists using list-sessions
+  if tmux list-sessions -F "#{session_name}" 2>/dev/null | grep -q "^${session}$"; then
+    echo "Attaching to existing session: $session"
     tmux attach -t "$session"
   else
+    echo "Creating new session: $session"
     tmux new-session -s "$session"
   fi
 }
