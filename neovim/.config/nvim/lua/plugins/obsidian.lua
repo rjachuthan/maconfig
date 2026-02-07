@@ -70,9 +70,11 @@ return {
       -- Attachments configuration
       attachments = {
         img_folder = "assets",
-        -- Use Obsidian-style image embedding
+        -- Use encoded base names for snacks.nvim compatibility
         img_text_func = function(client, path)
-          return string.format("![[%s]]", path.name)
+          local name = vim.fs.basename(tostring(path))
+          local encoded_name = require("obsidian.util").urlencode(name)
+          return string.format("![%s](%s)", name, encoded_name)
         end,
       },
 
@@ -90,9 +92,9 @@ return {
         },
       },
 
-      -- Completion with nvim-cmp
+      -- Disable nvim-cmp integration (using blink.cmp instead)
       completion = {
-        nvim_cmp = true,
+        nvim_cmp = false,
         min_chars = 2,
       },
 
@@ -142,32 +144,6 @@ return {
       -- Markdown extensions
       yaml_parser = "native",
     },
-  },
-
-  -- nvim-cmp integration for markdown files only
-  {
-    "hrsh7th/nvim-cmp",
-    optional = true,
-    dependencies = {
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-    },
-    opts = function(_, opts)
-      -- Add Obsidian sources for markdown files
-      local cmp = require("cmp")
-
-      cmp.setup.filetype("markdown", {
-        sources = cmp.config.sources({
-          { name = "obsidian" },
-          { name = "obsidian_new" },
-          { name = "obsidian_tags" },
-          { name = "path" },
-          { name = "buffer" },
-        }),
-      })
-
-      return opts
-    end,
   },
 
   -- Telescope.nvim for Obsidian note navigation
