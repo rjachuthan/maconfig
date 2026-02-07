@@ -1,0 +1,80 @@
+return {
+  "coder/claudecode.nvim",
+  dependencies = { "folke/snacks.nvim" },
+  cmd = {
+    "ClaudeCode",
+    "ClaudeCodeStart",
+    "ClaudeCodeStop",
+    "ClaudeCodeStatus",
+    "ClaudeCodeSend",
+    "ClaudeCodeTreeAdd",
+    "ClaudeCodeAdd",
+    "ClaudeCodeFocus",
+    "ClaudeCodeOpen",
+    "ClaudeCodeClose",
+    "ClaudeCodeDiffAccept",
+    "ClaudeCodeDiffDeny",
+    "ClaudeCodeSelectModel",
+  },
+  config = function()
+    require("claudecode").setup({
+    -- Terminal configuration
+    terminal = {
+      split_side = "right",
+      split_width_percentage = 0.35,
+      provider = "snacks", -- Uses snacks.nvim for better terminal experience
+      auto_close = false,
+      show_native_term_exit_tip = true,
+      env = {},
+      -- Snacks window configuration
+      snacks_win_opts = {
+        border = "rounded",
+        keys = {
+          hide = { "<C-,>", function(self) self:hide() end, mode = "t" },
+        },
+      },
+    },
+
+    -- Server configuration
+    auto_start = true,
+    port_range = { min = 10000, max = 65535 },
+    log_level = "info",
+
+    -- Terminal command (uses Homebrew installation)
+    terminal_cmd = "/opt/homebrew/bin/claude",
+
+    -- Behavior settings
+    focus_after_send = true,
+    track_selection = true,
+
+    -- Working directory configuration (use git repo root)
+    git_repo_cwd = true,
+
+    -- Diff settings
+    diff_opts = {
+      auto_close_on_accept = true,
+      layout = "vertical",
+      open_in_new_tab = false,
+      hide_terminal_in_new_tab = false,
+      keep_terminal_focus = false,
+      on_new_file_reject = "close_window",
+    },
+  })
+  end,
+
+  -- Keybindings with which-key integration
+  keys = {
+    -- Normal mode keybindings
+    { "<leader>ac", ":ClaudeCode<CR>", desc = "Claude: Toggle terminal", mode = "n" },
+    { "<leader>af", ":ClaudeCodeFocus<CR>", desc = "Claude: Focus terminal", mode = "n" },
+    { "<leader>ar", ":ClaudeCode --resume<CR>", desc = "Claude: Resume session", mode = "n" },
+    { "<leader>ab", ":ClaudeCodeAdd %<CR>", desc = "Claude: Add buffer", mode = "n" },
+    { "<leader>am", ":ClaudeCodeSelectModel<CR>", desc = "Claude: Select model", mode = "n" },
+    { "<leader>aa", ":ClaudeCodeDiffAccept<CR>", desc = "Claude: Accept diff", mode = "n" },
+    { "<leader>ad", ":ClaudeCodeDiffDeny<CR>", desc = "Claude: Deny diff", mode = "n" },
+
+    -- Visual mode keybindings
+    { "<leader>ac", ":ClaudeCodeSend<CR>", desc = "Claude: Send selection", mode = "v" },
+    { "<leader>as", ":ClaudeCodeSend<CR>", desc = "Claude: Send selection", mode = "v" },
+  },
+}
