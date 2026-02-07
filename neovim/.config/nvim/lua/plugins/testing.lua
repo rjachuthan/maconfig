@@ -4,6 +4,9 @@ return {
   -- neotest: Testing framework
   {
     "nvim-neotest/neotest",
+    dependencies = {
+      "marilari88/neotest-vitest",
+    },
     keys = {
       -- Override or add custom test keybindings here if needed
       {
@@ -29,6 +32,9 @@ return {
       },
       icons = {
         running_animated = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+      },
+      adapters = {
+        ["neotest-vitest"] = {},
       },
     },
   },
