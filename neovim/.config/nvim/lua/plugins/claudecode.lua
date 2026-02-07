@@ -15,57 +15,50 @@ return {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
     cmd = {
-    "ClaudeCode",
-    "ClaudeCodeStart",
-    "ClaudeCodeStop",
-    "ClaudeCodeStatus",
-    "ClaudeCodeSend",
-    "ClaudeCodeTreeAdd",
-    "ClaudeCodeAdd",
-    "ClaudeCodeFocus",
-    "ClaudeCodeOpen",
-    "ClaudeCodeClose",
-    "ClaudeCodeDiffAccept",
-    "ClaudeCodeDiffDeny",
-    "ClaudeCodeSelectModel",
-  },
-  config = function()
-    require("claudecode").setup({
-    -- Terminal configuration
-    terminal = {
-      split_side = "right",
-      split_width_percentage = 0.35,
-      provider = "native", -- Use native terminal for better compatibility
-      auto_close = false,
-      show_native_term_exit_tip = true,
+      "ClaudeCode",
+      "ClaudeCodeStart",
+      "ClaudeCodeStop",
+      "ClaudeCodeStatus",
+      "ClaudeCodeSend",
+      "ClaudeCodeTreeAdd",
+      "ClaudeCodeAdd",
+      "ClaudeCodeFocus",
+      "ClaudeCodeOpen",
+      "ClaudeCodeClose",
+      "ClaudeCodeDiffAccept",
+      "ClaudeCodeDiffDeny",
+      "ClaudeCodeSelectModel",
     },
+    config = function()
+      require("claudecode").setup({
+        -- Terminal configuration
 
-    -- Server configuration
-    auto_start = true,
-    port_range = { min = 10000, max = 65535 },
-    log_level = "info",
+        -- Server configuration
+        auto_start = true,
+        port_range = { min = 10000, max = 65535 },
+        log_level = "info",
 
-    -- Terminal command (uses Homebrew installation)
-    terminal_cmd = "/opt/homebrew/bin/claude",
+        -- Terminal command (uses Homebrew installation)
+        terminal_cmd = "/opt/homebrew/bin/claude",
 
-    -- Behavior settings
-    focus_after_send = true,
-    track_selection = true,
+        -- Behavior settings
+        focus_after_send = true,
+        track_selection = true,
 
-    -- Working directory configuration (use git repo root)
-    git_repo_cwd = true,
+        -- Working directory configuration (use git repo root)
+        git_repo_cwd = true,
 
-    -- Diff settings
-    diff_opts = {
-      auto_close_on_accept = true,
-      layout = "vertical",
-      open_in_new_tab = false,
-      hide_terminal_in_new_tab = false,
-      keep_terminal_focus = false,
-      on_new_file_reject = "close_window",
-    },
-  })
-  end,
+        -- Diff settings
+        diff_opts = {
+          auto_close_on_accept = true,
+          layout = "vertical",
+          open_in_new_tab = false,
+          hide_terminal_in_new_tab = false,
+          keep_terminal_focus = false,
+          on_new_file_reject = "close_window",
+        },
+      })
+    end,
 
     -- Keybindings with which-key integration
     keys = {
