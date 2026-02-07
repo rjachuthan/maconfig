@@ -2,3 +2,14 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 vim.opt.winbar = "%=%m %f"
+
+-- Database connections for vim-dadbod
+-- SQLite example: sqlite:path/to/database.db
+-- PostgreSQL example: postgresql://user:password@localhost:5432/dbname
+vim.g.dbs = {
+  -- Example SQLite connection (update path as needed)
+  -- sqlite_local = "sqlite:" .. vim.fn.expand("~") .. "/.local/share/sqlite/local.db",
+
+  -- Example PostgreSQL connection (update credentials as needed)
+  -- postgres_local = "postgresql://postgres:postgres@localhost:5432/postgres",
+}

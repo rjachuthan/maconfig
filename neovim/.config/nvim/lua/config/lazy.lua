@@ -21,6 +21,7 @@ require("lazy").setup({
     -- import/override with your plugins
     { import = "lazyvim.plugins.extras.lang.python" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
+    { import = "lazyvim.plugins.extras.lang.sql" },
     { import = "plugins" },
   },
   defaults = {
