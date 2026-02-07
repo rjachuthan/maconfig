@@ -22,7 +22,7 @@ Each application is a separate "stow package" that mirrors home directory struct
 - `sketchybar/` - Status bar
 - `neovim/` - Text editor
 - `tmux/` - Terminal multiplexer
-- `zsh/` - Shell (configs go to `~/.config/zsh/`, not home)
+- `zsh/` - Shell configuration (configs go to `~/.config/zsh/`, binaries to `~/.local/bin/`)
 - `yazi/` - File manager
 - `skhd/` - Hotkey daemon
 - `hammerspoon/` - Automation
@@ -31,7 +31,11 @@ Each application is a separate "stow package" that mirrors home directory struct
 
 ### Key Design Decisions
 
-- ZSH configuration lives in `~/.config/zsh/` (requires `/etc/zshenv` to set ZDOTDIR)
+- **ZSH configuration** lives in `~/.config/zsh/` (requires `/etc/zshenv` to set `ZDOTDIR="$HOME/.config/zsh"`)
+  - Main config: `.zshrc` (aliases, options, functions, completions)
+  - Profile: `.zprofile` (login shell initialization, Homebrew)
+  - PATH management: `~/.local/bin/env` (modular PATH setup)
+  - History and cache files are excluded from version control
 - Theme files contain ONLY 16 terminal colors (color0-color15), no app-specific settings
 - Colors are mapped to semantic names (background, foreground, accent, success, warning, error, etc.) for templates
 - Each stow package must be independently stowable without conflicts
