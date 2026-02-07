@@ -38,7 +38,7 @@ return {
       provider = "snacks", -- Uses snacks.nvim for better terminal experience
       auto_close = false,
       show_native_term_exit_tip = true,
-      env = {},
+      env = {}, -- Required field for environment variables
       -- Snacks window configuration
       snacks_win_opts = {
         border = "rounded",
