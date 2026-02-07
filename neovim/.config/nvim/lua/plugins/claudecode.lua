@@ -1,7 +1,20 @@
 return {
-  "coder/claudecode.nvim",
-  dependencies = { "folke/snacks.nvim" },
-  cmd = {
+  -- Which-key: Register AI/Claude group
+  {
+    "folke/which-key.nvim",
+    optional = true,
+    opts = {
+      spec = {
+        { "<leader>a", group = "ai/claude", icon = "󱙺" },
+      },
+    },
+  },
+
+  -- Claude Code integration
+  {
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    cmd = {
     "ClaudeCode",
     "ClaudeCodeStart",
     "ClaudeCodeStop",
@@ -62,19 +75,20 @@ return {
   })
   end,
 
-  -- Keybindings with which-key integration
-  keys = {
-    -- Normal mode keybindings
-    { "<leader>ac", ":ClaudeCode<CR>", desc = "Claude: Toggle terminal", mode = "n" },
-    { "<leader>af", ":ClaudeCodeFocus<CR>", desc = "Claude: Focus terminal", mode = "n" },
-    { "<leader>ar", ":ClaudeCode --resume<CR>", desc = "Claude: Resume session", mode = "n" },
-    { "<leader>ab", ":ClaudeCodeAdd %<CR>", desc = "Claude: Add buffer", mode = "n" },
-    { "<leader>am", ":ClaudeCodeSelectModel<CR>", desc = "Claude: Select model", mode = "n" },
-    { "<leader>aa", ":ClaudeCodeDiffAccept<CR>", desc = "Claude: Accept diff", mode = "n" },
-    { "<leader>ad", ":ClaudeCodeDiffDeny<CR>", desc = "Claude: Deny diff", mode = "n" },
+    -- Keybindings with which-key integration
+    keys = {
+      -- Normal mode keybindings
+      { "<leader>ac", ":ClaudeCode<CR>", desc = "Toggle terminal", mode = "n" },
+      { "<leader>af", ":ClaudeCodeFocus<CR>", desc = "Focus terminal", mode = "n" },
+      { "<leader>ar", ":ClaudeCode --resume<CR>", desc = "Resume session", mode = "n" },
+      { "<leader>ab", ":ClaudeCodeAdd %<CR>", desc = "Add buffer", mode = "n" },
+      { "<leader>am", ":ClaudeCodeSelectModel<CR>", desc = "Select model", mode = "n" },
+      { "<leader>aa", ":ClaudeCodeDiffAccept<CR>", desc = "Accept diff", mode = "n" },
+      { "<leader>ad", ":ClaudeCodeDiffDeny<CR>", desc = "Deny diff", mode = "n" },
 
-    -- Visual mode keybindings
-    { "<leader>ac", ":ClaudeCodeSend<CR>", desc = "Claude: Send selection", mode = "v" },
-    { "<leader>as", ":ClaudeCodeSend<CR>", desc = "Claude: Send selection", mode = "v" },
+      -- Visual mode keybindings
+      { "<leader>ac", ":ClaudeCodeSend<CR>", desc = "Send selection", mode = "v" },
+      { "<leader>as", ":ClaudeCodeSend<CR>", desc = "Send selection", mode = "v" },
+    },
   },
 }
