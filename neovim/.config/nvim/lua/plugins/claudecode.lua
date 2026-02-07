@@ -35,17 +35,9 @@ return {
     terminal = {
       split_side = "right",
       split_width_percentage = 0.35,
-      provider = "snacks", -- Uses snacks.nvim for better terminal experience
+      provider = "native", -- Use native terminal for better compatibility
       auto_close = false,
       show_native_term_exit_tip = true,
-      env = {}, -- Required field for environment variables
-      -- Snacks window configuration
-      snacks_win_opts = {
-        border = "rounded",
-        keys = {
-          hide = { "<C-,>", function(self) self:hide() end, mode = "t" },
-        },
-      },
     },
 
     -- Server configuration
