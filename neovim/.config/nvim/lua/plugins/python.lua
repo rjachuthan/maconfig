@@ -75,7 +75,7 @@ return {
 
   -- Mason: Install Python tools
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
       vim.list_extend(opts.ensure_installed, {
@@ -246,28 +246,5 @@ return {
         },
       },
     },
-  },
-
-  -- Python-specific keymaps
-  {
-    "neovim/nvim-lspconfig",
-    opts = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- Add Python-specific keymaps
-      keys[#keys + 1] = {
-        "<leader>co",
-        function()
-          vim.lsp.buf.code_action({
-            apply = true,
-            context = {
-              only = { "source.organizeImports" },
-              diagnostics = {},
-            },
-          })
-        end,
-        desc = "Organize Imports",
-        ft = "python",
-      }
-    end,
   },
 }
