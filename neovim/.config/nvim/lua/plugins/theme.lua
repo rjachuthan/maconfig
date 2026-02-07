@@ -6,7 +6,15 @@ return {
     end,
   },
   {
+    "padulkemid/nvim-256noir",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- Colorscheme will be set by LazyVim opts below
+    end,
+  },
+  {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "rose-pine" },
+    opts = { colorscheme = "256noir" },
   },
 }
