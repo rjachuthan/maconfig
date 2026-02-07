@@ -9,12 +9,15 @@ This is a macOS dotfiles management system with dynamic theme switching capabili
 ## Architecture
 
 ### Three-Layer Color System
+
 1. **Color schemes** (`colors/`) - Minimal 16-color theme files (pywal format)
 2. **Base configurations** - Non-color settings (opacity, blur, spacing, fonts) shared across themes
 3. **Application templates** - Per-app configs that consume colors and base settings to generate final configs
 
 ### Repository Structure (GNU Stow Compatible)
+
 Each application is a separate "stow package" that mirrors home directory structure:
+
 - `aerospace/` - Window manager
 - `sketchybar/` - Status bar
 - `neovim/` - Text editor
@@ -27,6 +30,7 @@ Each application is a separate "stow package" that mirrors home directory struct
 - `jankyborders/` - Window borders
 
 ### Key Design Decisions
+
 - ZSH configuration lives in `~/.config/zsh/` (requires `/etc/zshenv` to set ZDOTDIR)
 - Theme files contain ONLY 16 terminal colors (color0-color15), no app-specific settings
 - Colors are mapped to semantic names (background, foreground, accent, success, warning, error, etc.) for templates
@@ -35,6 +39,7 @@ Each application is a separate "stow package" that mirrors home directory struct
 ## Theme System
 
 ### Theme Variants
+
 - **shiny-black** - Primary theme (deep black with purple/magenta accents)
 - **shiny-black-cool** - Cyan/blue accents
 - **shiny-black-warm** - Orange/coral accents
@@ -44,7 +49,9 @@ Each application is a separate "stow package" that mirrors home directory struct
 - **poimandres**
 
 ### Theme Switching
+
 The theme switcher must:
+
 1. Validate theme exists
 2. Generate all app configs from templates using the selected color scheme
 3. Reload affected applications (Sketchybar, JankyBorders, terminal, Neovim if running, Tmux if running)
@@ -62,6 +69,7 @@ The theme switcher must:
 ## Sketchybar Configuration (Refactored)
 
 ### Architecture
+
 The Sketchybar configuration has been refactored into a modular, maintainable architecture following SOLID principles:
 
 ```
@@ -92,11 +100,14 @@ The Sketchybar configuration has been refactored into a modular, maintainable ar
 ```
 
 ### Module Structure
+
 Each feature is implemented as a pair of files:
+
 - `*.item.sh` - Sketchybar item configuration (creates UI elements)
 - `*.plugin.sh` - Event handler and logic (responds to events, updates display)
 
 **Example: Battery Module**
+
 ```bash
 modules/system/battery.item.sh    # Creates battery item with configuration
 modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range()
@@ -105,16 +116,19 @@ modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range(
 ### Core Library Functions
 
 **Range-based selection** (`lib/common.sh`):
+
 - `select_icon_by_range VALUE "MIN-MAX:ICON" ...` - Select icon by value ranges
 - `select_color_by_range VALUE "MIN-MAX:COLOR" ...` - Select color by ranges
 - `select_by_range VALUE "MIN-MAX:VALUE" ...` - Generic range selector
 
 **Item management**:
+
 - `update_item ITEM_NAME key=value ...` - Update item properties
 - `batch_update args...` - Batch update multiple items
 - `query_item ITEM_NAME PROPERTY` - Get item property value
 
 **UI operations** (`lib/ui.sh`):
+
 - `show_item / hide_item / toggle_item ITEM_NAME` - Control visibility
 - `set_icon / set_label / set_color ITEM_NAME VALUE` - Set display
 - `animate_item CURVE DURATION ITEM_NAME props...` - Animate changes
@@ -122,6 +136,7 @@ modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range(
 - `update_slider ITEM_NAME PERCENTAGE [WIDTH]` - Update slider display
 
 **Event handling** (`lib/events.sh`):
+
 - `subscribe_event ITEM_NAME EVENT` - Subscribe to events
 - `trigger_event EVENT_NAME` - Trigger custom event
 - `dispatch_event SENDER handlers_array` - Dispatch to handlers
@@ -129,6 +144,7 @@ modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range(
 - `throttle INTERVAL FUNCTION [ARGS]` - Throttle function calls
 
 **State management** (`lib/state.sh`):
+
 - `save_state KEY VALUE` - Save persistent state to file
 - `load_state KEY [DEFAULT]` - Load state from file
 - `cache_set KEY VALUE TTL_SECONDS` - Cache with TTL
@@ -137,6 +153,7 @@ modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range(
 - `set_session / get_session` - In-memory session state
 
 **Icon management** (`lib/icons.sh`):
+
 - `get_app_icon APP_NAME` - Get icon from icon map
 - `get_app_icon_cached APP_NAME` - Get icon with caching
 - `get_icon_with_fallback APP_NAME FALLBACK` - Get with fallback
@@ -146,12 +163,14 @@ modules/system/battery.plugin.sh   # Handles updates, uses select_icon_by_range(
 ### Configuration
 
 **Central config** (`config.sh`):
+
 - All paths defined once: `CONFIG_DIR`, `LIB_DIR`, `THEME_DIR`, `MODULE_DIR`, `UTILS_DIR`, `NATIVE_DIR`
 - All constants: `FONT`, `PADDINGS`, `BAR_*` settings
 - Helper settings: `HELPER_NAME`
 - Automatically sources all libraries and themes
 
 **Usage in modules**:
+
 ```bash
 #!/bin/bash
 source "$CONFIG_DIR/config.sh"
@@ -166,6 +185,7 @@ source "$CONFIG_DIR/config.sh"
 ### Adding New Modules
 
 1. **Create item configuration**:
+
    ```bash
    # modules/category/myfeature.item.sh
    source "$CONFIG_DIR/config.sh"
@@ -175,6 +195,7 @@ source "$CONFIG_DIR/config.sh"
    ```
 
 2. **Create plugin handler**:
+
    ```bash
    # modules/category/myfeature.plugin.sh
    source "$CONFIG_DIR/config.sh"
@@ -191,23 +212,29 @@ source "$CONFIG_DIR/config.sh"
    ```
 
 3. **Add to sketchybarrc**:
+
    ```bash
    source "$MODULE_DIR/category/myfeature.item.sh"
    ```
 
 ### Critical Bug Fixes
+
 - ✅ Fixed missing `github.item.sh` sourcing in sketchybarrc
 - ✅ Resolved `helper/` vs `helpers/` naming confusion → `native/` vs `utils/`
 - ✅ Eliminated ~300 lines of duplication across modules
 
 ### Zen Mode
+
 Central item list for zen mode is defined in `lib/state.sh`:
+
 ```bash
 get_zen_items()  # Returns: "calendar brew battery volume cpu"
 ```
+
 Edit this function to change which items hide in zen mode.
 
 ### Performance Optimizations
+
 - Icon caching to avoid repeated icon map lookups
 - State caching with TTL for expensive operations
 - Debouncing for high-frequency events
@@ -225,6 +252,7 @@ Edit this function to change which items hide in zen mode.
 JankyBorders provides visual window borders that integrate with the Aerospace window manager:
 
 **Configuration** (`jankyborders/.config/borders/bordersrc`):
+
 - Thin 2px borders with round style
 - Active window: vibrant magenta (#af5fff) matching workspace indicators
 - Inactive windows: muted grey (#6b6b6b)
@@ -232,6 +260,7 @@ JankyBorders provides visual window borders that integrate with the Aerospace wi
 - Started automatically via Aerospace after-startup-command
 
 **Service Management**:
+
 ```bash
 brew services start borders    # Start service
 brew services stop borders     # Stop service
