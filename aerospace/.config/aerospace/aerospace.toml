@@ -107,7 +107,7 @@ alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 alt-shift-semicolon = 'mode service'
 
 # Open terminal (Kitty)
-alt-enter = '''exec-and-forget open -n -a kitty'''
+# alt-enter = '''exec-and-forget open -n -a kitty'''
 
 # Service binding mode
 [mode.service.binding]
