@@ -3,6 +3,12 @@
 # Spaces Module - Item Configuration
 # Displays aerospace/yabai workspace indicators with app icons
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")

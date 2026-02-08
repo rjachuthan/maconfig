@@ -62,11 +62,19 @@ clear_all_state() {
 # In-Memory State (for current session)
 # ============================================================================
 
-declare -A SESSION_STATE
+# Note: Requires bash 4.0+ for associative arrays
+if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+  declare -A SESSION_STATE
+fi
 
 # Set session state
 # Usage: set_session KEY VALUE
 set_session() {
+  # Guard: Skip if bash < 4.0
+  if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "Warning: set_session() requires bash 4.0+" >&2
+    return 1
+  fi
   local key="$1"
   local value="$2"
   SESSION_STATE[$key]="$value"
@@ -75,6 +83,11 @@ set_session() {
 # Get session state
 # Usage: get_session KEY [DEFAULT]
 get_session() {
+  # Guard: Skip if bash < 4.0
+  if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "${2:-}"  # Return default value
+    return 1
+  fi
   local key="$1"
   local default="${2:-}"
   echo "${SESSION_STATE[$key]:-$default}"

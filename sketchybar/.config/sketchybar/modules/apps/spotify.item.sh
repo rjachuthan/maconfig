@@ -3,6 +3,12 @@
 # Spotify Module - Item Configuration
 # Displays Spotify playback with interactive popup controls
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"

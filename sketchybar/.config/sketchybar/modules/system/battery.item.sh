@@ -3,6 +3,12 @@
 # Battery Module - Item Configuration
 # Displays battery status and percentage
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 sketchybar --add item battery right                                   \

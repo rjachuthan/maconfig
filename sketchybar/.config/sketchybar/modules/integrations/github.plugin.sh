@@ -3,6 +3,12 @@
 # GitHub Module - Plugin
 # Fetches and displays GitHub notifications
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 update() {
@@ -49,26 +55,26 @@ update() {
     local icon=""
     local notification_url=""
     case "$type" in
-      "'Issue'")
-        color=$GREEN
-        icon=$GIT_ISSUE
-        notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
-        ;;
-      "'Discussion'")
-        color=$WHITE
-        icon=$GIT_DISCUSSION
-        notification_url="https://www.github.com/notifications"
-        ;;
-      "'PullRequest'")
-        color=$MAGENTA
-        icon=$GIT_PULL_REQUEST
-        notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
-        ;;
-      "'Commit'")
-        color=$WHITE
-        icon=$GIT_COMMIT
-        notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
-        ;;
+    "'Issue'")
+      color=$GREEN
+      icon=$GIT_ISSUE
+      notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
+      ;;
+    "'Discussion'")
+      color=$WHITE
+      icon=$GIT_DISCUSSION
+      notification_url="https://www.github.com/notifications"
+      ;;
+    "'PullRequest'")
+      color=$MAGENTA
+      icon=$GIT_PULL_REQUEST
+      notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
+      ;;
+    "'Commit'")
+      color=$WHITE
+      icon=$GIT_COMMIT
+      notification_url="$(gh api "$(echo "$url" | sed -e "s/^'//" -e "s/'$//")" 2>/dev/null | jq -r .html_url)"
+      ;;
     esac
 
     # Mark important notifications in red
@@ -80,18 +86,18 @@ update() {
 
     # Create notification item
     args+=(--clone github.notification.$counter github.template
-           --set github.notification.$counter label="$(echo "$title" | sed -e "s/^'//" -e "s/'$//")"
-                                            icon="$icon $(echo "$repo" | sed -e "s/^'//" -e "s/'$//"):"
-                                            icon.padding_left="$padding"
-                                            label.padding_right="$padding"
-                                            icon.color="$color"
-                                            position=popup.github.bell
-                                            icon.background.color="$color"
-                                            drawing=on
-                                            click_script="open $notification_url; sketchybar --set github.bell popup.drawing=off")
-  done <<< "$(echo "$notifications" | jq -r '.[] | [.repository.name, .subject.latest_comment_url, .subject.type, .subject.title] | @sh' 2>/dev/null)"
+      --set github.notification.$counter label="$(echo "$title" | sed -e "s/^'//" -e "s/'$//")"
+      icon="$icon $(echo "$repo" | sed -e "s/^'//" -e "s/'$//"):"
+      icon.padding_left="$padding"
+      label.padding_right="$padding"
+      icon.color="$color"
+      position=popup.github.bell
+      icon.background.color="$color"
+      drawing=on
+      click_script="open $notification_url; sketchybar --set github.bell popup.drawing=off")
+  done <<<"$(echo "$notifications" | jq -r '.[] | [.repository.name, .subject.latest_comment_url, .subject.type, .subject.title] | @sh' 2>/dev/null)"
 
-  batch_update "${args[@]}" > /dev/null 2>&1
+  batch_update "${args[@]}" >/dev/null 2>&1
 
   # Animate label if count increased
   if [[ $count -gt ${prev_count:-0} ]] 2>/dev/null || [[ "$SENDER" == "forced" ]]; then
@@ -105,8 +111,8 @@ popup() {
 
 # Dispatch events
 case "$SENDER" in
-  "routine"|"forced") update ;;
-  "mouse.entered") popup on ;;
-  "mouse.exited"|"mouse.exited.global") popup off ;;
-  "mouse.clicked") popup toggle ;;
+"routine" | "forced") update ;;
+"mouse.entered") popup on ;;
+"mouse.exited" | "mouse.exited.global") popup off ;;
+"mouse.clicked") popup toggle ;;
 esac
