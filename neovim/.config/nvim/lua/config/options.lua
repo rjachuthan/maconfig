@@ -3,6 +3,17 @@
 -- Add any additional options here
 vim.opt.winbar = "%=%m %f"
 
+-- Swap file handling: disable swap files to prevent E325 errors
+-- Modern Neovim with auto-save and version control doesn't need swap files
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.writebackup = false
+
+-- Alternative: if you want to keep swap files, use these instead:
+-- vim.opt.swapfile = true
+-- vim.opt.directory = vim.fn.stdpath("state") .. "/swap//"
+-- vim.opt.shortmess:append("A")  -- Don't show swap file warning
+
 -- Python configuration
 -- LSP: "pyright" (default) or "basedpyright"
 vim.g.lazyvim_python_lsp = "pyright"

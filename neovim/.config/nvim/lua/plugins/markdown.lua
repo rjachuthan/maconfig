@@ -9,32 +9,27 @@ return {
       -- Add markdownlint for markdown files
       opts.linters_by_ft.markdown = { "markdownlint" }
 
-      -- NOTE: You have two options for disabling markdown rules:
-      --
-      -- OPTION 1 (Recommended): Create a .markdownlint.json file in your project root
-      -- Example .markdownlint.json:
-      -- {
-      --   "MD013": false,  // Line length
-      --   "MD033": false,  // Inline HTML
-      --   "MD041": false,  // First line heading
-      --   "MD034": false   // Bare URLs
-      -- }
-      --
-      -- OPTION 2: Uncomment the code below to disable rules globally in Neovim
-      --
-      -- local markdownlint = require("lint").linters.markdownlint
-      -- markdownlint.args = {
-      --   "--disable",
-      --   "MD013", -- Line length limit
-      --   "MD033", -- Inline HTML
-      --   "MD041", -- First line must be top-level heading
-      --   "MD034", -- Bare URL without angle brackets
-      --   -- Add more rules as needed
-      --   "--",
-      --   vim.api.nvim_buf_get_name(0),
-      -- }
-
       return opts
+    end,
+    config = function(_, opts)
+      local lint = require("lint")
+
+      -- Apply linters_by_ft configuration
+      lint.linters_by_ft = opts.linters_by_ft or {}
+
+      -- Customize markdownlint to run from the file's directory
+      -- This ensures it finds .markdownlint.json in your project root
+      lint.linters.markdownlint.cwd = function(params)
+        -- Return the directory of the current file
+        return vim.fn.fnamemodify(params.bufnr and vim.api.nvim_buf_get_name(params.bufnr) or "", ":h")
+      end
+
+      -- Set up autocommands for linting
+      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
+        callback = function()
+          lint.try_lint()
+        end,
+      })
     end,
   },
 }
@@ -55,4 +50,3 @@ return {
 -- MD047: Files should end with a newline
 --
 -- Full list: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
-
