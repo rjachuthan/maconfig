@@ -9,27 +9,14 @@ return {
       -- Add markdownlint for markdown files
       opts.linters_by_ft.markdown = { "markdownlint" }
 
+      -- NOTE: markdownlint-cli automatically searches for config files:
+      -- 1. .markdownlint.json, .markdownlint.jsonc, .markdownlintrc in current dir
+      -- 2. Searches parent directories up to filesystem root
+      -- 3. Falls back to ~/.markdownlint.json
+      --
+      -- Your project's .markdownlint.json will be respected automatically!
+
       return opts
-    end,
-    config = function(_, opts)
-      local lint = require("lint")
-
-      -- Apply linters_by_ft configuration
-      lint.linters_by_ft = opts.linters_by_ft or {}
-
-      -- Customize markdownlint to run from the file's directory
-      -- This ensures it finds .markdownlint.json in your project root
-      lint.linters.markdownlint.cwd = function(params)
-        -- Return the directory of the current file
-        return vim.fn.fnamemodify(params.bufnr and vim.api.nvim_buf_get_name(params.bufnr) or "", ":h")
-      end
-
-      -- Set up autocommands for linting
-      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
-        callback = function()
-          lint.try_lint()
-        end,
-      })
     end,
   },
 }
