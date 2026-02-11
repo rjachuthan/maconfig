@@ -19,6 +19,45 @@ return {
       return opts
     end,
   },
+
+  -- diagram.nvim: Render diagrams (mermaid, plantuml, d2, etc.) in Neovim
+  {
+    "3rd/diagram.nvim",
+    dependencies = {
+      "3rd/image.nvim", -- Required for rendering diagrams as images
+    },
+    opts = {
+      renderer_options = {
+        mermaid = {
+          background = nil, -- nil for transparent background
+          theme = "dark", -- Use "dark" or "default" theme for mermaid
+        },
+      },
+    },
+  },
+
+  -- image.nvim: Display images in Neovim (required by diagram.nvim)
+  {
+    "3rd/image.nvim",
+    opts = {
+      backend = "kitty", -- or "ueberzug" depending on your terminal
+      integrations = {
+        markdown = {
+          enabled = true,
+          clear_in_insert_mode = false,
+          download_remote_images = true,
+          only_render_image_at_cursor = false,
+          filetypes = { "markdown", "vimwiki" },
+        },
+      },
+      max_width = 150, -- Increased from 100
+      max_height = 50, -- Increased from 12 to give diagrams more space
+      max_height_window_percentage = math.huge,
+      max_width_window_percentage = math.huge,
+      window_overlap_clear_enabled = true,
+      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+    },
+  },
 }
 
 -- Common markdownlint rules you might want to disable:
