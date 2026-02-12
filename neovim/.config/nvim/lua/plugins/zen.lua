@@ -45,9 +45,11 @@ return {
       },
       on_open = function()
         vim.opt.cmdheight = 1
+        require("virt-column").setup({ virtcolumn = "" })
       end,
       on_close = function()
         vim.opt.cmdheight = 0
+        require("virt-column").setup({ virtcolumn = "80,120" })
       end,
     },
   },
