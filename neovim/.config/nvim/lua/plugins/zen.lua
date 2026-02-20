@@ -46,10 +46,19 @@ return {
       on_open = function()
         vim.opt.cmdheight = 1
         require("virt-column").setup({ virtcolumn = "" })
+        local bufnr = vim.api.nvim_get_current_buf()
+        if vim.bo[bufnr].filetype == "markdown" then
+          vim.diagnostic.disable(bufnr)
+        end
       end,
       on_close = function()
         vim.opt.cmdheight = 0
         require("virt-column").setup({ virtcolumn = "80,120" })
+        local bufnr = vim.api.nvim_get_current_buf()
+        if vim.bo[bufnr].filetype == "markdown" then
+          vim.diagnostic.enable(bufnr)
+          require("lint").try_lint()
+        end
       end,
     },
   },
