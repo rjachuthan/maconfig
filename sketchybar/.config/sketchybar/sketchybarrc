@@ -61,6 +61,7 @@ sketchybar --add item zen_spaces_handler left \
 # Right
 source "$MODULE_DIR/ui/calendar.item.sh"
 source "$MODULE_DIR/integrations/brew.item.sh"
+source "$MODULE_DIR/integrations/weather.item.sh"
 source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
 source "$MODULE_DIR/system/cpu.item.sh"
