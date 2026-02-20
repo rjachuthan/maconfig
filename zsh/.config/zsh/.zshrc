@@ -35,6 +35,7 @@ alias cat="bat"
 alias python="python3"
 alias n="nvim"
 alias v="nvim"
+alias cdsp="claude --dangerously-skip-permissions"
 
 # ── Shell Options ─────────────────────────────────────────────────────────
 setopt autocd                 # Change directories without explicitly typing cd
