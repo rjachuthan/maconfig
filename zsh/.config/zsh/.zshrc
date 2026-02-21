@@ -50,6 +50,9 @@ zle_highlight=('paste:none')
 # ── VIM Mode ──────────────────────────────────────────────────────────────
 bindkey -v
 
+# ── Keybindings ───────────────────────────────────────────────────────────
+bindkey -s '^t' 'tmux-sessionizer\n'
+
 # ── Completion System ─────────────────────────────────────────────────────
 autoload -Uz compinit && compinit
 
