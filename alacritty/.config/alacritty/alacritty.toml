@@ -9,7 +9,7 @@ family = "0xProto Nerd Font"
 style = "Regular"
 
 [window]
-opacity = 0.85
+opacity = 0.9
 blur = true
 # Hide macOS title bar (window management handled by Aerospace)
 decorations = "None"
