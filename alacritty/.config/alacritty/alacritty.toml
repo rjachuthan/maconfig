@@ -1,11 +1,11 @@
 [font]
-size = 16
+size = 18
 # 120% line height (16 * 0.2 = 3.2 extra pixels)
 [font.offset]
 y = 3
 
 [font.normal]
-family = "CaskaydiaCove Nerd Font"
+family = "0xProto Nerd Font"
 style = "Regular"
 
 [window]
