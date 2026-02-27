@@ -17,7 +17,7 @@ export GREY=0xff6b6b6b           # Muted gray for inactive elements
 export TRANSPARENT=0x00000000
 
 # General bar colors
-export BAR_COLOR=0xcc0a0a0a      # Semi-transparent deep black bar (80% opacity for glassmorphism)
+export BAR_COLOR=0xff000000      # Opaque pure black bar matching WezTerm Nucolors background
 export ICON_COLOR=$WHITE         # White icons with colorful accents per module
 export LABEL_COLOR=$WHITE        # White text
 export BACKGROUND_1=0xcc1a1a1a   # Visible dark gray background for item groups
