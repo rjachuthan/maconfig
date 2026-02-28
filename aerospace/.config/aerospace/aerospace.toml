@@ -7,6 +7,7 @@ config-version = 2
 after-startup-command = [
   'exec-and-forget sketchybar',
   'exec-and-forget borders',
+  'exec-and-forget skhd',
 ]
 
 # Notify Sketchybar about workspace changes

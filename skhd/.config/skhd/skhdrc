@@ -1,0 +1,21 @@
+# SKHD Global Keybindings
+# Modifier: alt + shift
+# AeroSpace already uses: alt-shift-h/j/k/l (move), alt-shift-1-9 (move to ws),
+#                         alt-shift-tab (move ws to monitor), alt-shift-semicolon (service mode)
+
+# ─── App Launchers ────────────────────────────────────────────────────────────
+
+alt + shift - return : open -a "WezTerm"
+alt + shift - b : open -a "Zen Browser"
+alt + shift - o : open -a "Obsidian"
+alt + shift - g : open -a "Google Chrome"
+alt + shift - c : open -a "Cursor"
+alt + shift - v : open -a "Visual Studio Code"
+alt + shift - x : pmset displaysleepnow
+
+# ─── Script Triggers ──────────────────────────────────────────────────────────
+
+# Theme switcher (cycles through shiny-black variants)
+alt + shift - t     : $HOME/.local/bin/theme-cycle.sh
+alt + shift - r     : sketchybar --reload
+

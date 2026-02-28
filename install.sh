@@ -59,6 +59,7 @@ install_brew_packages() {
         "yq"                    # YAML processor
         "jq"                    # JSON processor
         "gh"                    # GitHub CLI
+        "koekeishiya/formulae/skhd"  # Hotkey daemon
     )
 
     # Window management
@@ -100,6 +101,7 @@ install_brew_packages() {
     brew tap nikitabobko/tap 2>/dev/null || true
     brew tap FelixKratz/formulae 2>/dev/null || true
     brew tap homebrew/cask-fonts 2>/dev/null || true
+    brew tap koekeishiya/formulae 2>/dev/null || true
 
     # Install casks
     for cask in "${casks[@]}" "${dev_casks[@]}"; do
@@ -158,7 +160,7 @@ create_symlinks() {
 
     cd "$SCRIPT_DIR"
 
-    local packages=("aerospace" "sketchybar" "jankyborders" "neovim")
+    local packages=("aerospace" "sketchybar" "jankyborders" "neovim" "skhd")
 
     for pkg in "${packages[@]}"; do
         if [[ -d "$pkg" ]]; then
@@ -202,6 +204,13 @@ start_services() {
         print_success "JankyBorders service started"
     fi
 
+    # Start SKHD hotkey daemon
+    if command -v skhd &>/dev/null; then
+        print_status "Starting SKHD..."
+        brew services start skhd 2>/dev/null || true
+        print_success "SKHD service started"
+    fi
+
     # Start Aerospace (which will also trigger services via after-startup-command)
     if command -v aerospace &>/dev/null; then
         print_status "Starting Aerospace..."
@@ -228,12 +237,26 @@ print_completion() {
     echo "  • Use './scripts/theme-switch.sh <theme>' to change themes"
     echo ""
     echo -e "${CYAN}Keybindings (Aerospace):${NC}"
-    echo "  • Alt + Enter: Open WezTerm"
     echo "  • Alt + 1-9: Switch workspace"
     echo "  • Alt + H/J/K/L: Focus window (vim-style)"
     echo "  • Alt + Shift + H/J/K/L: Move window"
     echo "  • Alt + /: Toggle tiles layout"
     echo "  • Alt + ,: Toggle accordion layout"
+    echo ""
+    echo -e "${CYAN}Keybindings (SKHD global):${NC}"
+    echo "  • Alt + Shift + Return: Open WezTerm"
+    echo "  • Alt + Shift + B: Open Zen Browser"
+    echo "  • Alt + Shift + E: Open Yazi file manager"
+    echo "  • Alt + Shift + O: Open Obsidian"
+    echo "  • Alt + Shift + Space: Open Raycast"
+    echo "  • Alt + Shift + Up/Down: Volume +/-"
+    echo "  • Alt + Shift + M: Mute toggle"
+    echo "  • Alt + Shift + T: Cycle theme"
+    echo "  • Alt + Shift + R: Reload Sketchybar"
+    echo "  • Alt + Shift + S: Screenshot to clipboard"
+    echo "  • Alt + Shift + X: Lock screen"
+    echo "  • Alt + Shift + D: Move window to next display"
+    echo "  • Alt + Shift + F: Toggle fullscreen"
     echo ""
 }
 
