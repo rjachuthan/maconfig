@@ -148,9 +148,18 @@ create_popup_handler() {
 # Debounce: Execute function only after delay with no new calls
 # Usage: debounce DELAY FUNCTION [ARGS...]
 # Example: debounce 2 update_display
-declare -A DEBOUNCE_PIDS
+# Note: Requires bash 4.0+ for associative arrays
+if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+  declare -A DEBOUNCE_PIDS
+fi
 
 debounce() {
+  # Guard: Skip if bash < 4.0
+  if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "Warning: debounce() requires bash 4.0+, executing function immediately" >&2
+    "$@"
+    return
+  fi
   local delay="$1"
   local func="$2"
   shift 2
@@ -172,9 +181,18 @@ debounce() {
 
 # Throttle: Execute function at most once per interval
 # Usage: throttle INTERVAL FUNCTION [ARGS...]
-declare -A THROTTLE_TIMES
+# Note: Requires bash 4.0+ for associative arrays
+if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+  declare -A THROTTLE_TIMES
+fi
 
 throttle() {
+  # Guard: Skip if bash < 4.0
+  if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "Warning: throttle() requires bash 4.0+, executing function immediately" >&2
+    "$@"
+    return
+  fi
   local interval="$1"
   local func="$2"
   shift 2

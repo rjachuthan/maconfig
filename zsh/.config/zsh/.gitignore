@@ -1,0 +1,8 @@
+# ZSH cache and temporary files
+.zsh_history
+.zsh_sessions/
+.zcompcache/
+.zcompdump*
+
+# macOS
+.DS_Store

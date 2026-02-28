@@ -133,7 +133,7 @@ backup_configs() {
     print_header "Backing Up Existing Configurations"
 
     local backup_dir="$HOME/.config-backup/$(date +%Y%m%d_%H%M%S)"
-    local configs_to_backup=("aerospace" "sketchybar" "borders")
+    local configs_to_backup=("aerospace" "sketchybar" "borders" "nvim")
     local backed_up=false
 
     for config in "${configs_to_backup[@]}"; do
@@ -158,7 +158,7 @@ create_symlinks() {
 
     cd "$SCRIPT_DIR"
 
-    local packages=("aerospace" "sketchybar" "jankyborders")
+    local packages=("aerospace" "sketchybar" "jankyborders" "neovim")
 
     for pkg in "${packages[@]}"; do
         if [[ -d "$pkg" ]]; then

@@ -3,6 +3,12 @@
 # CPU Module - Item Configuration
 # Displays CPU usage with graphs
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 sketchybar --add item        cpu.top right                 \

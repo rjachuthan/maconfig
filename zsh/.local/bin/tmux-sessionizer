@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# tmux-sessionizer — pick a project directory and create/switch to its tmux session
+# Inspired by ThePrimeagen's tmux-sessionizer
+
+if [[ $# -eq 1 ]]; then
+  selected=$1
+else
+  selected=$(
+    {
+      find ~/Codes/mycodes ~/Codes/gitprojects \
+        -mindepth 1 -maxdepth 1 -type d 2>/dev/null
+      echo "$HOME/Documents/Sync/ObsidianVault"
+    } | fzf
+  )
+fi
+
+[[ -z $selected ]] && exit 0
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+# No tmux at all — create a new session (auto-attaches)
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+  tmux new-session -s "$selected_name" -c "$selected"
+  exit 0
+fi
+
+# Create the session detached if it doesn't exist yet
+if ! tmux has-session -t="$selected_name" 2>/dev/null; then
+  tmux new-session -ds "$selected_name" -c "$selected"
+fi
+
+# Inside tmux → switch; outside tmux (but tmux is running) → attach
+if [[ -n $TMUX ]]; then
+  tmux switch-client -t "$selected_name"
+else
+  tmux attach-session -t "$selected_name"
+fi

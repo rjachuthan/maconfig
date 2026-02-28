@@ -3,13 +3,19 @@
 # Calendar Module - Item Configuration
 # Displays current date and time
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 sketchybar --add item     calendar right                              \
            --set calendar icon=cal                                    \
                           icon.font="$FONT:Black:12.0"                \
                           icon.padding_right=0                        \
-                          label.width=45                              \
+                          label.width=160                             \
                           label.align=right                           \
                           padding_left=15                             \
                           update_freq=30                              \

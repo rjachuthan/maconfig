@@ -13,6 +13,7 @@ export THEME_DIR="$CONFIG_DIR/theme"
 export MODULE_DIR="$CONFIG_DIR/modules"
 export UTILS_DIR="$CONFIG_DIR/utils"
 export NATIVE_DIR="$CONFIG_DIR/native"
+export HELPERS_DIR="$CONFIG_DIR/helpers"
 
 # Legacy paths (for backward compatibility during migration)
 export ITEM_DIR="$CONFIG_DIR/items"
@@ -33,7 +34,7 @@ export BAR_HEIGHT=39
 export BAR_CORNER_RADIUS=9
 export BAR_Y_OFFSET=10
 export BAR_MARGIN=10
-export BAR_BLUR_RADIUS=20
+export BAR_BLUR_RADIUS=40
 export BAR_NOTCH_WIDTH=0
 export BAR_PADDING_RIGHT=10
 export BAR_PADDING_LEFT=10

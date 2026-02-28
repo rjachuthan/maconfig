@@ -1,0 +1,10 @@
+# keymap.toml
+[[mgr.prepend_keymap]]
+on   = "T"
+run  = "plugin toggle-pane min-preview"
+desc = "Show or hide the preview pane"
+
+[[mgr.prepend_keymap]]
+on   = "W"
+run  = 'shell --block "$HOME/.config/yazi/scripts/set-wallpaper.sh \"$0\""'
+desc = "Set as macOS wallpaper"

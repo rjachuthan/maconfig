@@ -3,6 +3,12 @@
 # Yabai Module - Plugin
 # Manages window state and workspace icons (aerospace/yabai compatible)
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 # Show window state indicators

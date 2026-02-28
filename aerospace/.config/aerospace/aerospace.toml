@@ -106,8 +106,8 @@ alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 # Service mode
 alt-shift-semicolon = 'mode service'
 
-# Open terminal (WezTerm)
-alt-enter = '''exec-and-forget open -n -a WezTerm'''
+# Open terminal (Kitty)
+# alt-enter = '''exec-and-forget open -n -a kitty'''
 
 # Service binding mode
 [mode.service.binding]

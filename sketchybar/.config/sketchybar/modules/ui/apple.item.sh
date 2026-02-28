@@ -3,6 +3,12 @@
 # Apple Logo Module - Item Configuration
 # Displays Apple logo with popup menu
 
+
+# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
+if [[ -z "$CONFIG_DIR" ]]; then
+  CONFIG_DIR="$HOME/.config/sketchybar"
+fi
+
 source "$CONFIG_DIR/config.sh"
 
 POPUP_OFF="sketchybar --set apple.logo popup.drawing=off"
