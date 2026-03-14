@@ -12,7 +12,7 @@ cd "$NATIVE_DIR" && make 2>/dev/null
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
 
 # Setting up the general bar appearance and default values
-sketchybar --bar height=39 \
+sketchybar --bar height=42 \
   color=$BAR_COLOR \
   shadow=on \
   position=top \
@@ -26,7 +26,7 @@ sketchybar --bar height=39 \
   notch_width=0 \
   \
   --default updates=when_shown \
-  icon.font="$FONT:Bold:14.0" \
+  icon.font="$FONT:Bold:16.0" \
   icon.color=$ICON_COLOR \
   icon.padding_left=$PADDINGS \
   icon.padding_right=$PADDINGS \
@@ -37,9 +37,9 @@ sketchybar --bar height=39 \
   padding_right=$PADDINGS \
   padding_left=$PADDINGS \
   background.height=30 \
-  background.corner_radius=9 \
+  background.corner_radius=2 \
   popup.background.border_width=2 \
-  popup.background.corner_radius=9 \
+  popup.background.corner_radius=2 \
   popup.background.border_color=$POPUP_BORDER_COLOR \
   popup.background.color=$POPUP_BACKGROUND_COLOR \
   popup.background.shadow.drawing=on
