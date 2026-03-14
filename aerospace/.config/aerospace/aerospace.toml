@@ -88,6 +88,11 @@ alt-6 = 'workspace 6'
 alt-7 = 'workspace 7'
 alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
+alt-w = 'workspace W'
+alt-t = 'workspace T'
+alt-b = 'workspace B'
+alt-c = 'workspace C'
+alt-v = 'workspace V'
 
 # Move window to workspace
 alt-shift-1 = 'move-node-to-workspace 1'
@@ -99,6 +104,11 @@ alt-shift-6 = 'move-node-to-workspace 6'
 alt-shift-7 = 'move-node-to-workspace 7'
 alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
+alt-shift-w = 'move-node-to-workspace W'
+alt-shift-t = 'move-node-to-workspace T'
+alt-shift-b = 'move-node-to-workspace B'
+alt-shift-c = 'move-node-to-workspace C'
+alt-shift-v = 'move-node-to-workspace V'
 
 # Workspace navigation
 alt-tab = 'workspace-back-and-forth'
@@ -122,3 +132,24 @@ alt-shift-h = ['join-with left', 'mode main']
 alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
+
+# Automatic workspace assignment
+[[on-window-detected]]
+if.app-id = "net.whatsapp.WhatsApp"
+run = ["move-node-to-workspace W"]
+
+[[on-window-detected]]
+if.app-id = "com.github.wez.wezterm"
+run = ["move-node-to-workspace T"]
+
+[[on-window-detected]]
+if.app-id = "app.zen-browser.zen"
+run = ["move-node-to-workspace B"]
+
+[[on-window-detected]]
+if.app-id = "com.todesktop.cursor"
+run = ["move-node-to-workspace C"]
+
+[[on-window-detected]]
+if.app-id = "com.microsoft.VSCode"
+run = ["move-node-to-workspace V"]
