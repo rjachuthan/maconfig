@@ -12,7 +12,7 @@ config.font = wezterm.font_with_fallback({
 	},
 	"SF Pro",
 })
-config.font_size = 18
+config.font_size = 16
 config.line_height = 1.2
 
 -- Colors
