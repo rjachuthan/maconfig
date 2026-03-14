@@ -11,6 +11,7 @@ alt + shift - o : open -a "Obsidian"
 alt + shift - g : open -a "Google Chrome"
 alt + shift - c : open -a "Cursor"
 alt + shift - v : open -a "Visual Studio Code"
+alt + shift - w : open -a "Whatsapp"
 alt + shift - x : pmset displaysleepnow
 
 # ─── Script Triggers ──────────────────────────────────────────────────────────
