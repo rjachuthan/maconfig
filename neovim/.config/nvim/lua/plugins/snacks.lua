@@ -2,6 +2,16 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      dashboard = {
+        preset = {
+          header = {},
+        },
+        sections = {
+          { section = "keys", gap = 0, padding = 1 },
+          { icon = " ", title = "Recent Files", section = "recent_files", indent = 1, padding = 1 },
+          { icon = " ", title = "Projects", section = "projects", indent = 1, padding = 0 },
+        },
+      },
       image = {
         enabled = true,
         -- Obsidian integration: resolve image paths correctly
