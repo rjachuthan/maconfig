@@ -93,6 +93,7 @@ alt-t = 'workspace T'
 alt-b = 'workspace B'
 alt-c = 'workspace C'
 alt-v = 'workspace V'
+alt-g = 'workspace G'
 
 # Move window to workspace
 alt-shift-1 = 'move-node-to-workspace 1'
@@ -109,6 +110,7 @@ alt-shift-t = 'move-node-to-workspace T'
 alt-shift-b = 'move-node-to-workspace B'
 alt-shift-c = 'move-node-to-workspace C'
 alt-shift-v = 'move-node-to-workspace V'
+alt-shift-g = 'move-node-to-workspace G'
 
 # Workspace navigation
 alt-tab = 'workspace-back-and-forth'
@@ -147,9 +149,13 @@ if.app-id = "app.zen-browser.zen"
 run = ["move-node-to-workspace B"]
 
 [[on-window-detected]]
-if.app-id = "com.todesktop.cursor"
+if.app-id = "com.todesktop.230313mzl4w4u92"
 run = ["move-node-to-workspace C"]
 
 [[on-window-detected]]
 if.app-id = "com.microsoft.VSCode"
 run = ["move-node-to-workspace V"]
+
+[[on-window-detected]]
+if.app-id = "com.google.Chrome"
+run = ["move-node-to-workspace G"]
