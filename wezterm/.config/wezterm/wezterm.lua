@@ -1,7 +1,7 @@
 -- Initialize Configuration
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
-local opacity = 1 --0.8
+local opacity = 0.85
 -- local transparent_bg = "rgba(22, 24, 26, " .. opacity .. ")"
 
 -- Font
