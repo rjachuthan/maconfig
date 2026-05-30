@@ -52,7 +52,7 @@ inner.horizontal = 10
 inner.vertical = 10
 outer.left = 10
 outer.bottom = 10
-outer.top = [{ monitor.main = 20 }, { monitor.secondary = 50 }, 50]
+outer.top = [{ monitor.'dell' = 60 }, { monitor.'built-in retina display' = 20 }, 20]
 outer.right = 10
 
 # Main binding mode
@@ -105,12 +105,12 @@ alt-shift-6 = 'move-node-to-workspace 6'
 alt-shift-7 = 'move-node-to-workspace 7'
 alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
-alt-shift-w = 'move-node-to-workspace W'
-alt-shift-t = 'move-node-to-workspace T'
-alt-shift-b = 'move-node-to-workspace B'
-alt-shift-c = 'move-node-to-workspace C'
-alt-shift-v = 'move-node-to-workspace V'
-alt-shift-g = 'move-node-to-workspace G'
+alt-shift-w = 'move-node-to-workspace w'
+alt-shift-t = 'move-node-to-workspace t'
+alt-shift-b = 'move-node-to-workspace b'
+alt-shift-c = 'move-node-to-workspace c'
+alt-shift-v = 'move-node-to-workspace v'
+alt-shift-g = 'move-node-to-workspace g'
 
 # Workspace navigation
 alt-tab = 'workspace-back-and-forth'
