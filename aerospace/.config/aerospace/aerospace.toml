@@ -52,7 +52,11 @@ inner.horizontal = 10
 inner.vertical = 10
 outer.left = 10
 outer.bottom = 10
-outer.top = [{ monitor.'dell' = 60 }, { monitor.'built-in retina display' = 20 }, 20]
+outer.top = [
+  { monitor.'dell' = 60 },
+  { monitor.'built-in retina display' = 20 },
+  20,
+]
 outer.right = 10
 
 # Main binding mode
@@ -159,3 +163,8 @@ run = ["move-node-to-workspace V"]
 [[on-window-detected]]
 if.app-id = "com.google.Chrome"
 run = ["move-node-to-workspace G"]
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+check-further-callbacks = true
+run = 'layout floating'
