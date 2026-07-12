@@ -1,0 +1,19 @@
+theme = "light:Horizon Bright,dark:Adventure"
+
+background-opacity = 1
+background-blur-radius = 10
+
+font-size = 16
+font-family = JetBrainsMono NFM
+
+shell-integration = zsh
+
+window-decoration = false
+window-padding-x = 10
+window-padding-y = 10
+
+keybind = global:opt+s=toggle_quick_terminal
+
+quick-terminal-position = bottom
+quick-terminal-size = 45%,99%
+keybind = global:cmd+backquote=toggle_quick_terminal

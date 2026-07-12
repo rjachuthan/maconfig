@@ -58,7 +58,7 @@ maconfig/
 
 | Key | Action |
 |-----|--------|
-| `Alt + Enter` | Open WezTerm |
+| `Alt + Enter` | Open Ghostty |
 | `Alt + 1-9` | Switch to workspace |
 | `Alt + H/J/K/L` | Focus window (vim-style) |
 | `Alt + Shift + H/J/K/L` | Move window |
@@ -87,7 +87,7 @@ maconfig/
 **Planned:**
 - Neovim
 - Tmux
-- WezTerm
+- Ghostty (used over WezTerm solely for the quick terminal feature)
 - Yazi
 - ZSH
 
@@ -101,7 +101,7 @@ maconfig/
 - gh (GitHub CLI)
 
 **Optional but recommended:**
-- WezTerm or iTerm2
+- Ghostty (used over WezTerm solely for the quick terminal feature)
 - SF Symbols app
 
 ## License

@@ -123,8 +123,8 @@ alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 # Service mode
 alt-shift-semicolon = 'mode service'
 
-# Open terminal (Kitty)
-# alt-enter = '''exec-and-forget open -n -a kitty'''
+# Open terminal (Ghostty)
+alt-enter = '''exec-and-forget open -n -a ghostty'''
 
 # Service binding mode
 [mode.service.binding]
@@ -144,8 +144,9 @@ alt-shift-l = ['join-with right', 'mode main']
 if.app-id = "net.whatsapp.WhatsApp"
 run = ["move-node-to-workspace W"]
 
+# Using Ghostty instead of WezTerm solely for the quick terminal feature
 [[on-window-detected]]
-if.app-id = "com.github.wez.wezterm"
+if.app-id = "com.mitchellh.ghostty"
 run = ["move-node-to-workspace T"]
 
 [[on-window-detected]]
