@@ -214,30 +214,15 @@ disable_zen_mode() {
     show_item "$item"
   done
 
-  # Show all spaces
-  for i in {1..10}; do
-    show_item "space.$i"
-  done
+  # Single workspace indicator is always visible
+  show_item "current_workspace"
 }
 
 # Update space visibility in zen mode
 # Usage: update_zen_spaces
 update_zen_spaces() {
-  if ! is_zen_mode; then
-    return
-  fi
-
-  # Get focused workspace
-  local focused=$(aerospace list-workspaces --focused 2>/dev/null)
-
-  # Hide all spaces, show only focused
-  for i in {1..10}; do
-    if [[ "$i" == "$focused" ]]; then
-      show_item "space.$i"
-    else
-      hide_item "space.$i"
-    fi
-  done
+  # Single workspace indicator always shows the focused workspace; nothing to toggle
+  :
 }
 
 # Toggle zen mode
