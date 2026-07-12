@@ -21,7 +21,7 @@ sketchybar --add item        current_workspace left                          \
                              label.padding_left=12                            \
                              label.padding_right=12                           \
                              padding_left=4                                   \
-                             padding_right=4                                  \
+                             padding_right=15                                 \
                              background.color=$BACKGROUND_1                   \
                              background.border_color=$BACKGROUND_2            \
                              background.border_width=2                        \
@@ -31,14 +31,3 @@ sketchybar --add item        current_workspace left                          \
                              script="$MODULE_DIR/workspace/space.plugin.sh"  \
            --subscribe       current_workspace aerospace_workspace_change     \
                                                mouse.clicked
-
-sketchybar   --add item       separator left                                  \
-             --set separator  icon=                                          \
-                              icon.font="Hack Nerd Font:Regular:16.0"         \
-                              padding_left=17                                 \
-                              padding_right=10                                \
-                              label.drawing=off                               \
-                              associated_display=active                       \
-                              click_script='aerospace workspace --create;
-                                            sketchybar --trigger aerospace_workspace_change'\
-                              icon.color=$WHITE
