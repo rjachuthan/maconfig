@@ -47,7 +47,6 @@ sketchybar --bar height=42 \
 # Left
 source "$MODULE_DIR/ui/apple.item.sh"
 source "$MODULE_DIR/workspace/spaces.item.sh"
-source "$MODULE_DIR/workspace/yabai.item.sh"
 source "$MODULE_DIR/apps/front_app.item.sh"
 
 # Zen mode workspace handler
