@@ -67,3 +67,25 @@ vim.keymap.set("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to other buffe
 
 -- Save file
 vim.keymap.set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save file" })
+
+-- Wrap paragraph/selection with Vim's built-in formatter (bypassing LSP formatexpr)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown" },
+  callback = function(event)
+    vim.opt_local.textwidth = 80
+
+    vim.keymap.set("n", "<leader>gq", function()
+      local old = vim.bo.formatexpr
+      vim.bo.formatexpr = ""
+      vim.cmd("normal! gqap")
+      vim.bo.formatexpr = old
+    end, { buffer = event.buf, desc = "Wrap paragraph to textwidth" })
+
+    vim.keymap.set("x", "<leader>gq", function()
+      local old = vim.bo.formatexpr
+      vim.bo.formatexpr = ""
+      vim.cmd("normal! gq")
+      vim.bo.formatexpr = old
+    end, { buffer = event.buf, desc = "Wrap selection to textwidth" })
+  end,
+})
