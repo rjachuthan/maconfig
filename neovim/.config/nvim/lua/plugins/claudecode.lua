@@ -38,8 +38,8 @@ return {
         port_range = { min = 10000, max = 65535 },
         log_level = "info",
 
-        -- Terminal command (uses Homebrew installation)
-        terminal_cmd = "/opt/homebrew/bin/claude",
+        -- Terminal command
+        terminal_cmd = "/Users/rituraj/.local/bin/claude",
 
         -- Behavior settings
         focus_after_send = true,
