@@ -60,6 +60,7 @@ install_brew_packages() {
         "jq"                    # JSON processor
         "gh"                    # GitHub CLI
         "koekeishiya/formulae/skhd"  # Hotkey daemon
+        "lazygit"               # Terminal UI for git (Neovim integration)
     )
 
     # Window management

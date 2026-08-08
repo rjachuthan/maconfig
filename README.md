@@ -99,6 +99,7 @@ maconfig/
 - yq (YAML processor)
 - jq (JSON processor)
 - gh (GitHub CLI)
+- lazygit (Neovim git integration)
 
 **Optional but recommended:**
 - Ghostty (used over WezTerm solely for the quick terminal feature)
