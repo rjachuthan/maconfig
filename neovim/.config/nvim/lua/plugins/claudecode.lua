@@ -39,7 +39,9 @@ return {
         log_level = "info",
 
         -- Terminal command
-        terminal_cmd = "/Users/rituraj/.local/bin/claude",
+        terminal_cmd = vim.fn.has("win32") == 1
+            and "C:/Users/achutrit/AppData/Roaming/npm/claude.cmd"
+          or "/Users/rituraj/.local/bin/claude",
 
         -- Behavior settings
         focus_after_send = true,
