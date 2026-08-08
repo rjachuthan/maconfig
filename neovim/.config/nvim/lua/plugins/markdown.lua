@@ -1,3 +1,5 @@
+local not_windows = vim.fn.has("win32") == 0
+
 return {
   -- nvim-lint: Markdown linting with markdownlint
   {
@@ -21,8 +23,11 @@ return {
   },
 
   -- diagram.nvim: Render diagrams (mermaid, plantuml, d2, etc.) in Neovim
+  -- Disabled on Windows: pulls in image.nvim's hererocks/magick native build, which
+  -- is unreliable to build on Windows and not needed there.
   {
     "3rd/diagram.nvim",
+    cond = not_windows,
     dependencies = {
       "3rd/image.nvim", -- Required for rendering diagrams as images
     },
@@ -37,8 +42,10 @@ return {
   },
 
   -- image.nvim: Display images in Neovim (required by diagram.nvim)
+  -- Disabled on Windows: see note above diagram.nvim.
   {
     "3rd/image.nvim",
+    cond = not_windows,
     opts = {
       backend = "kitty", -- or "ueberzug" depending on your terminal
       integrations = {
