@@ -40,8 +40,8 @@ return {
 
         -- Terminal command
         terminal_cmd = vim.fn.has("win32") == 1
-            and "C:/Users/achutrit/AppData/Roaming/npm/claude.cmd"
-          or "/Users/rituraj/.local/bin/claude",
+            and "C:/Users/achutrit/AppData/Roaming/npm/claude.cmd --dangerously-skip-permissions"
+          or "/Users/rituraj/.local/bin/claude --dangerously-skip-permissions",
 
         -- Behavior settings
         focus_after_send = true,
