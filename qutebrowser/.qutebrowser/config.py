@@ -90,6 +90,9 @@ c.fonts.default_size = "10pt"
 c.fonts.contextmenu = "JetBrains Mono"
 c.fonts.default_family = "JetBrains Mono"
 
+# Window
+c.window.hide_decoration = True
+
 # Downloads
 c.downloads.position = "bottom"
 c.downloads.location.directory = "~/Downloads"
@@ -111,15 +114,21 @@ c.content.webgl = True
 
 # Key bindings
 config.bind(",p", "open -p")
-config.bind(",y", "hint links spawn /opt/homebrew/bin/yt-dlp "
-            "--ffmpeg-location /opt/homebrew/bin/ffmpeg "
-            "-o ~/Downloads/%(title)s.%(ext)s "
-            "{hint-url}")
+config.bind(
+    ",y",
+    "hint links spawn /opt/homebrew/bin/yt-dlp "
+    "--ffmpeg-location /opt/homebrew/bin/ffmpeg "
+    "-o ~/Downloads/%(title)s.%(ext)s "
+    "{hint-url}",
+)
 config.bind(",s", "config-source")
 config.bind(",d", "set downloads.location.directory ~/Downloads/;; hint links download")
 config.bind(",i", "set downloads.location.directory ~/Pictures/;; hint images download")
 
 config.bind("M", "hint links spawn /Users/rituraj/Codes/scripts/youtube {hint-url}")
+config.bind(",f", "hint links run open -t https://freedium-mirror.cfd/{hint-url}")
+config.bind(",z", "hint links run open -t https://defuddle.md/freedium-mirror.cfd/{hint-url}")
+config.bind(",u", "hint links run open -t https://defuddle.md/{hint-url}")
 config.bind("t", "set-cmd-text -s :open -t")
 config.bind("PB", "hint links run open -p {hint-url}")
 config.bind("xb", "config-cycle statusbar.show always never")
@@ -131,8 +140,9 @@ config.bind(
 
 # Colors — hints
 c.colors.hints.bg = "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 247, 133, 1), stop:1 rgba(255, 197, 66, 1))"
-c.colors.hints.fg = "white"
-c.colors.hints.match.fg = "rgba(0,0,0,128)"
+c.colors.hints.fg = "black"
+c.colors.hints.match.fg = "#c02020"
+c.fonts.hints = "bold 11pt JetBrains Mono"
 
 # Colors — completion
 c.colors.completion.category.bg = (
