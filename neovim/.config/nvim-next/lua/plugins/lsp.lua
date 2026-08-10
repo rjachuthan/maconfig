@@ -64,6 +64,28 @@ return {
     config = function(_, opts)
       require("util.lsp").setup()
 
+      --- Collect every server name contributed by this file and the lang
+      --- files, then hand the list to mason-lspconfig so the servers actually
+      --- get INSTALLED.
+      ---
+      --- This step is easy to leave out and the failure is silent: without it,
+      --- `vim.lsp.config()` / `vim.lsp.enable()` below happily register every
+      --- server, but nothing ever downloads them, so no LSP client attaches
+      --- and the editor just quietly has no completion or diagnostics.
+      --- mason-lspconfig v2 does NOT infer this -- `automatic_enable` only
+      --- enables servers already on disk; it never installs.
+      ---
+      --- `automatic_enable = false` because the loop below enables servers
+      --- explicitly. Leaving it on makes mason-lspconfig enable them a second
+      --- time with different (default) settings, silently discarding the
+      --- per-server config from plugins/lang/*.lua.
+      local servers = vim.tbl_keys(opts.servers)
+      table.sort(servers) --  stable install order, nicer :Mason output
+      require("mason-lspconfig").setup({
+        ensure_installed = servers,
+        automatic_enable = false,
+      })
+
       for name, server_opts in pairs(opts.servers) do
         vim.lsp.config(name, server_opts)
         vim.lsp.enable(name)
@@ -104,14 +126,19 @@ return {
   },
 
   --- -------------------------------------------------------------------------
-  --- mason-lspconfig.nvim -- bridges mason package names to lspconfig server
-  --- names, and auto-installs whatever ends up in nvim-lspconfig's
-  --- `opts.servers` (populated by this file + every plugins/lang/*.lua).
+  --- mason-lspconfig.nvim -- maps lspconfig server names to mason package
+  --- names (e.g. `lua_ls` -> `lua-language-server`) so servers can be
+  --- installed by the name you actually write in `opts.servers`.
   --- -------------------------------------------------------------------------
+  --- Deliberately NO `opts`/`config` here. Its `setup()` is called from
+  --- nvim-lspconfig's `config` above instead, because that is the only place
+  --- where the fully-merged `opts.servers` list exists -- lang files
+  --- contribute to it, and lazy.nvim has not finished merging their opts at
+  --- the time this spec would run. Setting it up here would install only the
+  --- servers known at this moment, which is none of them.
   {
     "mason-org/mason-lspconfig.nvim",
     dependencies = { "mason-org/mason.nvim" },
-    opts = {},
   },
 
   --- -------------------------------------------------------------------------

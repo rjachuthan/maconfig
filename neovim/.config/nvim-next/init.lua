@@ -28,6 +28,19 @@ platform.setup_shell()
 
 require("core.keymaps")
 require("core.autocmds")
+
+--- Format-on-save and 'formatexpr'. Set up here, NOT from a plugin spec.
+---
+--- This is deliberately at startup rather than inside conform's config: it is
+--- pure Lua with no plugin dependencies (it only installs a BufWritePre
+--- autocmd and points 'formatexpr' at itself), and the actual formatter is
+--- resolved lazily at format time. Hanging it off a plugin's config means
+--- format-on-save silently does nothing until that plugin happens to load --
+--- which is exactly the bug this replaced: LazyVim owned format-on-save via
+--- its own hook, not conform's `format_on_save`, so dropping the distro
+--- removed the feature with no error to explain it.
+require("util.format").setup()
+
 require("core.lazy")
 
 --- Warn about missing external tools (compiler, ripgrep, git). Deferred, so
