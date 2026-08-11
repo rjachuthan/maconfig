@@ -40,6 +40,8 @@ map("i", ";", ";<c-g>u")
 map({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Clear search highlight" })
 
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save file" })
+map("n", "<leader>w", "<cmd>w<cr>", { desc = "Write file" })
+map("n", "<leader>qc", "<cmd>q<cr>", { desc = "Quit window" })
 map({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all" })
 
 map("n", "[q", vim.cmd.cprev, { desc = "Prev quickfix" })

@@ -37,7 +37,6 @@ M.groups = {
   { "<leader>t", group = "test", icon = "\u{f0c3} " }, -- nf-fa-flask
   { "<leader>T", group = "terminal", icon = "\u{f120} " }, -- nf-fa-terminal
   { "<leader>u", group = "ui/toggle", icon = "\u{f013} " }, -- nf-fa-cog
-  { "<leader>w", group = "window", icon = "\u{f2d2} " }, -- nf-fa-window_restore
   { "<leader>x", group = "diagnostics", icon = "\u{f071} " }, -- nf-fa-warning
 
   --- Non-leader prefixes worth labelling
@@ -66,6 +65,7 @@ M.groups = {
 ---   <leader>n   plugins/lang/notebook.lua ipynb.nvim
 ---   <leader>o   plugins/lang/markdown.lua obsidian.nvim
 ---   <leader>q   plugins/editor.lua       persistence.nvim
+---               core/keymaps.lua         qc: quit window
 ---   <leader>s   plugins/ui.lua           snacks.picker
 ---   <leader>t   plugins/test.lua         neotest
 ---   <leader>T   plugins/tools.lua        toggleterm
@@ -77,6 +77,10 @@ M.groups = {
 ---   <leader>,        buffers             <leader>:  command history
 ---   <leader>e        file explorer       <leader>l  Lazy (core/lazy.lua)
 ---   <leader>D        database UI         <leader>m  multicursor
+---   <leader>w        write file (core/keymaps.lua)
+---
+--- Window motions are not on a <leader> prefix: <C-hjkl> to move, <C-arrow>
+--- to resize (core/keymaps.lua).
 
 --- ---------------------------------------------------------------------------
 --- VS Code compatibility layer
