@@ -1,40 +1,13 @@
---- ===========================================================================
---- FORMAT
---- ===========================================================================
---- Replaces `LazyVim.format`.
----
---- IMPORTANT: format-on-save is NOT conform's built-in `format_on_save`.
---- LazyVim owned that behaviour itself -- `vim.g.autoformat` plus a
---- BufWritePre hook living in ITS code, not conform's. Removing LazyVim
---- removes format-on-save entirely unless something reimplements that hook.
---- This module is that something. See plugins/lsp.lua's conform spec for the
---- matching "do NOT set format_on_save there" comment.
----
---- Formatters register themselves here (conform at priority 100, the LSP
---- fallback below it) so `M.format()` doesn't need to know conform exists --
---- it just runs whichever registered formatter claims the buffer.
---- ===========================================================================
-
 local M = {}
 
---- ---------------------------------------------------------------------------
---- Registry
---- ---------------------------------------------------------------------------
---- Each entry: { name, priority, resolve = fn(buf) -> formatter|nil }.
---- `formatter` is a table with `:format(buf)`, so both conform's API and the
---- built-in `vim.lsp.buf.format` fallback fit the same shape here.
 M._formatters = {}
 
---- Register a formatter source. Higher `priority` runs first when more than
---- one source can handle the buffer.
 ---@param entry { name: string, priority: integer, resolve: fun(buf: integer): table|nil }
 function M.register(entry)
   table.insert(M._formatters, entry)
   table.sort(M._formatters, function(a, b) return a.priority > b.priority end)
 end
 
---- Resolve the formatter that would actually run for `buf`, in priority
---- order. Returns nil if nothing claims it.
 ---@param buf integer
 ---@return { name: string, formatter: table }|nil
 local function resolve(buf)
@@ -47,9 +20,6 @@ local function resolve(buf)
   return nil
 end
 
---- Built-in fallback: plain `vim.lsp.buf.format`, used when conform has no
---- formatter configured for the filetype. Always "available" -- it defers to
---- whether an LSP client that supports formatting is attached at format time.
 M.register({
   name = "lsp",
   priority = 10,
@@ -72,17 +42,6 @@ M.register({
   end,
 })
 
---- conform.nvim registers itself at priority 100 (higher than the LSP
---- fallback above) from its own spec in plugins/lsp.lua, via:
----   require("util.format").register({ name = "conform", priority = 100, resolve = ... })
-
---- ---------------------------------------------------------------------------
---- Enable / disable
---- ---------------------------------------------------------------------------
-
---- Whether autoformat is on for `buf`: buffer-local overrides global; if the
---- buffer-local value was never set (nil, not false), fall back to the
---- global `vim.g.autoformat`.
 ---@param buf integer|nil
 ---@return boolean
 function M.enabled(buf)
@@ -104,7 +63,6 @@ local function notify_state(state, buf)
   )
 end
 
---- Toggle global (drives <leader>uf) or buffer-local (<leader>uF) autoformat.
 ---@param global boolean
 function M.toggle(global)
   if global then
@@ -133,12 +91,6 @@ function M.disable(global)
   end
 end
 
---- ---------------------------------------------------------------------------
---- Formatting
---- ---------------------------------------------------------------------------
-
---- Run whichever formatter claims the buffer: conform if it has one
---- configured for this filetype, else the LSP fallback.
 ---@param opts { buf?: integer, force?: boolean }|nil `force` bypasses M.enabled()
 function M.format(opts)
   opts = opts or {}
@@ -153,14 +105,6 @@ function M.format(opts)
   found.formatter.format(buf, { async = false, lsp_format = "fallback" })
 end
 
---- ---------------------------------------------------------------------------
---- formatexpr
---- ---------------------------------------------------------------------------
---- Wired up in setup() below as 'formatexpr'. Used by `gq` and `=`. Falling
---- through to the builtin (returning 1) matters: LSP-driven formatexpr is
---- meant for code ranges, and using it for prose/comments under `gq` gives
---- wrong results -- the builtin's textwidth-wrapping is what you actually want
---- there.
 ---@return integer
 function M.formatexpr()
   if vim.bo.filetype == "" then
@@ -172,12 +116,8 @@ function M.formatexpr()
       return vim.lsp.formatexpr({ timeout_ms = 3000 })
     end
   end
-  return 1 -- fall through to the builtin formatexpr
+  return 1
 end
-
---- ---------------------------------------------------------------------------
---- Setup
---- ---------------------------------------------------------------------------
 
 function M.setup()
   vim.o.formatexpr = "v:lua.require'util.format'.formatexpr()"
@@ -196,11 +136,6 @@ function M.setup()
   end, { desc = "Show which formatter(s) would run for the current buffer" })
 end
 
---- ---------------------------------------------------------------------------
---- Info
---- ---------------------------------------------------------------------------
-
---- A :checkhealth-ish report: what M.format() would actually do right now.
 function M.info()
   local buf = vim.api.nvim_get_current_buf()
   local lines = {

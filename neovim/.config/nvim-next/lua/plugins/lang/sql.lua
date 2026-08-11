@@ -1,46 +1,4 @@
---- ===========================================================================
---- SQL (database UI) + CSV
---- ===========================================================================
---- Two data-shaped tools sharing a file: vim-dadbod for talking to actual
---- databases, csvview.nvim for browsing flat files that look like tables.
----
---- ---------------------------------------------------------------------------
---- CONNECTION STRINGS (preserved from the deleted SQL_SETUP.md)
---- ---------------------------------------------------------------------------
---- SQLite:     sqlite:/absolute/path/to/database.db
----             sqlite:~/relative/path/to/database.db
---- PostgreSQL: postgresql://user:password@host:5432/dbname
----             postgresql://postgres:postgres@localhost:5432/postgres  (local default)
----
---- ---------------------------------------------------------------------------
---- THREE WAYS TO DECLARE A CONNECTION
---- ---------------------------------------------------------------------------
---- 1. DBUI interactive: <leader>D to open, then `A` to add a connection and
----    paste a connection string. Saved automatically -- best for one-off/
----    exploratory connections.
---- 2. `vim.g.dbs` in core/options.lua (or wherever global options live):
----      vim.g.dbs = {
----        sqlite_local = "sqlite:" .. vim.fn.expand("~") .. "/.local/share/sqlite/local.db",
----        postgres_dev = "postgresql://postgres:password@localhost:5432/mydb",
----      }
----    Best for connections you always want available, on every project.
---- 3. Per-project `.lazy.lua` in the project root (gitignore it):
----      vim.g.dbs = { project_db = "sqlite:./database.db" }
----    Best for a connection that only makes sense inside one repo.
----
---- ---------------------------------------------------------------------------
---- DBUI KEY REFERENCE (inside the DBUI window/tree)
---- ---------------------------------------------------------------------------
----   A       Add connection            <Enter>  Open/Edit/Execute
----   S       Execute default query     o        Open in vertical split
----   d       Delete connection/query   R        Rename buffer
----   r       Refresh
---- ===========================================================================
-
 return {
-  --- -------------------------------------------------------------------------
-  --- vim-dadbod + vim-dadbod-ui: the database connection and its explorer UI
-  --- -------------------------------------------------------------------------
   {
     "tpope/vim-dadbod",
     cmd = { "DB" },
@@ -54,32 +12,15 @@ return {
     },
     init = function()
       vim.g.db_ui_use_nerd_fonts = 1
-      vim.g.db_ui_execute_on_save = false --  don't run a query just because you saved the buffer
+      vim.g.db_ui_execute_on_save = false
       vim.g.db_ui_save_location = vim.fn.stdpath("data") .. "/db_ui_queries"
       vim.g.db_ui_use_nvim_notify = true
 
-      --- Keep the builtin SQL omnifunc out of the way of blink.cmp -- without
-      --- this it competes for the same completion popup that
-      --- vim-dadbod-completion (below) is supposed to own.
       vim.g.omni_sql_default_compl_type = "syntax"
       vim.g.loaded_sql_completion = true
     end,
   },
 
-  --- -------------------------------------------------------------------------
-  --- vim-dadbod-completion -- table/column-aware completion
-  --- -------------------------------------------------------------------------
-  --- CRITICAL FIX: the old config registered this as an `hrsh7th/nvim-cmp`
-  --- source (`cmp.setup.buffer({ sources = ... })`). That code was DEAD --
-  --- this config runs `saghen/blink.cmp` (see plugins/lsp.lua), and nvim-cmp
-  --- was never installed as a plugin at all, so that FileType autocmd fired
-  --- and did nothing every single time a .sql buffer opened. Registered
-  --- correctly here as a blink source instead, contributed to blink.cmp's
-  --- shared `opts.sources.default` list (same contract as nvim-lspconfig's
-  --- opts.servers -- see plugins/lsp.lua) via the function-form + list-extend
-  --- pattern, since a plain-table opts here would let this list silently
-  --- REPLACE the base `{ "lsp", "path", "snippets", "buffer" }` set instead
-  --- of adding to it.
   {
     "kristijanhusak/vim-dadbod-completion",
     ft = { "sql", "mysql", "plsql" },
@@ -101,9 +42,6 @@ return {
     end,
   },
 
-  --- -------------------------------------------------------------------------
-  --- conform.nvim + nvim-lint: sqlfluff for both formatting and linting
-  --- -------------------------------------------------------------------------
   {
     "stevearc/conform.nvim",
     opts = {
@@ -126,12 +64,6 @@ return {
     },
   },
 
-  --- -------------------------------------------------------------------------
-  --- Mason: sqlfluff is the only tool here that isn't an LSP server (no `sqls`
-  --- server is configured in this file -- sqlfluff covers format + lint, and
-  --- vim-dadbod-completion covers completion, so there's nothing left for an
-  --- LSP server to usefully own).
-  --- -------------------------------------------------------------------------
   {
     "mason-org/mason.nvim",
     opts = function(_, opts)
@@ -141,15 +73,6 @@ return {
     end,
   },
 
-  --- -------------------------------------------------------------------------
-  --- csvview.nvim -- CSV/TSV as an actual aligned table, not a wall of commas
-  --- -------------------------------------------------------------------------
-  --- KEYS MOVED: <leader>C*, not <leader>c*. In the old config these sat
-  --- inside the LSP "code" group (<leader>ct/ci/ce/cd), and <leader>cd
-  --- collided outright with the global line-diagnostics map set in
-  --- util/lsp.lua's LspAttach hook. <leader>C is its own registered group
-  --- ("csv", see keymap-tree.lua) specifically to give this plugin room that
-  --- doesn't collide with anything LSP-owned.
   {
     "hat0uma/csvview.nvim",
     ft = { "csv", "tsv" },
@@ -176,7 +99,7 @@ return {
         spacing = 2,
         display_mode = "border",
         header = { auto = true, lnum = 1 },
-        sticky_header = { enabled = true, separator = "\u{2500}" }, -- BOX DRAWINGS LIGHT HORIZONTAL
+        sticky_header = { enabled = true, separator = "\u{2500}" },
       },
       keymaps = {
         textobject_field_inner = { "if", mode = { "o", "x" }, desc = "CSV: Inner field" },
@@ -199,9 +122,6 @@ return {
         desc = "Auto-enable CSV view for CSV/TSV files",
       })
 
-      --- Window-local settings while CsvView is active: no soft wrap (would
-      --- break column alignment) and a cursor column to track the active
-      --- field visually. Reset the cursor column back off on detach.
       vim.api.nvim_create_autocmd("User", {
         pattern = "CsvViewAttach",
         callback = function()
