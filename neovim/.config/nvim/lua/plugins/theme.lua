@@ -63,7 +63,15 @@ return {
     end,
   },
   {
+    "wtfox/luna.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("luna").setup()
+    end,
+  },
+  {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "koda" },
+    opts = { colorscheme = "luna" },
   },
 }
