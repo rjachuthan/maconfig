@@ -215,7 +215,16 @@ return {
       opts.sections = {
         lualine_a = { "mode" },
         lualine_b = {
-          "branch",
+          {
+            "branch",
+            fmt = function(branch) return require("util.git_sync").branch(branch) end,
+            separator = "",
+            padding = { left = 1, right = 0 },
+          },
+          {
+            function() return require("util.git_sync").status() end,
+            padding = { left = 1, right = 1 },
+          },
           {
             "diff",
             symbols = {

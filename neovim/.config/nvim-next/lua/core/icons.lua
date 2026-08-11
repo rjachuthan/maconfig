@@ -11,6 +11,10 @@ return {
     modified = "\u{f459} ",
     removed = "\u{f458} ",
     branch = "\u{e0a0} ",
+    sync = "\u{f021} ",
+    behind = "\u{2193}",
+    ahead = "\u{2191}",
+    dirty = "*",
   },
 
   dap = {
