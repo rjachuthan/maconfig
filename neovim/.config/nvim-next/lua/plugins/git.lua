@@ -1,5 +1,15 @@
 return {
   {
+    "folke/snacks.nvim",
+    keys = {
+      { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit (cwd)" },
+      { "<leader>gG", function() Snacks.lazygit({ cwd = require("util.root").get() }) end, desc = "Lazygit (root)" },
+      { "<leader>gl", function() Snacks.lazygit.log() end, desc = "Lazygit log" },
+      { "<leader>gL", function() Snacks.lazygit.log_file() end, desc = "Lazygit log (current file)" },
+    },
+  },
+
+  {
     "lewis6991/gitsigns.nvim",
     event = "LazyFile",
     opts = function()

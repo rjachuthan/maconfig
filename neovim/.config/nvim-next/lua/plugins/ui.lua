@@ -24,7 +24,6 @@ return {
       { "<leader>e", function() Snacks.explorer() end, desc = "Explorer (toggle)" },
       { "<leader>.", function() Snacks.scratch() end, desc = "Toggle scratch buffer" },
       { "<leader>S", function() Snacks.scratch.select() end, desc = "Select scratch buffer" },
-      { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
 
       { "<leader>ff", function() Snacks.picker.files() end, desc = "Find files" },
       { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent files" },
@@ -128,6 +127,15 @@ return {
 
       picker = { enabled = true },
       explorer = { enabled = true },
+
+      lazygit = {
+        configure = true,
+        config = {
+          os = { editPreset = "nvim-remote" },
+          gui = { nerdFontsVersion = "3" },
+        },
+        win = { style = "lazygit", border = "rounded" },
+      },
 
       statuscolumn = { enabled = true },
 
