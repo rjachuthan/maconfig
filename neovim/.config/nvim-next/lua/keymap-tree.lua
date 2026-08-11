@@ -48,6 +48,7 @@ M.groups = {
   { "<leader>f", group = "file/find", icon = "\u{f002} " }, -- nf-fa-search
   { "<leader>g", group = "git", icon = "\u{f1d3} " }, -- nf-fa-git
   { "<leader>gh", group = "hunk", icon = "\u{f440} " }, -- nf-oct-diff
+  { "<leader>j", group = "jq", icon = "\u{f0b0} " }, -- nf-fa-filter
   { "<leader>n", group = "notebook", icon = "\u{f0e7} " }, -- nf-fa-bolt
   { "<leader>o", group = "obsidian", icon = "\u{f02d} " }, -- nf-fa-book
   { "<leader>q", group = "quit/session", icon = "\u{f011} " }, -- nf-fa-power_off
@@ -79,6 +80,7 @@ M.groups = {
 ---   <leader>d   plugins/debug.lua        nvim-dap
 ---   <leader>f   plugins/ui.lua           snacks.picker + snacks.explorer
 ---   <leader>g   plugins/git.lua          gitsigns / diffview / lazygit
+---   <leader>j   plugins/lang/json.lua    jq.nvim (jq/yq over the buffer)
 ---   <leader>n   plugins/lang/notebook.lua ipynb.nvim
 ---   <leader>o   plugins/lang/markdown.lua obsidian.nvim
 ---   <leader>q   plugins/editor.lua       persistence.nvim
