@@ -44,7 +44,7 @@ require("lazy").setup({
     version = false,
   },
 
-  install = { colorscheme = { "koda", "habamax" } },
+  install = { colorscheme = { "luna", "habamax" } },
 
   checker = { enabled = false },
   change_detection = { enabled = true, notify = false },

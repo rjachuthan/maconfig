@@ -3,12 +3,12 @@ local platform = require("core.platform")
 
 return {
   {
-    "oskarnurm/koda.nvim",
+    "wtfox/luna.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("koda").setup()
-      vim.cmd.colorscheme("koda")
+      require("luna").setup()
+      vim.cmd.colorscheme("luna")
     end,
   },
 
