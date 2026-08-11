@@ -120,6 +120,21 @@ autocmd("FileType", {
 })
 
 --- ---------------------------------------------------------------------------
+--- Hide the 80/120 guides outside real files
+--- colorcolumn is set globally, but in dashboards, terminals and picker
+--- previews the stripes hang over empty space and read as chrome.
+--- ---------------------------------------------------------------------------
+autocmd({ "BufWinEnter", "TermOpen" }, {
+  group = augroup("colorcolumn"),
+  callback = function(event)
+    if vim.bo[event.buf].buftype ~= "" then
+      vim.opt_local.colorcolumn = ""
+    end
+  end,
+  desc = "Disable colorcolumn in non-file buffers",
+})
+
+--- ---------------------------------------------------------------------------
 --- Prose filetypes: wrap and spellcheck
 --- ---------------------------------------------------------------------------
 autocmd("FileType", {

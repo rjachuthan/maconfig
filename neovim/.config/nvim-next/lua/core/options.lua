@@ -77,6 +77,7 @@ opt.wildmode = "longest:full,full"
 opt.updatetime = 200
 opt.timeoutlen = 300
 
+opt.colorcolumn = "80,120"
 opt.conceallevel = 2
 opt.list = true
 opt.spelllang = { "en" }
