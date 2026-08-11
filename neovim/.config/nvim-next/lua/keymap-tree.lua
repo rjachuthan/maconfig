@@ -57,6 +57,7 @@ M.groups = {
 ---   <leader>a   plugins/tools.lua        claudecode.nvim
 ---   <leader>b   plugins/ui.lua           bufferline
 ---   <leader>c   util/lsp.lua             LSP actions (on LspAttach)
+---               plugins/editor.lua       cw/cW: swap parameter (textobjects)
 ---   <leader>C   plugins/lang/sql.lua     csvview
 ---   <leader>d   plugins/debug.lua        nvim-dap
 ---   <leader>f   plugins/ui.lua           snacks.picker + snacks.explorer

@@ -38,12 +38,24 @@ return {
         "rst",
         "csv",
       },
-      highlight = { enable = true },
-      indent = { enable = true },
     },
     config = function(_, opts)
       require("nvim-treesitter").setup(opts)
       require("nvim-treesitter").install(opts.ensure_installed)
+
+      -- The `main` branch has no highlight/indent modules: parsers are started
+      -- per buffer instead. `foldexpr` is already set globally in core/options.
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("editor_treesitter", { clear = true }),
+        callback = function(ev)
+          local lang = vim.treesitter.language.get_lang(ev.match)
+          if not lang or not pcall(vim.treesitter.language.add, lang) then
+            return
+          end
+          pcall(vim.treesitter.start, ev.buf, lang)
+          vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+      })
     end,
   },
 
@@ -52,38 +64,110 @@ return {
     branch = "main",
     event = "LazyFile",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
-    config = function()
+    opts = {
+      select = {
+        lookahead = true,
+        selection_modes = {
+          ["@function.outer"] = "V",
+          ["@class.outer"] = "V",
+        },
+        include_surrounding_whitespace = false,
+      },
+      move = { set_jumps = true },
+    },
+    config = function(_, opts)
+      require("nvim-treesitter-textobjects").setup(opts)
+
       local move = require("nvim-treesitter-textobjects.move")
       local select = require("nvim-treesitter-textobjects.select")
+      local swap = require("nvim-treesitter-textobjects.swap")
+      local repeatable = require("nvim-treesitter-textobjects.repeatable_move")
+
+      -- key = { capture prefix, name }. `a<key>` / `i<key>` select it,
+      -- `]<key>` / `[<key>` jump to its start, `]<KEY>` / `[<KEY>` to its end.
+      local objects = {
+        f = { "function", "function" },
+        c = { "class", "class" },
+        a = { "parameter", "parameter" },
+        l = { "loop", "loop" },
+        i = { "conditional", "conditional" },
+      }
+
+      -- Select-only: no useful "jump to next assignment/comment" motion.
+      local select_only = {
+        ["="] = { "assignment", "assignment" },
+        ["/"] = { "comment", "comment" },
+      }
 
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("editor_textobjects", { clear = true }),
         callback = function(ev)
+          -- Without a parser every mapping below is a no-op that shadows a
+          -- built-in motion, so only attach where treesitter is available.
+          local ok, parser = pcall(vim.treesitter.get_parser, ev.buf, nil, { error = false })
+          if not ok or not parser then
+            return
+          end
+
           local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
           end
 
-          map("n", "]f", function() move.goto_next_start("@function.outer") end, "Next function start")
-          map("n", "[f", function() move.goto_previous_start("@function.outer") end, "Prev function start")
-          map("n", "]F", function() move.goto_next_end("@function.outer") end, "Next function end")
-          map("n", "[F", function() move.goto_previous_end("@function.outer") end, "Prev function end")
+          local function map_select(key, capture, name)
+            map({ "x", "o" }, "a" .. key, function()
+              select.select_textobject("@" .. capture .. ".outer", "textobjects")
+            end, "Outer " .. name)
+            map({ "x", "o" }, "i" .. key, function()
+              select.select_textobject("@" .. capture .. ".inner", "textobjects")
+            end, "Inner " .. name)
+          end
 
-          map("n", "]c", function() move.goto_next_start("@class.outer") end, "Next class start")
-          map("n", "[c", function() move.goto_previous_start("@class.outer") end, "Prev class start")
-          map("n", "]C", function() move.goto_next_end("@class.outer") end, "Next class end")
-          map("n", "[C", function() move.goto_previous_end("@class.outer") end, "Prev class end")
+          for key, spec in pairs(objects) do
+            local capture, name = spec[1], spec[2]
+            map_select(key, capture, name)
 
-          map("n", "]a", function() move.goto_next_start("@parameter.inner") end, "Next parameter start")
-          map("n", "[a", function() move.goto_previous_start("@parameter.inner") end, "Prev parameter start")
-          map("n", "]A", function() move.goto_next_end("@parameter.inner") end, "Next parameter end")
-          map("n", "[A", function() move.goto_previous_end("@parameter.inner") end, "Prev parameter end")
+            -- Moves work in visual and operator-pending too, so `d]f` and
+            -- `v]f` behave like the built-in `]m`.
+            local modes = { "n", "x", "o" }
+            map(modes, "]" .. key, function()
+              move.goto_next_start("@" .. capture .. ".outer", "textobjects")
+            end, "Next " .. name .. " start")
+            map(modes, "[" .. key, function()
+              move.goto_previous_start("@" .. capture .. ".outer", "textobjects")
+            end, "Prev " .. name .. " start")
+            map(modes, "]" .. key:upper(), function()
+              move.goto_next_end("@" .. capture .. ".outer", "textobjects")
+            end, "Next " .. name .. " end")
+            map(modes, "[" .. key:upper(), function()
+              move.goto_previous_end("@" .. capture .. ".outer", "textobjects")
+            end, "Prev " .. name .. " end")
+          end
 
-          map({ "x", "o" }, "af", function() select.select_textobject("@function.outer") end, "Select outer function")
-          map({ "x", "o" }, "if", function() select.select_textobject("@function.inner") end, "Select inner function")
-          map({ "x", "o" }, "ac", function() select.select_textobject("@class.outer") end, "Select outer class")
-          map({ "x", "o" }, "ic", function() select.select_textobject("@class.inner") end, "Select inner class")
+          for key, spec in pairs(select_only) do
+            map_select(key, spec[1], spec[2])
+          end
+
+          map({ "x", "o" }, "as", function()
+            select.select_textobject("@local.scope", "locals")
+          end, "Outer scope")
+
+          map("n", "<leader>cw", function()
+            swap.swap_next("@parameter.inner", "textobjects")
+          end, "Swap parameter with next")
+          map("n", "<leader>cW", function()
+            swap.swap_previous("@parameter.inner", "textobjects")
+          end, "Swap parameter with previous")
         end,
       })
+
+      -- `;` / `,` repeat the last textobject move, and still repeat f/F/t/T
+      -- when that was the last motion.
+      vim.keymap.set({ "n", "x", "o" }, ";", repeatable.repeat_last_move_next, { desc = "Repeat move (forward)" })
+      vim.keymap.set({ "n", "x", "o" }, ",", repeatable.repeat_last_move_previous, { desc = "Repeat move (backward)" })
+      vim.keymap.set({ "n", "x", "o" }, "f", repeatable.builtin_f_expr, { expr = true, desc = "Find char forward" })
+      vim.keymap.set({ "n", "x", "o" }, "F", repeatable.builtin_F_expr, { expr = true, desc = "Find char backward" })
+      vim.keymap.set({ "n", "x", "o" }, "t", repeatable.builtin_t_expr, { expr = true, desc = "Till char forward" })
+      vim.keymap.set({ "n", "x", "o" }, "T", repeatable.builtin_T_expr, { expr = true, desc = "Till char backward" })
     end,
   },
 
@@ -101,10 +185,10 @@ return {
       local ai = require("mini.ai")
       return {
         n_lines = 500,
+        -- `f` and `c` are owned by nvim-treesitter-textobjects above; mini.ai
+        -- only adds what that config does not map.
         custom_textobjects = {
           o = ai.gen_spec.treesitter({ a = "@block.outer", i = "@block.inner" }),
-          f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }),
-          c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }),
         },
       }
     end,
@@ -119,21 +203,30 @@ return {
   {
     "folke/todo-comments.nvim",
     event = "LazyFile",
+    cmd = { "TodoTrouble", "TodoQuickFix", "TodoLocList" },
     dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {},
+    opts = {
+      signs = true,
+      highlight = { comments_only = true },
+    },
     keys = {
       {
         "]t",
-        function() require("todo-comments").jump_next() end,
+        function() require("util.todo").jump({ forward = true }) end,
         desc = "Next todo comment",
       },
       {
         "[t",
-        function() require("todo-comments").jump_prev() end,
+        function() require("util.todo").jump({ forward = false }) end,
         desc = "Previous todo comment",
       },
-      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "Search todos" },
-      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "Search todo/fix/fixme" },
+      { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "Search todos" },
+      {
+        "<leader>sT",
+        function() Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end,
+        desc = "Search todo/fix/fixme",
+      },
+      { "<leader>sq", "<cmd>TodoQuickFix<cr>", desc = "Todos to quickfix" },
     },
   },
 
