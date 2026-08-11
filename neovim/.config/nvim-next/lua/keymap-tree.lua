@@ -10,15 +10,6 @@
 --- prefixes, their names, their icons, and the rule about who owns what.
 --- which-key renders these, so pressing <leader> and waiting always shows an
 --- accurate, complete menu.
----
---- ---------------------------------------------------------------------------
---- COLLISIONS THAT WERE FIXED (don't reintroduce these)
---- ---------------------------------------------------------------------------
----   <leader>t   used to be claimed by BOTH toggleterm (13 maps) and neotest
----               (10 maps). Test won it; terminal moved to <leader>T.
----   <leader>c   csvview had taken ct/ci/ce/cd inside the LSP "code" group,
----               and cd collided with line-diagnostics. CSV moved to <leader>C.
---- ===========================================================================
 
 local M = {}
 
