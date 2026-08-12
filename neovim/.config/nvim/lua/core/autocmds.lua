@@ -84,6 +84,31 @@ autocmd("BufReadPost", {
 })
 
 --- ---------------------------------------------------------------------------
+--- Guard against a lazy.nvim/Neovim autocmd race that drops filetype
+--- detection for a buffer entirely.
+--- The first BufReadPost of a session can make lazy.nvim lazy-load plugins
+--- right there in the same dispatch; its nested re-fire of that event (a
+--- known Neovim autocmd-nesting bug, neovim/neovim#25526) can skip
+--- later-registered autocmds in that pass -- including Neovim's own
+--- filetypedetect group. Picker-opened files (<leader>ff etc.) hit this
+--- often, since they're commonly the first buffer read in a session.
+--- Symptom: `:set filetype?` comes back empty and nothing that depends on
+--- it (LSP, formatters, the FileType autocmds below) ever attaches.
+--- ---------------------------------------------------------------------------
+autocmd("BufWinEnter", {
+  group = augroup("ensure_filetype"),
+  callback = function(event)
+    if vim.bo[event.buf].filetype == "" and vim.bo[event.buf].buftype == "" then
+      local ft = vim.filetype.match({ buf = event.buf, filename = vim.api.nvim_buf_get_name(event.buf) })
+      if ft then
+        vim.bo[event.buf].filetype = ft
+      end
+    end
+  end,
+  desc = "Retry filetype detection if a buffer somehow ended up without one",
+})
+
+--- ---------------------------------------------------------------------------
 --- Close throwaway windows with q
 --- Anything in this list is a tool window, not a document -- q should dismiss
 --- it, the way it does in :help. Add filetypes here as you meet them.
