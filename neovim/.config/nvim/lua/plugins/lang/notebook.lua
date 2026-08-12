@@ -4,6 +4,13 @@ return {
   {
     "ajbucci/ipynb.nvim",
     ft = "ipynb",
+    -- Neovim's built-in detection maps *.ipynb to "json" (it's valid JSON),
+    -- so `ft = "ipynb"` above would never match a real notebook file without
+    -- this override. init runs eagerly (unlike config), so it's registered
+    -- before the first buffer is ever read.
+    init = function()
+      vim.filetype.add({ extension = { ipynb = "ipynb" } })
+    end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
       "neovim/nvim-lspconfig",
