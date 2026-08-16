@@ -95,15 +95,35 @@ autocmd("BufReadPost", {
 --- Symptom: `:set filetype?` comes back empty and nothing that depends on
 --- it (LSP, formatters, the FileType autocmds below) ever attaches.
 --- ---------------------------------------------------------------------------
-autocmd("BufWinEnter", {
+--- This group is registered before lazy.nvim is set up on purpose: the
+--- nesting bug skips autocmds registered *after* the ones already running,
+--- so an early registration is the one most likely to survive the pass.
+autocmd({ "BufWinEnter", "BufEnter" }, {
   group = augroup("ensure_filetype"),
   callback = function(event)
-    if vim.bo[event.buf].filetype == "" and vim.bo[event.buf].buftype == "" then
-      local ft = vim.filetype.match({ buf = event.buf, filename = vim.api.nvim_buf_get_name(event.buf) })
-      if ft then
-        vim.bo[event.buf].filetype = ft
-      end
+    local buf = event.buf
+    if vim.bo[buf].filetype ~= "" or vim.bo[buf].buftype ~= "" then
+      return
     end
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name == "" then
+      return --  scratch/unnamed; there is nothing to match against
+    end
+
+    local ft = vim.filetype.match({ buf = buf, filename = name })
+    if ft then
+      vim.bo[buf].filetype = ft
+      return
+    end
+
+    --- vim.filetype.match only knows the Lua detection tables, so anything
+    --- registered the old way -- a plugin's `au BufRead *.foo setf foo` in
+    --- the filetypedetect group -- comes back nil above. `filetype detect`
+    --- runs those too, so fall through to it rather than leaving the buffer
+    --- bare. Costs nothing: we only get here when nothing else matched.
+    vim.api.nvim_buf_call(buf, function()
+      pcall(vim.cmd.filetype, "detect")
+    end)
   end,
   desc = "Retry filetype detection if a buffer somehow ended up without one",
 })
