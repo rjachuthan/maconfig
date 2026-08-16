@@ -61,6 +61,7 @@ install_brew_packages() {
         "gh"                    # GitHub CLI
         "koekeishiya/formulae/skhd"  # Hotkey daemon
         "lazygit"               # Terminal UI for git (Neovim integration)
+        "git-delta"             # Syntax-highlighting pager used by lazygit
     )
 
     # Window management
@@ -161,7 +162,7 @@ create_symlinks() {
 
     cd "$SCRIPT_DIR"
 
-    local packages=("aerospace" "sketchybar" "jankyborders" "neovim" "skhd")
+    local packages=("aerospace" "sketchybar" "jankyborders" "neovim" "skhd" "lazygit")
 
     for pkg in "${packages[@]}"; do
         if [[ -d "$pkg" ]]; then

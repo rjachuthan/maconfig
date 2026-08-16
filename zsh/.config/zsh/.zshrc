@@ -8,6 +8,11 @@ eval "$(starship init zsh)"
 
 # ── Environment Variables ─────────────────────────────────────────────────
 export EDITOR=nvim
+
+# lazygit looks in ~/Library/Application Support on macOS by default; point it
+# at the stow-managed config in ~/.config instead
+export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
+
 export JAVA_HOME=$(/usr/libexec/java_home -v17)
 export PATH=$JAVA_HOME/bin:$PATH
 
