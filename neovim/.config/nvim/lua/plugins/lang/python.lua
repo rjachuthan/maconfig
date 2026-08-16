@@ -148,7 +148,6 @@ return {
   },
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",
     ft = "python",
     opts = {
       settings = {
