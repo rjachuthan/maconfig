@@ -1,6 +1,26 @@
 local icons = require("core.icons")
 local platform = require("core.platform")
 
+--- Render plain text as a slimline component: the same padding slimline's own
+--- `fg` style components use, highlighted like the primary part of `follow` so
+--- custom components pick up the style recipe for free. Empty text renders
+--- nothing so slimline drops the component entirely.
+---@param text string
+---@param follow string? name of a slimline component to borrow the highlight from
+---@return string
+local function slimline_text(text, follow)
+  if text == nil or text == "" then
+    return ""
+  end
+  local hls = require("slimline").highlights.hls
+  local hl = hls.base
+  local component = follow and hls.components[follow]
+  if component and component.primary and component.primary.text then
+    hl = component.primary.text
+  end
+  return string.format("%%#%s# %s ", hl, text)
+end
+
 return {
   {
     "wtfox/luna.nvim",
@@ -428,81 +448,60 @@ return {
   },
 
   {
-    "nvim-lualine/lualine.nvim",
+    "sschleemilch/slimline.nvim",
     event = "VeryLazy",
-    opts = function(_, opts)
-      opts.options = opts.options or {}
-      opts.options.globalstatus = true
-      opts.options.theme = "iceberg_dark"
-      opts.options.section_separators = { left = "", right = "" }
-      opts.options.component_separators = { left = "│", right = "│" }
-
-      opts.sections = {
-        lualine_a = { "mode" },
-        lualine_b = {
-          {
-            "branch",
-            fmt = function(branch)
-              return require("util.git_sync").branch(branch)
-            end,
-            separator = "",
-            padding = { left = 1, right = 0 },
-          },
-          {
-            function()
-              return require("util.git_sync").status()
-            end,
-            padding = { left = 1, right = 1 },
-          },
-          {
-            "diff",
-            source = function()
-              local gs = vim.b.gitsigns_status_dict
-              if gs then
-                return { added = gs.added, modified = gs.changed, removed = gs.removed }
-              end
-            end,
-            symbols = {
-              added = icons.git.added,
-              modified = icons.git.modified,
-              removed = icons.git.removed,
-            },
+    opts = {
+      -- "pure" recipe: no backgrounds, bold primaries, semantic highlights.
+      style = "fg",
+      bold = true,
+      components = {
+        left = { "mode", "path", "git" },
+        center = {},
+        right = {
+          -- Ahead/behind counts against the upstream branch, on top of
+          -- slimline's own `git` component.
+          function()
+            return slimline_text(require("util.git_sync").status(), "git")
+          end,
+          -- Active Python virtualenv.
+          function()
+            local venv = require("util.venv")
+            if not venv.enabled() then
+              return ""
+            end
+            return slimline_text("\u{e73c} " .. venv.name(), "filetype_lsp")
+          end,
+          "diagnostics",
+          "filetype_lsp",
+          "progress",
+        },
+      },
+      configs = {
+        path = {
+          hl = { primary = "Label" },
+        },
+        git = {
+          hl = { primary = "Function" },
+          icons = {
+            branch = icons.git.branch,
+            added = icons.git.added,
+            modified = icons.git.modified,
+            removed = icons.git.removed,
           },
         },
-        lualine_c = {
-          {
-            "filename",
-            path = 1,
-            symbols = { modified = " ●", readonly = " ", unnamed = "[No Name]" },
-          },
-          {
-            "diagnostics",
-            symbols = {
-              error = icons.diagnostics.Error,
-              warn = icons.diagnostics.Warn,
-              info = icons.diagnostics.Info,
-              hint = icons.diagnostics.Hint,
-            },
+        diagnostics = {
+          icons = {
+            ERROR = icons.diagnostics.Error,
+            WARN = icons.diagnostics.Warn,
+            INFO = icons.diagnostics.Info,
+            HINT = icons.diagnostics.Hint,
           },
         },
-        lualine_x = {
-          {
-            function()
-              return "\u{e73c} " .. require("util.venv").name()
-            end,
-            cond = function()
-              return require("util.venv").enabled()
-            end,
-          },
+        filetype_lsp = {
+          hl = { primary = "String" },
         },
-        lualine_y = {
-          { "filetype", icon_only = false },
-        },
-        lualine_z = {},
-      }
-
-      return opts
-    end,
+      },
+    },
   },
 
   {
