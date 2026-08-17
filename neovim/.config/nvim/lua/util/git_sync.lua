@@ -55,14 +55,24 @@ local function refresh(root)
     { text = true },
     function(res)
       state.running = false
+      local before = { state.ahead, state.behind, state.dirty, state.upstream }
       if res.code == 0 then
         parse(res.stdout or "", state)
       else
         state.ahead, state.behind, state.dirty, state.upstream = 0, 0, false, false
       end
-      vim.schedule(function()
-        vim.cmd.redrawstatus()
-      end)
+      -- Only redraw when something actually changed; an unconditional redraw on
+      -- every poll makes the git components flicker.
+      if
+        before[1] ~= state.ahead
+        or before[2] ~= state.behind
+        or before[3] ~= state.dirty
+        or before[4] ~= state.upstream
+      then
+        vim.schedule(function()
+          vim.cmd.redrawstatus()
+        end)
+      end
     end
   )
 end
