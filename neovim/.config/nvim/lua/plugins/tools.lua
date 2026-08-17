@@ -8,8 +8,8 @@ return {
     version = "*",
     cmd = { "ToggleTerm", "TermExec" },
     keys = {
-      { "<c-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal (float)", mode = { "n", "t" } },
-      { "<c-`>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal (VS Code)", mode = { "n", "t" } },
+      { "<c-\\>", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Toggle terminal (bottom)", mode = { "n", "t" } },
+      { "<c-`>", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Toggle terminal (VS Code)", mode = { "n", "t" } },
 
       { "<leader>Tf", "<cmd>ToggleTerm direction=float<cr>", desc = "Terminal: float" },
       { "<leader>Th", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Terminal: horizontal" },
@@ -20,9 +20,13 @@ return {
       { "<leader>Tn", function() terminals.node:toggle() end, desc = "Terminal: Node REPL" },
       {
         "<leader>TH",
-        function() terminals.htop:toggle() end,
+        function()
+          if not terminals.htop then
+            return vim.notify("htop is not installed", vim.log.levels.WARN, { title = "toggleterm" })
+          end
+          terminals.htop:toggle()
+        end,
         desc = "Terminal: htop",
-        cond = platform.has("htop"),
       },
     },
     opts = {
@@ -33,16 +37,13 @@ return {
           return vim.o.columns * 0.4
         end
       end,
-      open_mapping = [[<c-\>]],
-      terminal_mappings = true,
       hide_numbers = true,
       shade_terminals = true,
       shading_factor = 2,
       start_in_insert = true,
-      insert_mappings = true,
       persist_size = true,
       persist_mode = true,
-      direction = "float",
+      direction = "horizontal",
       close_on_exit = true,
       shell = vim.o.shell,
       auto_scroll = true,
