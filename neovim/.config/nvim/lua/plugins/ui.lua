@@ -520,6 +520,15 @@ return {
       options = {
         diagnostics = "nvim_lsp",
         always_show_bufferline = true,
+        offsets = {
+          {
+            filetype = "snacks_layout_box",
+            text = "\u{f07c} Explorer",
+            highlight = "Directory",
+            text_align = "left",
+            separator = true,
+          },
+        },
       },
     },
   },
