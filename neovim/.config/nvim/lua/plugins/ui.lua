@@ -433,7 +433,7 @@ return {
     opts = function(_, opts)
       opts.options = opts.options or {}
       opts.options.globalstatus = true
-      opts.options.theme = "ayu_dark"
+      opts.options.theme = "iceberg_dark"
       opts.options.section_separators = { left = "", right = "" }
       opts.options.component_separators = { left = "│", right = "│" }
 
