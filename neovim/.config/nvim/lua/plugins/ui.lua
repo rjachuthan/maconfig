@@ -17,49 +17,239 @@ return {
     lazy = false,
     priority = 1000,
     keys = {
-      { "<leader><space>", function() Snacks.picker.files() end, desc = "Find files" },
-      { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
-      { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep (project)" },
-      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command history" },
-      { "<leader>e", function() Snacks.explorer() end, desc = "Explorer (toggle)" },
-      { "<leader>.", function() Snacks.scratch() end, desc = "Toggle scratch buffer" },
-      { "<leader>S", function() Snacks.scratch.select() end, desc = "Select scratch buffer" },
+      {
+        "<leader><space>",
+        function()
+          Snacks.picker.files()
+        end,
+        desc = "Find files",
+      },
+      {
+        "<leader>,",
+        function()
+          Snacks.picker.buffers()
+        end,
+        desc = "Buffers",
+      },
+      {
+        "<leader>/",
+        function()
+          Snacks.picker.grep()
+        end,
+        desc = "Grep (project)",
+      },
+      {
+        "<leader>:",
+        function()
+          Snacks.picker.command_history()
+        end,
+        desc = "Command history",
+      },
+      {
+        "<leader>e",
+        function()
+          Snacks.explorer()
+        end,
+        desc = "Explorer (toggle)",
+      },
+      {
+        "<leader>.",
+        function()
+          Snacks.scratch()
+        end,
+        desc = "Toggle scratch buffer",
+      },
+      {
+        "<leader>S",
+        function()
+          Snacks.scratch.select()
+        end,
+        desc = "Select scratch buffer",
+      },
 
-      { "<leader>ff", function() Snacks.picker.files() end, desc = "Find files" },
-      { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent files" },
-      { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find config file" },
-      { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Find buffer" },
-      { "<leader>fp", function() Snacks.picker.projects() end, desc = "Find project" },
+      {
+        "<leader>ff",
+        function()
+          Snacks.picker.files()
+        end,
+        desc = "Find files",
+      },
+      {
+        "<leader>fr",
+        function()
+          Snacks.picker.recent()
+        end,
+        desc = "Recent files",
+      },
+      {
+        "<leader>fc",
+        function()
+          Snacks.picker.files({ cwd = vim.fn.stdpath("config") })
+        end,
+        desc = "Find config file",
+      },
+      {
+        "<leader>fb",
+        function()
+          Snacks.picker.buffers()
+        end,
+        desc = "Find buffer",
+      },
+      {
+        "<leader>fp",
+        function()
+          Snacks.picker.projects()
+        end,
+        desc = "Find project",
+      },
 
-      { "<leader>sg", function() Snacks.picker.grep() end, desc = "Grep (project)" },
-      { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer lines" },
-      { "<leader>sh", function() Snacks.picker.help() end, desc = "Help pages" },
-      { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
-      { "<leader>sd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics" },
-      { "<leader>sm", function() Snacks.picker.marks() end, desc = "Marks" },
-      { "<leader>sj", function() Snacks.picker.jumps() end, desc = "Jumps" },
-      { "<leader>sr", function() Snacks.picker.resume() end, desc = "Resume last search" },
-      { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo history" },
-      { "<leader>sc", function() Snacks.picker.commands() end, desc = "Commands" },
-      { "<leader>sC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
-      { "<leader>sH", function() Snacks.picker.highlights() end, desc = "Highlight groups" },
-      { "<leader>si", function() Snacks.picker.icons() end, desc = "Icons" },
-      { "<leader>sM", function() Snacks.picker.man() end, desc = "Man pages" },
+      {
+        "<leader>sg",
+        function()
+          Snacks.picker.grep()
+        end,
+        desc = "Grep (project)",
+      },
+      {
+        "<leader>sb",
+        function()
+          Snacks.picker.lines()
+        end,
+        desc = "Buffer lines",
+      },
+      {
+        "<leader>sh",
+        function()
+          Snacks.picker.help()
+        end,
+        desc = "Help pages",
+      },
+      {
+        "<leader>sk",
+        function()
+          Snacks.picker.keymaps()
+        end,
+        desc = "Keymaps",
+      },
+      {
+        "<leader>sd",
+        function()
+          Snacks.picker.diagnostics()
+        end,
+        desc = "Diagnostics",
+      },
+      {
+        "<leader>sm",
+        function()
+          Snacks.picker.marks()
+        end,
+        desc = "Marks",
+      },
+      {
+        "<leader>sj",
+        function()
+          Snacks.picker.jumps()
+        end,
+        desc = "Jumps",
+      },
+      {
+        "<leader>sr",
+        function()
+          Snacks.picker.resume()
+        end,
+        desc = "Resume last search",
+      },
+      {
+        "<leader>su",
+        function()
+          Snacks.picker.undo()
+        end,
+        desc = "Undo history",
+      },
+      {
+        "<leader>sc",
+        function()
+          Snacks.picker.commands()
+        end,
+        desc = "Commands",
+      },
+      {
+        "<leader>sC",
+        function()
+          Snacks.picker.colorschemes()
+        end,
+        desc = "Colorschemes",
+      },
+      {
+        "<leader>sH",
+        function()
+          Snacks.picker.highlights()
+        end,
+        desc = "Highlight groups",
+      },
+      {
+        "<leader>si",
+        function()
+          Snacks.picker.icons()
+        end,
+        desc = "Icons",
+      },
+      {
+        "<leader>sM",
+        function()
+          Snacks.picker.man()
+        end,
+        desc = "Man pages",
+      },
 
-      { "<leader>un", function() Snacks.notifier.show_history() end, desc = "Notification history" },
+      {
+        "<leader>un",
+        function()
+          Snacks.notifier.show_history()
+        end,
+        desc = "Notification history",
+      },
 
-      { "<C-p>", function() Snacks.picker.files() end, desc = "Find files (VS Code)" },
-      { "<C-S-p>", function() Snacks.picker.commands() end, desc = "Command palette (VS Code)" },
-      { "<C-S-f>", function() Snacks.picker.grep() end, desc = "Find in files (VS Code)" },
-      { "<C-b>", function() Snacks.explorer() end, desc = "Toggle sidebar (VS Code)" },
+      {
+        "<C-p>",
+        function()
+          Snacks.picker.files()
+        end,
+        desc = "Find files (VS Code)",
+      },
+      {
+        "<C-S-p>",
+        function()
+          Snacks.picker.commands()
+        end,
+        desc = "Command palette (VS Code)",
+      },
+      {
+        "<C-S-f>",
+        function()
+          Snacks.picker.grep()
+        end,
+        desc = "Find in files (VS Code)",
+      },
+      {
+        "<C-b>",
+        function()
+          Snacks.explorer()
+        end,
+        desc = "Toggle sidebar (VS Code)",
+      },
 
       {
         "<leader>uf",
         function()
           Snacks.toggle({
             name = "Autoformat",
-            get = function() return vim.g.autoformat end,
-            set = function(state) vim.g.autoformat = state end,
+            get = function()
+              return vim.g.autoformat
+            end,
+            set = function(state)
+              vim.g.autoformat = state
+            end,
           }):toggle()
         end,
         desc = "Toggle autoformat",
@@ -69,27 +259,93 @@ return {
         function()
           Snacks.toggle({
             name = "Autoformat (buffer)",
-            get = function() return vim.b.autoformat end,
-            set = function(state) vim.b.autoformat = state end,
+            get = function()
+              return vim.b.autoformat
+            end,
+            set = function(state)
+              vim.b.autoformat = state
+            end,
           }):toggle()
         end,
         desc = "Toggle autoformat (buffer)",
       },
-      { "<leader>us", function() Snacks.toggle.option("spell", { name = "Spelling" }):toggle() end, desc = "Toggle spelling" },
-      { "<leader>uw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Toggle wrap" },
+      {
+        "<leader>us",
+        function()
+          Snacks.toggle.option("spell", { name = "Spelling" }):toggle()
+        end,
+        desc = "Toggle spelling",
+      },
+      {
+        "<leader>uw",
+        function()
+          Snacks.toggle.option("wrap", { name = "Wrap" }):toggle()
+        end,
+        desc = "Toggle wrap",
+      },
       {
         "<leader>uL",
-        function() Snacks.toggle.option("relativenumber", { name = "Relative number" }):toggle() end,
+        function()
+          Snacks.toggle.option("relativenumber", { name = "Relative number" }):toggle()
+        end,
         desc = "Toggle relative number",
       },
-      { "<leader>ud", function() Snacks.toggle.diagnostics():toggle() end, desc = "Toggle diagnostics" },
-      { "<leader>ul", function() Snacks.toggle.option("number", { name = "Number" }):toggle() end, desc = "Toggle line number" },
-      { "<leader>uc", function() Snacks.toggle.option("conceallevel", { off = 0, on = 2 }):toggle() end, desc = "Toggle conceal" },
-      { "<leader>uT", function() Snacks.toggle.treesitter():toggle() end, desc = "Toggle treesitter highlight" },
-      { "<leader>ub", function() Snacks.toggle.option("background", { off = "light", on = "dark" }):toggle() end, desc = "Toggle background" },
-      { "<leader>ug", function() Snacks.toggle.indent():toggle() end, desc = "Toggle indent guides" },
-      { "<leader>uh", function() Snacks.toggle.inlay_hints():toggle() end, desc = "Toggle inlay hints" },
-      { "<leader>uD", function() Snacks.toggle.dim():toggle() end, desc = "Toggle dim (focus)" },
+      {
+        "<leader>ud",
+        function()
+          Snacks.toggle.diagnostics():toggle()
+        end,
+        desc = "Toggle diagnostics",
+      },
+      {
+        "<leader>ul",
+        function()
+          Snacks.toggle.option("number", { name = "Number" }):toggle()
+        end,
+        desc = "Toggle line number",
+      },
+      {
+        "<leader>uc",
+        function()
+          Snacks.toggle.option("conceallevel", { off = 0, on = 2 }):toggle()
+        end,
+        desc = "Toggle conceal",
+      },
+      {
+        "<leader>uT",
+        function()
+          Snacks.toggle.treesitter():toggle()
+        end,
+        desc = "Toggle treesitter highlight",
+      },
+      {
+        "<leader>ub",
+        function()
+          Snacks.toggle.option("background", { off = "light", on = "dark" }):toggle()
+        end,
+        desc = "Toggle background",
+      },
+      {
+        "<leader>ug",
+        function()
+          Snacks.toggle.indent():toggle()
+        end,
+        desc = "Toggle indent guides",
+      },
+      {
+        "<leader>uh",
+        function()
+          Snacks.toggle.inlay_hints():toggle()
+        end,
+        desc = "Toggle inlay hints",
+      },
+      {
+        "<leader>uD",
+        function()
+          Snacks.toggle.dim():toggle()
+        end,
+        desc = "Toggle dim (focus)",
+      },
     },
     opts = {
       dashboard = {
@@ -159,7 +415,9 @@ return {
     keys = {
       {
         "<leader>?",
-        function() require("which-key").show({ global = false }) end,
+        function()
+          require("which-key").show({ global = false })
+        end,
         desc = "Buffer-local keymaps",
       },
     },
@@ -174,59 +432,36 @@ return {
     event = "VeryLazy",
     opts = function(_, opts)
       opts.options = opts.options or {}
-      opts.options.section_separators = { left = "█", right = "█" }
-      opts.options.component_separators = { left = "│", right = "│" }
       opts.options.globalstatus = true
-
-      local custom_theme = {
-        normal = {
-          a = { bg = "#4e4e4e", fg = "#ffffff", gui = "bold" },
-          b = { bg = "#3a3a3a", fg = "#ffffff" },
-          c = { bg = "#262626", fg = "#ffffff" },
-        },
-        insert = {
-          a = { bg = "#4e4e4e", fg = "#ffffff", gui = "bold" },
-          b = { bg = "#3a3a3a", fg = "#ffffff" },
-          c = { bg = "#262626", fg = "#ffffff" },
-        },
-        visual = {
-          a = { bg = "#4e4e4e", fg = "#ffffff", gui = "bold" },
-          b = { bg = "#3a3a3a", fg = "#ffffff" },
-          c = { bg = "#262626", fg = "#ffffff" },
-        },
-        replace = {
-          a = { bg = "#4e4e4e", fg = "#ffffff", gui = "bold" },
-          b = { bg = "#3a3a3a", fg = "#ffffff" },
-          c = { bg = "#262626", fg = "#ffffff" },
-        },
-        command = {
-          a = { bg = "#4e4e4e", fg = "#ffffff", gui = "bold" },
-          b = { bg = "#3a3a3a", fg = "#ffffff" },
-          c = { bg = "#262626", fg = "#ffffff" },
-        },
-        inactive = {
-          a = { bg = "#262626", fg = "#767676" },
-          b = { bg = "#262626", fg = "#767676" },
-          c = { bg = "#262626", fg = "#767676" },
-        },
-      }
-      opts.options.theme = custom_theme
+      opts.options.theme = "ayu_dark"
+      opts.options.section_separators = { left = "", right = "" }
+      opts.options.component_separators = { left = "│", right = "│" }
 
       opts.sections = {
         lualine_a = { "mode" },
         lualine_b = {
           {
             "branch",
-            fmt = function(branch) return require("util.git_sync").branch(branch) end,
+            fmt = function(branch)
+              return require("util.git_sync").branch(branch)
+            end,
             separator = "",
             padding = { left = 1, right = 0 },
           },
           {
-            function() return require("util.git_sync").status() end,
+            function()
+              return require("util.git_sync").status()
+            end,
             padding = { left = 1, right = 1 },
           },
           {
             "diff",
+            source = function()
+              local gs = vim.b.gitsigns_status_dict
+              if gs then
+                return { added = gs.added, modified = gs.changed, removed = gs.removed }
+              end
+            end,
             symbols = {
               added = icons.git.added,
               modified = icons.git.modified,
@@ -235,6 +470,11 @@ return {
           },
         },
         lualine_c = {
+          {
+            "filename",
+            path = 1,
+            symbols = { modified = " ●", readonly = " ", unnamed = "[No Name]" },
+          },
           {
             "diagnostics",
             symbols = {
@@ -245,11 +485,20 @@ return {
             },
           },
         },
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = {
-          function() return "L" .. vim.fn.line(".") end,
+        lualine_x = {
+          {
+            function()
+              return "\u{e73c} " .. require("util.venv").name()
+            end,
+            cond = function()
+              return require("util.venv").enabled()
+            end,
+          },
         },
+        lualine_y = {
+          { "filetype", icon_only = false },
+        },
+        lualine_z = {},
       }
 
       return opts
@@ -280,8 +529,30 @@ return {
     event = "VeryLazy",
     dependencies = { "MunifTanjim/nui.nvim" },
     keys = {
-      { "<c-f>", function() if not require("noice.lsp").scroll(4) then return "<c-f>" end end, silent = true, expr = true, mode = { "i", "n", "s" }, desc = "Scroll forward (LSP doc)" },
-      { "<c-b>", function() if not require("noice.lsp").scroll(-4) then return "<c-b>" end end, silent = true, expr = true, mode = { "i", "n", "s" }, desc = "Scroll backward (LSP doc)" },
+      {
+        "<c-f>",
+        function()
+          if not require("noice.lsp").scroll(4) then
+            return "<c-f>"
+          end
+        end,
+        silent = true,
+        expr = true,
+        mode = { "i", "n", "s" },
+        desc = "Scroll forward (LSP doc)",
+      },
+      {
+        "<c-b>",
+        function()
+          if not require("noice.lsp").scroll(-4) then
+            return "<c-b>"
+          end
+        end,
+        silent = true,
+        expr = true,
+        mode = { "i", "n", "s" },
+        desc = "Scroll backward (LSP doc)",
+      },
     },
     opts = {
       lsp = {
