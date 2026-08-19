@@ -38,6 +38,55 @@ local function slimline_text(text, follow)
   return string.format("%%#%s# %s ", hl, text)
 end
 
+--- Obsidian vault path, memoized: the dashboard consults it on every open and
+--- `platform.obsidian_vault()` stats a handful of candidate directories.
+---@return string|nil
+local vault_cache
+local function obsidian_vault()
+  if vault_cache == nil then
+    vault_cache = platform.obsidian_vault() or false
+  end
+  return vault_cache or nil
+end
+
+-- Per-section accents for the dashboard, keyed by title. Snacks only copies
+-- `icon` and `title` onto the title row it inserts above a section's children,
+-- so the title is the only handle available for colouring a section header.
+local dashboard_titles = {
+  ["Recent Files"] = "SnacksDashboardRecent",
+  ["Notes"] = "SnacksDashboardNote",
+  ["Projects"] = "SnacksDashboardProject",
+  ["Git Status"] = "SnacksDashboardGit",
+}
+
+---@param item snacks.dashboard.Item
+---@return string|nil
+local function dashboard_accent(item)
+  return item.title and dashboard_titles[item.title] or nil
+end
+
+--- Link the dashboard accents to colorscheme groups, and re-link on every
+--- colorscheme change so they follow luna instead of freezing at load time.
+local function dashboard_highlights()
+  local links = {
+    SnacksDashboardRecent = "Function",
+    SnacksDashboardNote = "String",
+    SnacksDashboardProject = "Constant",
+    SnacksDashboardGit = "DiagnosticWarn",
+    SnacksDashboardRule = "NonText",
+  }
+  local function apply()
+    for group, link in pairs(links) do
+      vim.api.nvim_set_hl(0, group, { link = link })
+    end
+  end
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("dashboard_accents", { clear = true }),
+    callback = apply,
+  })
+  apply()
+end
+
 return {
   {
     "wtfox/luna.nvim",
@@ -395,15 +444,126 @@ return {
         desc = "Toggle dim (focus)",
       },
     },
+    init = dashboard_highlights,
     opts = {
       dashboard = {
-        preset = {
-          header = {},
+        width = 58,
+        pane_gap = 4,
+
+        formats = {
+          -- Colour a section's icon with that section's accent instead of the
+          -- shared `SnacksDashboardIcon`.
+          icon = function(item)
+            if item.file and item.icon == "file" or item.icon == "directory" then
+              return Snacks.dashboard.icon(item.file, item.icon)
+            end
+            return { item.icon, width = 2, hl = dashboard_accent(item) or "icon" }
+          end,
+          -- Render section titles as `TITLE ─────` so each block reads as a
+          -- header rule rather than another list entry.
+          title = function(item, ctx)
+            local title = item.title:upper()
+            local rule = math.max(0, (ctx.width or 0) - vim.fn.strchars(title) - 1)
+            return {
+              { title, hl = dashboard_accent(item) or "title" },
+              { " " .. ("\u{2500}"):rep(rule), hl = "SnacksDashboardRule" },
+            }
+          end,
         },
+
+        preset = {
+          header = table.concat({
+            "\u{2588}\u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}  \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}  \u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588} \u{2588}\u{2588}\u{2588}    \u{2588}\u{2588}\u{2588}",
+            "\u{2588}\u{2588}\u{2588}\u{2588}   \u{2588}\u{2588} \u{2588}\u{2588}      \u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588} \u{2588}\u{2588}\u{2588}\u{2588}  \u{2588}\u{2588}\u{2588}\u{2588}",
+            "\u{2588}\u{2588} \u{2588}\u{2588}  \u{2588}\u{2588} \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}   \u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588}    \u{2588}\u{2588} \u{2588}\u{2588} \u{2588}\u{2588} \u{2588}\u{2588}\u{2588}\u{2588} \u{2588}\u{2588}",
+            "\u{2588}\u{2588}  \u{2588}\u{2588} \u{2588}\u{2588} \u{2588}\u{2588}      \u{2588}\u{2588}    \u{2588}\u{2588}  \u{2588}\u{2588}  \u{2588}\u{2588}  \u{2588}\u{2588} \u{2588}\u{2588}  \u{2588}\u{2588}  \u{2588}\u{2588}",
+            "\u{2588}\u{2588}   \u{2588}\u{2588}\u{2588}\u{2588} \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}  \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}    \u{2588}\u{2588}\u{2588}\u{2588}   \u{2588}\u{2588} \u{2588}\u{2588}      \u{2588}\u{2588}",
+          }, "\n"),
+
+          -- stylua: ignore
+          keys = {
+            { icon = "\u{f002} ", key = "f", desc = "Find File",       action = ":lua Snacks.picker.files()" },
+            { icon = "\u{f15b} ", key = "n", desc = "New File",        action = ":ene | startinsert" },
+            { icon = "\u{f002} ", key = "g", desc = "Grep Text",       action = ":lua Snacks.picker.grep()" },
+            { icon = "\u{f1da} ", key = "r", desc = "Recent Files",    action = ":lua Snacks.picker.recent()" },
+            { icon = "\u{f07b} ", key = "p", desc = "Projects",        action = ":lua Snacks.picker.projects()" },
+            { icon = "\u{f07c} ", key = "e", desc = "Explorer",        action = ":lua Snacks.explorer()" },
+            { icon = "\u{f1d3} ", key = "G", desc = "Lazygit",         action = ":lua Snacks.lazygit()", enabled = platform.has("lazygit") },
+            { icon = "\u{f02d} ", key = "o", desc = "Obsidian Search", action = ":ObsidianSearch", enabled = obsidian_vault() ~= nil },
+            { icon = "\u{f013} ", key = "c", desc = "Config",          action = ":lua Snacks.picker.files({ cwd = vim.fn.stdpath('config') })" },
+            { icon = "\u{f1da} ", key = "s", desc = "Restore Session", section = "session" },
+            { icon = "\u{f0f4} ", key = "L", desc = "Lazy",            action = ":Lazy", enabled = package.loaded.lazy ~= nil },
+            { icon = "\u{f011} ", key = "q", desc = "Quit",            action = ":qa" },
+          },
+        },
+
         sections = {
-          { section = "keys", gap = 0, padding = 1 },
-          { icon = "\u{f1da} ", title = "Recent Files", section = "recent_files", indent = 1, padding = 1 },
-          { icon = "\u{f07b} ", title = "Projects", section = "projects", indent = 1, padding = 0 },
+          { section = "header" },
+          {
+            pane = 1,
+            align = "center",
+            padding = 1,
+            text = {
+              { os.date("%A, %d %B %Y"), hl = "SnacksDashboardRule" },
+            },
+          },
+          { pane = 1, section = "keys", gap = 0, padding = 1 },
+
+          {
+            pane = 2,
+            icon = "\u{f1da} ",
+            title = "Recent Files",
+            section = "recent_files",
+            limit = 6,
+            -- Vault notes get their own section below, so keep them out here.
+            filter = function(file)
+              local vault = obsidian_vault()
+              return not (vault and vim.startswith(file, vault))
+            end,
+            indent = 2,
+            padding = 1,
+          },
+          {
+            pane = 2,
+            icon = "\u{f02d} ",
+            title = "Notes",
+            section = "recent_files",
+            limit = 5,
+            enabled = function()
+              return obsidian_vault() ~= nil
+            end,
+            filter = function(file)
+              local vault = obsidian_vault()
+              return vault ~= nil and vim.startswith(file, vault)
+            end,
+            indent = 2,
+            padding = 1,
+          },
+          {
+            pane = 2,
+            icon = "\u{f07b} ",
+            title = "Projects",
+            section = "projects",
+            limit = 5,
+            indent = 2,
+            padding = 1,
+          },
+          {
+            pane = 2,
+            icon = "\u{f1d3} ",
+            title = "Git Status",
+            section = "terminal",
+            enabled = function()
+              return Snacks.git.get_root() ~= nil
+            end,
+            cmd = "git status --short --branch --renames",
+            height = 5,
+            ttl = 5 * 60,
+            indent = 3,
+            padding = 1,
+          },
+
+          { pane = 1, section = "startup" },
         },
       },
 
