@@ -1,6 +1,23 @@
 local icons = require("core.icons")
 local platform = require("core.platform")
 
+--- Strip the background from every highlight group whose name matches one of
+--- `patterns`, so the terminal (and its blur) shows through. Runs after the
+--- colorscheme so plugins that derive their own groups at load time are caught
+--- too.
+---@param patterns string[]
+local function clear_backgrounds(patterns)
+  for name, def in pairs(vim.api.nvim_get_hl(0, {})) do
+    for _, pattern in ipairs(patterns) do
+      if name:match(pattern) and (def.bg ~= nil or def.ctermbg ~= nil) then
+        def.bg, def.ctermbg = nil, nil
+        vim.api.nvim_set_hl(0, name, def)
+        break
+      end
+    end
+  end
+end
+
 --- Render plain text as a slimline component: the same padding slimline's own
 --- `fg` style components use, highlighted like the primary part of `follow` so
 --- custom components pick up the style recipe for free. Empty text renders
@@ -27,7 +44,18 @@ return {
     lazy = false,
     priority = 1000,
     config = function()
-      require("luna").setup()
+      require("luna").setup({ transparent = true })
+
+      -- luna's own `transparent` covers core and most plugin groups; these are
+      -- derived from the colorscheme by plugins, some of which only load on
+      -- VeryLazy, so re-run on both events.
+      local group = vim.api.nvim_create_augroup("luna_transparent", { clear = true })
+      local function untint()
+        clear_backgrounds({ "^BufferLine", "^Noice", "^TabLine", "^MsgArea", "^StatusLine" })
+      end
+      vim.api.nvim_create_autocmd("ColorScheme", { group = group, pattern = "luna", callback = untint })
+      vim.api.nvim_create_autocmd("User", { group = group, pattern = "VeryLazy", callback = untint })
+
       vim.cmd.colorscheme("luna")
     end,
   },
