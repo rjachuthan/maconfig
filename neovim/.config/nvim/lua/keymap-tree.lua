@@ -22,6 +22,9 @@ local M = {}
 M.groups = {
   --- Top-level prefixes
   { "<leader>a", group = "ai", icon = "\u{f544} " }, -- nf-fa-robot
+  -- sidekick: Copilot NES, plus a terminal for any AI CLI (Copilot, Claude,
+  -- Codex, Gemini, ...) -- not Copilot-only, despite the icon.
+  { "<leader>ag", group = "sidekick", icon = "\u{f113} " }, -- nf-fa-github_alt
   { "<leader>b", group = "buffer", icon = "\u{f0c5} " }, -- nf-fa-files_o
   { "<leader>c", group = "code", icon = "\u{f121} " }, -- nf-fa-code
   { "<leader>C", group = "csv", icon = "\u{f0ce} " }, -- nf-fa-table
@@ -54,6 +57,7 @@ M.groups = {
 --- takes five seconds instead of a grep.
 ---
 ---   <leader>a   plugins/tools.lua        claudecode.nvim
+---   <leader>ag  plugins/tools.lua        sidekick.nvim (Copilot NES + AI CLIs)
 ---   <leader>b   plugins/ui.lua           bufferline
 ---   <leader>c   util/lsp.lua             LSP actions (on LspAttach)
 ---               plugins/editor.lua       cw/cW: swap parameter (textobjects)
