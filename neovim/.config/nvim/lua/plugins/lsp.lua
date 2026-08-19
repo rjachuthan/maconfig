@@ -80,6 +80,33 @@ return {
       snippets = { preset = "default" },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
+
+        -- Data filetypes where buffer-word completion is pure noise: every
+        -- cell value in a CSV and every base64 blob in a notebook becomes a
+        -- candidate. LSP/path/snippets still apply.
+        per_filetype = {
+          csv = { "path", "snippets" },
+          tsv = { "path", "snippets" },
+          ipynb = { "lsp", "path", "snippets" },
+          dbout = { "path" },
+        },
+
+        providers = {
+          buffer = {
+            opts = {
+              -- Default is every visible buffer. Skip the ones snacks.bigfile
+              -- has stripped down -- scanning a 500MB extract for words is
+              -- the slowest thing in the completion path.
+              get_bufnrs = function()
+                return vim.tbl_filter(function(buf)
+                  return vim.bo[buf].buftype == "" and not vim.b[buf].bigfile
+                end, vim.tbl_map(function(win)
+                  return vim.api.nvim_win_get_buf(win)
+                end, vim.api.nvim_list_wins()))
+              end,
+            },
+          },
+        },
       },
     },
   },
@@ -122,18 +149,93 @@ return {
     event = "LazyFile",
     opts = {
       linters_by_ft = {},
+
+      -- Linters that shell out to a slow external process. These run on
+      -- read and write only -- never on InsertLeave, where they would mean
+      -- a process spawn every time you tap <Esc>. ruff is deliberately not
+      -- here: it returns in single-digit milliseconds, so live feedback
+      -- while editing Python is worth the spawn.
+      slow = { "sqlfluff", "shellcheck", "markdownlint-cli2" },
+
+      -- Coalesce bursts of events (`:wa`, a fast <Esc><Esc>) into one run.
+      debounce = 300,
     },
     config = function(_, opts)
       local lint = require("lint")
       lint.linters_by_ft = opts.linters_by_ft
 
+      local slow = {}
+      for _, name in ipairs(opts.slow or {}) do
+        slow[name] = true
+      end
+
+      --- Linters configured for `buf`'s filetype, minus the slow ones when
+      --- `fast_only` is set.
+      ---@param buf integer
+      ---@param fast_only boolean
+      ---@return string[]
+      local function linters_for(buf, fast_only)
+        local names = vim.list_extend({}, lint.linters_by_ft[vim.bo[buf].filetype] or {})
+        vim.list_extend(names, lint.linters_by_ft["_"] or {})
+        if not fast_only then
+          return names
+        end
+        return vim.tbl_filter(function(name)
+          return not slow[name]
+        end, names)
+      end
+
+      local timer = assert(vim.uv.new_timer())
+
+      ---@param fast_only boolean
+      local function try_lint(fast_only)
+        local buf = vim.api.nvim_get_current_buf()
+
+        -- Terminals, dashboards, picker previews and quickfix have no file
+        -- behind them; the old unguarded version linted all of them.
+        if vim.bo[buf].buftype ~= "" or not vim.bo[buf].modifiable then
+          return
+        end
+
+        -- snacks.bigfile marks buffers it has stripped down. Piping a
+        -- multi-hundred-MB extract through an external linter is never
+        -- what you wanted.
+        if vim.b[buf].bigfile then
+          return
+        end
+
+        local names = linters_for(buf, fast_only)
+        if #names == 0 then
+          return
+        end
+
+        timer:stop()
+        timer:start(
+          opts.debounce or 300,
+          0,
+          vim.schedule_wrap(function()
+            -- You may have moved on during the debounce window.
+            if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_get_current_buf() == buf then
+              lint.try_lint(names)
+            end
+          end)
+        )
+      end
+
       local augroup = vim.api.nvim_create_augroup("nvim_lint", { clear = true })
-      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
+      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost" }, {
         group = augroup,
         callback = function()
-          lint.try_lint()
+          try_lint(false)
         end,
-        desc = "Run nvim-lint for the current buffer's filetype",
+        desc = "Run every nvim-lint linter for the current buffer's filetype",
+      })
+      vim.api.nvim_create_autocmd("InsertLeave", {
+        group = augroup,
+        callback = function()
+          try_lint(true)
+        end,
+        desc = "Run only the fast nvim-lint linters on leaving insert mode",
       })
     end,
   },
