@@ -123,7 +123,7 @@ return {
         auto_start = true,
         port_range = { min = 10000, max = 65535 },
         log_level = "info",
-        terminal_cmd = platform.exe("claude") .. " --dangerously-skip-permissions",
+        terminal_cmd = platform.exe("claude"):gsub("\\", "/") .. " --dangerously-skip-permissions",
         focus_after_send = true,
         track_selection = true,
         git_repo_cwd = true,
