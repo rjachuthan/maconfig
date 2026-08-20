@@ -139,6 +139,168 @@ return {
     end,
   },
 
+  --- -------------------------------------------------------------------------
+  --- GitHub Copilot, via sidekick.nvim
+  --- -------------------------------------------------------------------------
+  --- Two halves, and only the first is unique:
+  ---
+  ---   1. Next Edit Suggestions (NES) -- Copilot LSP proposing multi-line
+  ---      refactors anywhere in the file, not just ghost text at the cursor.
+  ---      Nothing else in this config does this.
+  ---   2. An AI CLI terminal, which overlaps claudecode.nvim almost exactly.
+  ---
+  --- Both are kept deliberately: (2) is here so the overlap can be judged
+  --- side by side. When that's settled, either drop claudecode.nvim and move
+  --- its <leader>a* keys onto sidekick, or strip the `cli` keys below and
+  --- keep sidekick for NES alone.
+  ---
+  --- Everything lives under <leader>ag so it cannot collide with the
+  --- claudecode bindings above -- note that sidekick's own README suggests
+  --- <leader>aa/ac/ad/af/as, all five of which are already taken here.
+  ---
+  --- First run: `:LspCopilotSignIn` (the command is created on attach).
+  --- -------------------------------------------------------------------------
+  {
+    "folke/sidekick.nvim",
+    event = "LazyFile",
+    dependencies = { "folke/snacks.nvim" },
+    opts = {
+      nes = { enabled = true },
+      cli = {
+        watch = true, -- reload buffers the CLI edits under us
+        mux = {
+          -- Sessions survive detaching from the editor when tmux is there.
+          backend = "tmux",
+          enabled = vim.env.TMUX ~= nil,
+        },
+      },
+    },
+    keys = {
+      -- <Tab> applies or jumps to the next suggestion. The fallback returns
+      -- a literal <Tab> (no remap), so with no suggestion pending this is
+      -- still <C-i> -- jump forward in the jumplist.
+      {
+        "<tab>",
+        function()
+          if not require("sidekick").nes_jump_or_apply() then
+            return "<Tab>"
+          end
+        end,
+        expr = true,
+        desc = "Next edit suggestion (or jumplist forward)",
+      },
+
+      -- NES
+      {
+        "<leader>agn",
+        function()
+          require("sidekick").nes_jump_or_apply()
+        end,
+        desc = "Next edit suggestion",
+      },
+      {
+        "<leader>agu",
+        function()
+          require("sidekick.nes").update()
+        end,
+        desc = "Request suggestion now",
+      },
+      {
+        "<leader>agx",
+        function()
+          require("sidekick.nes").clear()
+        end,
+        desc = "Clear suggestion",
+      },
+
+      -- CLI (the half that overlaps claudecode.nvim)
+      {
+        "<leader>agg",
+        function()
+          require("sidekick.cli").toggle({ name = "copilot", focus = true })
+        end,
+        desc = "Toggle Copilot CLI",
+      },
+      -- Claude through sidekick, deliberately one keystroke from claudecode's
+      -- <leader>ac so the two can be compared directly. sidekick's claude
+      -- tool is not a bare terminal: it supports --resume/--continue and
+      -- rewrites file references into Claude's @file#L1-2 syntax, which is
+      -- what makes the {this}/{file}/{selection} sends below work.
+      {
+        "<leader>agc",
+        function()
+          require("sidekick.cli").toggle({ name = "claude", focus = true })
+        end,
+        desc = "Toggle Claude (via sidekick)",
+      },
+      {
+        "<leader>agS",
+        function()
+          require("sidekick.cli").select()
+        end,
+        desc = "Select CLI",
+      },
+      {
+        "<leader>agd",
+        function()
+          require("sidekick.cli").close()
+        end,
+        desc = "Detach CLI session",
+      },
+      {
+        "<leader>agp",
+        function()
+          require("sidekick.cli").prompt()
+        end,
+        mode = { "n", "x" },
+        desc = "Select prompt",
+      },
+      {
+        "<leader>agt",
+        function()
+          require("sidekick.cli").send({ msg = "{this}" })
+        end,
+        mode = { "n", "x" },
+        desc = "Send this",
+      },
+      {
+        "<leader>agf",
+        function()
+          require("sidekick.cli").send({ msg = "{file}" })
+        end,
+        desc = "Send file",
+      },
+      {
+        "<leader>agv",
+        function()
+          require("sidekick.cli").send({ msg = "{selection}" })
+        end,
+        mode = { "x" },
+        desc = "Send selection",
+      },
+    },
+  },
+
+  --- The Copilot language server is what actually produces NES. It is not a
+  --- diagnostics/completion server, so it wants no filetype restriction --
+  --- sidekick asks it for suggestions wherever you are.
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        copilot = {},
+      },
+    },
+  },
+  {
+    "mason-org/mason.nvim",
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "copilot-language-server" })
+      return opts
+    end,
+  },
+
   {
     "christoomey/vim-tmux-navigator",
     cond = not platform.is_win and vim.env.TMUX ~= nil,

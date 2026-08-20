@@ -22,6 +22,9 @@ local M = {}
 M.groups = {
   --- Top-level prefixes
   { "<leader>a", group = "ai", icon = "\u{f544} " }, -- nf-fa-robot
+  -- sidekick: Copilot NES, plus a terminal for any AI CLI (Copilot, Claude,
+  -- Codex, Gemini, ...) -- not Copilot-only, despite the icon.
+  { "<leader>ag", group = "sidekick", icon = "\u{f113} " }, -- nf-fa-github_alt
   { "<leader>b", group = "buffer", icon = "\u{f0c5} " }, -- nf-fa-files_o
   { "<leader>c", group = "code", icon = "\u{f121} " }, -- nf-fa-code
   { "<leader>C", group = "csv", icon = "\u{f0ce} " }, -- nf-fa-table
@@ -32,6 +35,7 @@ M.groups = {
   { "<leader>j", group = "jq", icon = "\u{f0b0} " }, -- nf-fa-filter
   { "<leader>n", group = "notebook", icon = "\u{f0e7} " }, -- nf-fa-bolt
   { "<leader>o", group = "obsidian", icon = "\u{f02d} " }, -- nf-fa-book
+  { "<leader>P", group = "package.json", icon = "\u{f487} " }, -- nf-oct-package
   { "<leader>q", group = "quit/session", icon = "\u{f011} " }, -- nf-fa-power_off
   { "<leader>s", group = "search", icon = "\u{f002} " }, -- nf-fa-search
   { "<leader>t", group = "test", icon = "\u{f0c3} " }, -- nf-fa-flask
@@ -54,6 +58,7 @@ M.groups = {
 --- takes five seconds instead of a grep.
 ---
 ---   <leader>a   plugins/tools.lua        claudecode.nvim
+---   <leader>ag  plugins/tools.lua        sidekick.nvim (Copilot NES + AI CLIs)
 ---   <leader>b   plugins/ui.lua           bufferline
 ---   <leader>c   util/lsp.lua             LSP actions (on LspAttach)
 ---               plugins/editor.lua       cw/cW: swap parameter (textobjects)
@@ -64,6 +69,7 @@ M.groups = {
 ---   <leader>j   plugins/lang/json.lua    jq.nvim (jq/yq over the buffer)
 ---   <leader>n   plugins/lang/notebook.lua ipynb.nvim
 ---   <leader>o   plugins/lang/markdown.lua obsidian.nvim
+---   <leader>P   plugins/lang/web.lua     package-info.nvim
 ---   <leader>q   plugins/editor.lua       persistence.nvim
 ---               core/keymaps.lua         qc: quit window
 ---   <leader>s   plugins/ui.lua           snacks.picker

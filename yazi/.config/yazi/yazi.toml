@@ -1,7 +1,5 @@
 # A TOML linter such as https://taplo.tamasfe.dev/ can use this schema to validate your config.
 # If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
-"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
-
 [mgr]
 ratio          = [ 1, 2, 5 ]
 sort_by        = "alphabetical"
@@ -31,4 +29,3 @@ ueberzug_offset = [ 0, 0, 0, 0 ]
 prepend_previewers = [
   { name = "*.md", run = "piper -- CLICOLOR_FORCE=1 glow -w ${w} -s dark $1" },
 ]
-

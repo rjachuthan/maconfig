@@ -41,7 +41,12 @@ return {
                 typeCheckingMode = "basic",
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
-                diagnosticMode = "workspace",
+                -- "workspace" re-analyses the whole tree on every change --
+                -- on a monorepo (or anything with a fat site-packages /
+                -- dbt_packages next door) that is seconds of lag and
+                -- hundreds of MB resident. ruff already runs project-wide
+                -- via nvim-lint, so the type checker only needs what's open.
+                diagnosticMode = "openFilesOnly",
               },
             },
           },

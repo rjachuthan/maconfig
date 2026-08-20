@@ -17,5 +17,5 @@ case "${FILE##*.}" in
     ;;
 esac
 
-osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"$FILE\""
+osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$FILE\""
 echo "Wallpaper set: $(basename "$FILE")"

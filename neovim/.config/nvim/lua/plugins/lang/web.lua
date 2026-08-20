@@ -7,6 +7,10 @@ return {
       opts.servers.vtsls = {}
       opts.servers.eslint = {}
       opts.servers.taplo = {}
+      -- lspconfig's cmd prefers node_modules/.bin/tailwindcss-language-server
+      -- when the project has one, so per-project Tailwind versions win over
+      -- the Mason copy.
+      opts.servers.tailwindcss = {}
       opts.servers.jsonls = {
         settings = {
           json = {
@@ -31,9 +35,50 @@ return {
     "mason-org/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "prettier" })
+      vim.list_extend(opts.ensure_installed, { "prettier", "tailwindcss-language-server" })
       return opts
     end,
+  },
+
+  --- Inline colour swatches for hex/rgb/hsl, and for Tailwind class names via
+  --- the LSP's documentColor -- `bg-sky-500` renders in sky-500.
+  {
+    "brenoprata10/nvim-highlight-colors",
+    event = "LazyFile",
+    keys = {
+      { "<leader>uC", "<cmd>HighlightColorsToggle<cr>", desc = "Toggle colour swatches" },
+    },
+    opts = {
+      render = "virtual",
+      virtual_symbol = "\u{f111}", -- nf-fa-circle
+      virtual_symbol_position = "eol",
+      enable_hex = true,
+      enable_rgb = true,
+      enable_hsl = true,
+      enable_named_colors = true,
+      enable_tailwind = true,
+    },
+  },
+
+  --- Inline latest/outdated versions in package.json, plus change/delete on
+  --- the dependency under the cursor.
+  {
+    "vuki656/package-info.nvim",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    ft = "json",
+    keys = {
+      -- <leader>P, not <leader>n: that prefix is the notebook group.
+      { "<leader>Ps", function() require("package-info").show({ force = true }) end, desc = "Show dependency versions" },
+      { "<leader>Ph", function() require("package-info").hide() end, desc = "Hide dependency versions" },
+      { "<leader>Pu", function() require("package-info").update() end, desc = "Update dependency" },
+      { "<leader>Pd", function() require("package-info").delete() end, desc = "Delete dependency" },
+      { "<leader>Pi", function() require("package-info").install() end, desc = "Install new dependency" },
+      { "<leader>Pv", function() require("package-info").change_version() end, desc = "Change dependency version" },
+    },
+    opts = {
+      hide_up_to_date = true,
+      package_manager = "npm",
+    },
   },
 
   {

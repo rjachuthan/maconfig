@@ -116,10 +116,17 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "csv", "tsv" },
         group = vim.api.nvim_create_augroup("nvim_lang_csv_autoview", { clear = true }),
-        callback = function()
+        callback = function(event)
+          -- snacks.bigfile marks buffers it has stripped down. Parsing and
+          -- aligning every column of a multi-GB extract locks the editor,
+          -- and it's exactly the file you're most likely to open by
+          -- accident. `:CsvViewEnable` still works if you really want it.
+          if vim.b[event.buf].bigfile then
+            return
+          end
           vim.cmd("CsvViewEnable")
         end,
-        desc = "Auto-enable CSV view for CSV/TSV files",
+        desc = "Auto-enable CSV view for CSV/TSV files that aren't huge",
       })
 
       vim.api.nvim_create_autocmd("User", {
