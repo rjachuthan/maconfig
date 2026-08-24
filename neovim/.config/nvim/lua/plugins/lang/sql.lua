@@ -18,6 +18,18 @@ return {
 
       vim.g.omni_sql_default_compl_type = "syntax"
       vim.g.loaded_sql_completion = true
+
+      -- Upstream's Snowflake adapter has no tables() hook and dadbod-ui has no
+      -- Snowflake schema of its own, so the drawer would list nothing.
+      vim.g.db_adapter_snowflake = "db#adapter#snowflake_kp#"
+
+      -- The default helper is `SELECT * from "{table}" LIMIT 200;`, which
+      -- quotes SCHEMA.TABLE as a single identifier and fails to resolve.
+      vim.g.db_ui_table_helpers = vim.tbl_deep_extend("force", vim.g.db_ui_table_helpers or {}, {
+        snowflake = { List = "SELECT * FROM {table} LIMIT 200;" },
+      })
+
+      vim.g.dbs = require("util.db").connections()
     end,
   },
 

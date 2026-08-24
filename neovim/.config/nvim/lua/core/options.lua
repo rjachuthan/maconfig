@@ -92,3 +92,5 @@ vim.schedule(function()
     opt.clipboard = "unnamedplus"
   end
 end)
+
+vim.opt.winborder = "rounded"
