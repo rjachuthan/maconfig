@@ -67,7 +67,13 @@ map("n", "]w", diagnostic_goto(1, "WARN"), { desc = "Next warning" })
 map("n", "[w", diagnostic_goto(-1, "WARN"), { desc = "Prev warning" })
 
 map("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
-map("t", "<C-h>", "<cmd>wincmd h<cr>", { desc = "Window left" })
-map("t", "<C-j>", "<cmd>wincmd j<cr>", { desc = "Window down" })
-map("t", "<C-k>", "<cmd>wincmd k<cr>", { desc = "Window up" })
-map("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Window right" })
+
+-- Terminal-mode <C-hjkl> window navigation is handled by vim-tmux-navigator
+-- (see plugins/tools.lua) when inside tmux, so it can also cross into real
+-- tmux panes. Fall back to plain window switching when tmux isn't present.
+if vim.env.TMUX == nil then
+  map("t", "<C-h>", "<cmd>wincmd h<cr>", { desc = "Window left" })
+  map("t", "<C-j>", "<cmd>wincmd j<cr>", { desc = "Window down" })
+  map("t", "<C-k>", "<cmd>wincmd k<cr>", { desc = "Window up" })
+  map("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Window right" })
+end
