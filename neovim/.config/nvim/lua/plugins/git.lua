@@ -1,3 +1,58 @@
+-- The default git_branches picker packs branch name, commit id, date and
+-- author onto one line in a narrow right-hand preview split, which cramps the
+-- branch names. Drop the preview entirely so the full width goes to the
+-- branch list.
+local function git_branches()
+  Snacks.picker.git_branches({
+    all = true,
+    layout = {
+      layout = {
+        box = "vertical",
+        border = true,
+        title = "{title} {live} {flags}",
+        title_pos = "center",
+        width = 0.7,
+        min_width = 100,
+        height = 0.5,
+        min_height = 15,
+        { win = "input", height = 1, border = "bottom" },
+        { win = "list", border = "none" },
+      },
+    },
+  })
+end
+
+--- Re-link git-picker highlight groups on every colorscheme change so commit
+--- id and author stay colour-coded instead of following luna's default dim
+--- grey for `SnacksPickerGitCommit`.
+local function git_picker_highlights()
+  local links = {
+    SnacksPickerGitCommit = "DiagnosticHint",
+    SnacksPickerGitAuthor = "DiagnosticInfo",
+    SnacksPickerGitDate = "Comment",
+    SnacksPickerGitBranchCurrent = "String",
+    -- Conventional-commit prefix in the preview's log ("type(scope): message").
+    SnacksPickerGitType = "Type",
+    SnacksPickerGitScope = "DiagnosticWarn",
+  }
+  local function apply()
+    for group, link in pairs(links) do
+      vim.api.nvim_set_hl(0, group, { link = link })
+    end
+  end
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("git_picker_highlights", { clear = true }),
+    callback = apply,
+  })
+  apply()
+end
+
+-- Called at require-time (not via the plugin's `init`) because ui.lua already
+-- sets `init` on this same "folke/snacks.nvim" spec, and lazy.nvim's spec
+-- merge keeps only the last-registered `init` function rather than composing
+-- them.
+git_picker_highlights()
+
 return {
   {
     "folke/snacks.nvim",
@@ -6,6 +61,7 @@ return {
       { "<leader>gG", function() Snacks.lazygit({ cwd = require("util.root").get() }) end, desc = "Lazygit (root)" },
       { "<leader>gl", function() Snacks.lazygit.log() end, desc = "Lazygit log" },
       { "<leader>gL", function() Snacks.lazygit.log_file() end, desc = "Lazygit log (current file)" },
+      { "<leader>gb", git_branches, desc = "Git branches" },
     },
   },
 
