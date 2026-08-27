@@ -7,9 +7,9 @@ return {
   },
 
   git = {
-    added = "\u{f457} ",
-    modified = "\u{f459} ",
-    removed = "\u{f458} ",
+    added = "▎",
+    modified = "▎",
+    removed = "▎",
     branch = "\u{e0a0} ",
     sync = "\u{f021} ",
     behind = "\u{2193}",

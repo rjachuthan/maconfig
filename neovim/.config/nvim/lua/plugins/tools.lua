@@ -304,6 +304,12 @@ return {
   {
     "christoomey/vim-tmux-navigator",
     cond = not platform.is_win and vim.env.TMUX ~= nil,
+    -- The plugin's own terminal-mode mappings use a Vim8 `<C-w>` terminal-normal
+    -- trick that Neovim doesn't support, so the raw command text leaks into the
+    -- terminal job (e.g. sent straight to a Claude terminal) instead of
+    -- switching panes. Disable its mappings and drive it entirely through
+    -- lazy.nvim's `<cmd>` keys below, which work correctly from any mode.
+    init = function() vim.g.tmux_navigator_no_mappings = 1 end,
     cmd = {
       "TmuxNavigateLeft",
       "TmuxNavigateDown",
@@ -312,10 +318,10 @@ return {
       "TmuxNavigatePrevious",
     },
     keys = {
-      { "<c-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Go to left window/pane" },
-      { "<c-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Go to lower window/pane" },
-      { "<c-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Go to upper window/pane" },
-      { "<c-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Go to right window/pane" },
+      { "<c-h>", "<cmd>TmuxNavigateLeft<cr>", mode = { "n", "t" }, desc = "Go to left window/pane" },
+      { "<c-j>", "<cmd>TmuxNavigateDown<cr>", mode = { "n", "t" }, desc = "Go to lower window/pane" },
+      { "<c-k>", "<cmd>TmuxNavigateUp<cr>", mode = { "n", "t" }, desc = "Go to upper window/pane" },
+      { "<c-l>", "<cmd>TmuxNavigateRight<cr>", mode = { "n", "t" }, desc = "Go to right window/pane" },
     },
   },
 }
