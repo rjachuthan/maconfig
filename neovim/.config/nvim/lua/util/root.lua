@@ -14,10 +14,11 @@ local function lsp_roots(buf)
   local roots = {}
   for _, client in pairs(vim.lsp.get_clients({ bufnr = buf })) do
     if not vim.tbl_contains(M.ignore_lsp, client.name) then
-      for _, folder in ipairs(client.workspace_folders or {}) do
+      local folders = client.workspace_folders or {}
+      for _, folder in ipairs(folders) do
         table.insert(roots, vim.uri_to_fname(folder.uri))
       end
-      if #client.workspace_folders == 0 and client.root_dir then
+      if #folders == 0 and client.root_dir then
         table.insert(roots, client.root_dir)
       end
     end
