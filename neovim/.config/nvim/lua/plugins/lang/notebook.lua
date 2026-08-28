@@ -3,11 +3,14 @@ local platform = require("core.platform")
 return {
   {
     "ajbucci/ipynb.nvim",
-    ft = "ipynb",
-    -- Neovim's built-in detection maps *.ipynb to "json" (it's valid JSON),
-    -- so `ft = "ipynb"` above would never match a real notebook file without
-    -- this override. init runs eagerly (unlike config), so it's registered
-    -- before the first buffer is ever read.
+    -- Must load eagerly (not lazy on ft="ipynb"): the plugin works by
+    -- registering a BufReadCmd for *.ipynb that intercepts the file read
+    -- and renders a facade buffer instead of raw JSON. If loaded lazily on
+    -- ft, the FileType event that would trigger the load only fires AFTER
+    -- Neovim's default reader has already loaded the raw JSON into the
+    -- buffer, so the BufReadCmd gets registered too late for the first
+    -- notebook opened in a session and you just see raw JSON.
+    lazy = false,
     init = function()
       vim.filetype.add({ extension = { ipynb = "ipynb" } })
     end,
