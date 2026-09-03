@@ -66,7 +66,7 @@ local function dashboard_accent(item)
 end
 
 --- Link the dashboard accents to colorscheme groups, and re-link on every
---- colorscheme change so they follow luna instead of freezing at load time.
+--- colorscheme change so they follow koda instead of freezing at load time.
 local function dashboard_highlights()
   local links = {
     SnacksDashboardRecent = "Function",
@@ -89,23 +89,20 @@ end
 
 return {
   {
-    "wtfox/luna.nvim",
+    "oskarnurm/koda.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("luna").setup({ transparent = true })
+      require("koda").setup({ transparent = true })
 
-      -- luna's own `transparent` covers core and most plugin groups; these are
-      -- derived from the colorscheme by plugins, some of which only load on
-      -- VeryLazy, so re-run on both events.
-      local group = vim.api.nvim_create_augroup("luna_transparent", { clear = true })
+      local group = vim.api.nvim_create_augroup("koda_transparent", { clear = true })
       local function untint()
         clear_backgrounds({ "^BufferLine", "^Noice", "^TabLine", "^MsgArea", "^StatusLine" })
       end
-      vim.api.nvim_create_autocmd("ColorScheme", { group = group, pattern = "luna", callback = untint })
+      vim.api.nvim_create_autocmd("ColorScheme", { group = group, pattern = "koda-moss", callback = untint })
       vim.api.nvim_create_autocmd("User", { group = group, pattern = "VeryLazy", callback = untint })
 
-      vim.cmd.colorscheme("luna")
+      vim.cmd.colorscheme("koda-moss")
     end,
   },
 
