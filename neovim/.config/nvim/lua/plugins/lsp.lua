@@ -116,6 +116,14 @@ return {
     event = "LazyFile",
     cmd = "ConformInfo",
     opts = {
+      -- conform's own default is 1000ms, shared across the whole chain for a
+      -- buffer (e.g. markdown's prettier + markdownlint-cli2 run back to
+      -- back). Spawning node-based CLIs on Windows routinely costs 500ms+
+      -- per process, so two chained formatters blow the default budget and
+      -- conform reports a timeout even though nothing is actually stuck.
+      default_format_opts = {
+        timeout_ms = 5000,
+      },
       formatters_by_ft = {
         lua = { "stylua" },
         sh = { "shfmt" },
