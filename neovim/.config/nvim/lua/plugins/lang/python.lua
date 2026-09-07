@@ -205,7 +205,10 @@ return {
               block_dividers = { "# %%", "# COMMAND ----------" },
             },
           },
-          repl_open_cmd = view.split.vertical.botright(80),
+          -- Horizontal, not vertical: wide Spark `.show()` output wraps
+          -- illegibly once it exceeds a fixed-width vertical split, so the
+          -- REPL gets the full editor width instead.
+          repl_open_cmd = view.split.horizontal.botright(20),
         },
         keymaps = {
           send_motion = "<leader>rm",
