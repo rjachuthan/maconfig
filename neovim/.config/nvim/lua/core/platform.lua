@@ -27,12 +27,19 @@ function M.exe(name)
 end
 
 ---@param venv string Root of the virtualenv
+---@param name string Executable name, without extension
+---@return string
+function M.venv_bin(venv, name)
+  if M.is_win then
+    return venv .. "\\Scripts\\" .. name .. ".exe"
+  end
+  return venv .. "/bin/" .. name
+end
+
+---@param venv string Root of the virtualenv
 ---@return string
 function M.python_bin(venv)
-  if M.is_win then
-    return venv .. "\\Scripts\\python.exe"
-  end
-  return venv .. "/bin/python"
+  return M.venv_bin(venv, "python")
 end
 
 ---@param root string|nil Project root to look for .venv in

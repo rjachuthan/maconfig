@@ -14,6 +14,7 @@
   "hydra.nvim": { "branch": "main", "commit": "8c4a9f621ec7cdc30411a1f3b6d5eebb12b469dc" },
   "image.nvim": { "branch": "master", "commit": "5c6f29a5069e1f7bd5773ce5907454063b0f125d" },
   "ipynb.nvim": { "branch": "main", "commit": "c35d3d98fa21b2d4c776ae00e20dd8a5f321658e" },
+  "iron.nvim": { "branch": "master", "commit": "1ad44e4e82ad31b7df1cdb7f154c707bfd0d303c" },
   "jq.nvim": { "branch": "main", "commit": "70e12681b1026ba7c06c691fd815eed0e2244b81" },
   "koda.nvim": { "branch": "main", "commit": "25a5c98ca2f6bb0b69f5e2654a78f0d7c7e0721d" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },

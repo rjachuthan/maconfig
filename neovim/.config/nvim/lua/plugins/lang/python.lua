@@ -151,6 +151,87 @@ return {
       require("dap-python").setup(python_interpreter())
     end,
   },
+  --- ---------------------------------------------------------------------------
+  --- Databricks Connect REPL, via iron.nvim
+  --- ---------------------------------------------------------------------------
+  --- Sends chunks of the current buffer to a persistent ipython REPL instead
+  --- of running the whole file, so a Spark session created early in the
+  --- buffer survives later sends -- the notebook-cell workflow Databricks
+  --- Connect is built around, without a Jupyter kernel.
+  ---
+  --- The REPL launches ipython under a dedicated `databricks` profile (not
+  --- profile_default), so plain `ipython` elsewhere on the machine is
+  --- unaffected. That profile's startup script (stowed from
+  --- ipython/.ipython/profile_databricks/startup/) builds `spark` via
+  --- DatabricksSession.builder.getOrCreate() -- auth comes from
+  --- DATABRICKS_HOST/TOKEN/CLUSTER_ID env vars or ~/.databrickscfg, same as
+  --- util/db.lua's env-vars-only rule, never from this repo. The interpreter
+  --- is whichever venv-selector.nvim has active, so `databricks-connect`
+  --- (pinned to the cluster's DBR runtime version) and `ipython` need to be
+  --- installed in that project's venv.
+  ---
+  --- `<leader>rc` sends the cell under the cursor, delimited by `# %%` or
+  --- Databricks' own `# COMMAND ----------` markers, so notebooks exported
+  --- from Databricks work unchanged.
+  {
+    "Vigemus/iron.nvim",
+    ft = "python",
+    config = function()
+      local iron = require("iron.core")
+      local view = require("iron.view")
+      local common = require("iron.fts.common")
+      local venv = require("util.venv")
+
+      iron.setup({
+        config = {
+          scratch_repl = true,
+          close_window_on_exit = true,
+          repl_definition = {
+            python = {
+              command = function()
+                local ipython = venv.bin("ipython")
+                if vim.fn.executable(ipython) == 0 then
+                  vim.notify(
+                    "No ipython found for the active venv (got '"
+                      .. ipython
+                      .. "'). Select the project's venv with <leader>cv, or pip install ipython into it.",
+                    vim.log.levels.ERROR,
+                    { title = "Databricks REPL" }
+                  )
+                end
+                return { ipython, "--profile=databricks", "--no-autoindent" }
+              end,
+              format = common.bracketed_paste_python,
+              block_dividers = { "# %%", "# COMMAND ----------" },
+            },
+          },
+          repl_open_cmd = view.split.vertical.botright(80),
+        },
+        keymaps = {
+          send_motion = "<leader>rm",
+          visual_send = "<leader>r",
+          send_line = "<leader>rl",
+          send_until_cursor = "<leader>ru",
+          send_file = "<leader>rf",
+          send_code_block = "<leader>rc",
+          send_code_block_and_move = "<leader>rC",
+          interrupt = "<leader>rx",
+          exit = "<leader>rq",
+          clear = "<leader>rd",
+        },
+        highlight = { italic = true },
+        ignore_blank_lines = true,
+      })
+
+      vim.keymap.set("n", "<leader>ro", function()
+        iron.focus_on("python")
+      end, { desc = "Focus REPL" })
+      vim.keymap.set("n", "<leader>rR", function()
+        iron.repl_restart()
+      end, { desc = "Restart REPL" })
+    end,
+  },
+
   {
     "linux-cultist/venv-selector.nvim",
     ft = "python",

@@ -26,7 +26,7 @@ end
 --- Root of the active virtualenv, preferring venv-selector's choice over the
 --- environment it inherited at startup.
 ---@return string|nil
-local function active()
+function M.path()
   local ok, venv_selector = pcall(require, "venv-selector")
   if ok then
     local selected_ok, selected = pcall(venv_selector.venv)
@@ -44,7 +44,7 @@ end
 --- Name of the active virtualenv, empty when none is selected.
 ---@return string
 function M.name()
-  local path = active()
+  local path = M.path()
   return path and pretty(path) or ""
 end
 
@@ -52,6 +52,18 @@ end
 ---@return boolean
 function M.enabled()
   return vim.bo.filetype == "python" and M.name() ~= ""
+end
+
+--- Full path to an executable inside the active virtualenv, falling back to
+--- a plain PATH lookup when no virtualenv is selected.
+---@param name string
+---@return string
+function M.bin(name)
+  local path = M.path()
+  if path then
+    return require("core.platform").venv_bin(path, name)
+  end
+  return require("core.platform").exe(name) or name
 end
 
 return M

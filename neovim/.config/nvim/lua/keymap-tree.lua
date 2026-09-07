@@ -37,6 +37,7 @@ M.groups = {
   { "<leader>o", group = "obsidian", icon = "\u{f02d} " }, -- nf-fa-book
   { "<leader>P", group = "package.json", icon = "\u{f487} " }, -- nf-oct-package
   { "<leader>q", group = "quit/session", icon = "\u{f011} " }, -- nf-fa-power_off
+  { "<leader>r", group = "repl", icon = "\u{f04b} " }, -- nf-fa-play
   { "<leader>s", group = "search", icon = "\u{f002} " }, -- nf-fa-search
   { "<leader>t", group = "test", icon = "\u{f0c3} " }, -- nf-fa-flask
   { "<leader>T", group = "terminal", icon = "\u{f120} " }, -- nf-fa-terminal
@@ -72,6 +73,7 @@ M.groups = {
 ---   <leader>P   plugins/lang/web.lua     package-info.nvim
 ---   <leader>q   plugins/editor.lua       persistence.nvim
 ---               core/keymaps.lua         qc: quit window
+---   <leader>r   plugins/lang/python.lua  iron.nvim (Databricks Connect REPL)
 ---   <leader>s   plugins/ui.lua           snacks.picker
 ---   <leader>t   plugins/test.lua         neotest
 ---   <leader>T   plugins/tools.lua        toggleterm
