@@ -595,7 +595,7 @@ return {
           os = { editPreset = "nvim-remote" },
           gui = { nerdFontsVersion = "3" },
         },
-        win = { style = "lazygit", border = "rounded" },
+        win = { style = "lazygit", border = "rounded", width = 0.95, height = 0.95 },
       },
 
       statuscolumn = { enabled = true },
