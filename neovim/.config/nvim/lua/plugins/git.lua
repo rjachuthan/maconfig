@@ -71,6 +71,7 @@ return {
     opts = function()
       local icons = require("core.icons").git
       return {
+        current_line_blame = true,
         signs = {
           add = { text = icons.added },
           change = { text = icons.modified },
