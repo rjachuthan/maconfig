@@ -31,7 +31,12 @@ return {
   },
   {
     "stevearc/conform.nvim",
-    opts = { formatters_by_ft = { markdown = { "prettier", "markdownlint-cli2" } } },
+    opts = {
+      formatters_by_ft = { markdown = { "prettier", "markdownlint-cli2" } },
+      formatters = {
+        prettier = { prepend_args = { "--prose-wrap", "always" } },
+      },
+    },
   },
   {
     "mfussenegger/nvim-lint",
