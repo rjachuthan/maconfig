@@ -50,9 +50,9 @@ function M.python(root)
     return M.python_bin(venv)
   end
   if root then
-    local local_venv = root .. "/.venv"
-    if vim.fn.isdirectory(local_venv) == 1 then
-      return M.python_bin(local_venv)
+    local found = vim.fs.find(".venv", { path = root, upward = true, type = "directory" })[1]
+    if found then
+      return M.python_bin(found)
     end
   end
   return M.exe("python3") or M.exe("python") or "python"
