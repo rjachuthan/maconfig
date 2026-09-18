@@ -66,7 +66,7 @@ M.groups = {
 ---   <leader>C   plugins/lang/sql.lua     csvview
 ---   <leader>d   plugins/debug.lua        nvim-dap
 ---   <leader>f   plugins/ui.lua           snacks.picker + snacks.explorer
----   <leader>g   plugins/git.lua          gitsigns / diffview / lazygit
+---   <leader>g   plugins/git.lua          gitsigns / diffview / neogit
 ---   <leader>j   plugins/lang/json.lua    jq.nvim (jq/yq over the buffer)
 ---   <leader>n   plugins/lang/notebook.lua ipynb.nvim
 ---   <leader>o   plugins/lang/markdown.lua obsidian.nvim

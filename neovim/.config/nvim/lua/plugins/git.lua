@@ -57,10 +57,6 @@ return {
   {
     "folke/snacks.nvim",
     keys = {
-      { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit (cwd)" },
-      { "<leader>gG", function() Snacks.lazygit({ cwd = require("util.root").get() }) end, desc = "Lazygit (root)" },
-      { "<leader>gl", function() Snacks.lazygit.log() end, desc = "Lazygit log" },
-      { "<leader>gL", function() Snacks.lazygit.log_file() end, desc = "Lazygit log (current file)" },
       { "<leader>gb", git_branches, desc = "Git branches" },
     },
   },
@@ -130,5 +126,21 @@ return {
       { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Close diffview" },
     },
     opts = {},
+  },
+
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",
+      "folke/snacks.nvim",
+    },
+    cmd = "Neogit",
+    keys = {
+      { "<leader>gs", function() require("neogit").open() end, desc = "Neogit status" },
+    },
+    opts = {
+      integrations = { diffview = true, snacks = true },
+    },
   },
 }

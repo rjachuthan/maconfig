@@ -485,7 +485,6 @@ return {
             { icon = "\u{f1da} ", key = "r", desc = "Recent Files",    action = ":lua Snacks.picker.recent()" },
             { icon = "\u{f07b} ", key = "p", desc = "Projects",        action = ":lua Snacks.picker.projects()" },
             { icon = "\u{f07c} ", key = "e", desc = "Explorer",        action = ":lua Snacks.explorer()" },
-            { icon = "\u{f1d3} ", key = "G", desc = "Lazygit",         action = ":lua Snacks.lazygit()", enabled = platform.has("lazygit") },
             { icon = "\u{f02d} ", key = "o", desc = "Obsidian Search", action = ":ObsidianSearch", enabled = obsidian_vault() ~= nil },
             { icon = "\u{f013} ", key = "c", desc = "Config",          action = ":lua Snacks.picker.files({ cwd = vim.fn.stdpath('config') })" },
             { icon = "\u{f1da} ", key = "s", desc = "Restore Session", section = "session" },
@@ -588,15 +587,6 @@ return {
 
       picker = { enabled = true },
       explorer = { enabled = true },
-
-      lazygit = {
-        configure = true,
-        config = {
-          os = { editPreset = "nvim-remote" },
-          gui = { nerdFontsVersion = "3" },
-        },
-        win = { style = "lazygit", border = "rounded", width = 0.95, height = 0.95 },
-      },
 
       statuscolumn = { enabled = true },
 
