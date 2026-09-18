@@ -17,9 +17,14 @@ gui:
   showPanelJumps: false
   skipRewordInEditorWarning: true # for skipping the confirmation before launching the reword editor
   border: "rounded" # one of 'single' | 'double' | 'rounded' | 'hidden'
-  statusPanelView: allBranchesLog
   fileTreeSortOrder: foldersFirst
 git:
+  # autoFetch runs `git fetch --all` synchronously on every open, then a
+  # second full refresh of branches/commits/remotes/tags once it lands. On
+  # this machine that single fetch measured 1.77s (LOG_LEVEL=debug lazygit
+  # --debug, development.log), the single biggest contributor to slow open.
+  # Fetch manually with `f` when you actually want up-to-date remote refs.
+  autoFetch: false
   diffRenderers:
     - colorArg: always
       command: delta --paging=never --dark --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
