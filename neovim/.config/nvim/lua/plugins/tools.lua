@@ -88,75 +88,19 @@ return {
     end,
   },
 
-  {
-    "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" },
-    cond = function() return platform.exe("claude") ~= nil end,
-    cmd = {
-      "ClaudeCode",
-      "ClaudeCodeStart",
-      "ClaudeCodeStop",
-      "ClaudeCodeStatus",
-      "ClaudeCodeSend",
-      "ClaudeCodeTreeAdd",
-      "ClaudeCodeAdd",
-      "ClaudeCodeFocus",
-      "ClaudeCodeOpen",
-      "ClaudeCodeClose",
-      "ClaudeCodeDiffAccept",
-      "ClaudeCodeDiffDeny",
-      "ClaudeCodeSelectModel",
-    },
-    keys = {
-      { "<leader>ac", ":ClaudeCode<CR>", desc = "Toggle terminal" },
-      { "<leader>ac", ":ClaudeCodeSend<CR>", desc = "Send selection", mode = "v" },
-      { "<leader>af", ":ClaudeCodeFocus<CR>", desc = "Focus terminal" },
-      { "<leader>ar", ":ClaudeCode --resume<CR>", desc = "Resume session" },
-      { "<leader>ab", ":ClaudeCodeAdd %<CR>", desc = "Add buffer" },
-      { "<leader>am", ":ClaudeCodeSelectModel<CR>", desc = "Select model" },
-      { "<leader>aa", ":ClaudeCodeDiffAccept<CR>", desc = "Accept diff" },
-      { "<leader>ad", ":ClaudeCodeDiffDeny<CR>", desc = "Deny diff" },
-      { "<leader>as", ":ClaudeCodeSend<CR>", desc = "Send selection", mode = "v" },
-    },
-    config = function()
-      require("claudecode").setup({
-        auto_start = true,
-        port_range = { min = 10000, max = 65535 },
-        log_level = "info",
-        terminal_cmd = platform.exe("claude"):gsub("\\", "/") .. " --dangerously-skip-permissions",
-        focus_after_send = true,
-        track_selection = true,
-        git_repo_cwd = true,
-        diff_opts = {
-          auto_close_on_accept = true,
-          layout = "vertical",
-          open_in_new_tab = false,
-          hide_terminal_in_new_tab = false,
-          keep_terminal_focus = false,
-          on_new_file_reject = "close_window",
-        },
-      })
-    end,
-  },
-
   --- -------------------------------------------------------------------------
-  --- GitHub Copilot, via sidekick.nvim
+  --- GitHub Copilot & Claude, via sidekick.nvim
   --- -------------------------------------------------------------------------
-  --- Two halves, and only the first is unique:
+  --- Two halves:
   ---
   ---   1. Next Edit Suggestions (NES) -- Copilot LSP proposing multi-line
   ---      refactors anywhere in the file, not just ghost text at the cursor.
-  ---      Nothing else in this config does this.
-  ---   2. An AI CLI terminal, which overlaps claudecode.nvim almost exactly.
+  ---   2. An AI CLI terminal (Copilot or Claude) -- supports --resume/
+  ---      --continue and rewrites file references into each CLI's own
+  ---      syntax, which is what makes the {this}/{file}/{selection} sends
+  ---      below work.
   ---
-  --- Both are kept deliberately: (2) is here so the overlap can be judged
-  --- side by side. When that's settled, either drop claudecode.nvim and move
-  --- its <leader>a* keys onto sidekick, or strip the `cli` keys below and
-  --- keep sidekick for NES alone.
-  ---
-  --- Everything lives under <leader>ag so it cannot collide with the
-  --- claudecode bindings above -- note that sidekick's own README suggests
-  --- <leader>aa/ac/ad/af/as, all five of which are already taken here.
+  --- All bindings live under <leader>a, two keystrokes total.
   ---
   --- First run: `:LspCopilotSignIn` (the command is created on attach).
   --- -------------------------------------------------------------------------
@@ -192,63 +136,58 @@ return {
 
       -- NES
       {
-        "<leader>agn",
+        "<leader>an",
         function()
           require("sidekick").nes_jump_or_apply()
         end,
         desc = "Next edit suggestion",
       },
       {
-        "<leader>agu",
+        "<leader>au",
         function()
           require("sidekick.nes").update()
         end,
         desc = "Request suggestion now",
       },
       {
-        "<leader>agx",
+        "<leader>ax",
         function()
           require("sidekick.nes").clear()
         end,
         desc = "Clear suggestion",
       },
 
-      -- CLI (the half that overlaps claudecode.nvim)
+      -- CLI
       {
-        "<leader>agg",
+        "<leader>ao",
         function()
           require("sidekick.cli").toggle({ name = "copilot", focus = true })
         end,
         desc = "Toggle Copilot CLI",
       },
-      -- Claude through sidekick, deliberately one keystroke from claudecode's
-      -- <leader>ac so the two can be compared directly. sidekick's claude
-      -- tool is not a bare terminal: it supports --resume/--continue and
-      -- rewrites file references into Claude's @file#L1-2 syntax, which is
-      -- what makes the {this}/{file}/{selection} sends below work.
       {
-        "<leader>agc",
+        "<leader>ac",
         function()
           require("sidekick.cli").toggle({ name = "claude", focus = true })
         end,
-        desc = "Toggle Claude (via sidekick)",
+        desc = "Toggle Claude CLI",
       },
       {
-        "<leader>agS",
+        "<leader>as",
         function()
           require("sidekick.cli").select()
         end,
         desc = "Select CLI",
       },
       {
-        "<leader>agd",
+        "<leader>ad",
         function()
           require("sidekick.cli").close()
         end,
         desc = "Detach CLI session",
       },
       {
-        "<leader>agp",
+        "<leader>ap",
         function()
           require("sidekick.cli").prompt()
         end,
@@ -256,7 +195,7 @@ return {
         desc = "Select prompt",
       },
       {
-        "<leader>agt",
+        "<leader>at",
         function()
           require("sidekick.cli").send({ msg = "{this}" })
         end,
@@ -264,14 +203,14 @@ return {
         desc = "Send this",
       },
       {
-        "<leader>agf",
+        "<leader>af",
         function()
           require("sidekick.cli").send({ msg = "{file}" })
         end,
         desc = "Send file",
       },
       {
-        "<leader>agv",
+        "<leader>av",
         function()
           require("sidekick.cli").send({ msg = "{selection}" })
         end,
