@@ -239,16 +239,29 @@ return {
     "linux-cultist/venv-selector.nvim",
     ft = "python",
     opts = {
-      settings = {
-        options = {
-          notify_user_on_venv_activation = true,
-        },
-        search = {
-          venv = { command = "fd -HI -td -a --max-depth=1 '^venv$' ~" },
-          anaconda = { command = "fd -HI -td -a --max-depth=1 '^anaconda3$' ~" },
-          workspace = { command = "fd -HI -td -a --max-depth=3 '^.venv$'" },
-          poetry = { command = "fd -HI -td -a --max-depth=3 '^.venv$' ~/Library/Caches/pypoetry/virtualenvs" },
-        },
+      options = {
+        notify_user_on_venv_activation = true,
+      },
+      search = {
+        venv = { command = "fd -HI -td -a --max-depth=1 '^venv$' ~" },
+        workspace = { command = "fd -HI -td -a --max-depth=3 '^.venv$' $WORKSPACE_PATH" },
+        -- venv-selector merges `search` additively: any default key not named
+        -- here still runs. These aren't part of this workflow, and each is its
+        -- own unscoped `fd` walk -- left enabled they fan out into a wall of
+        -- 5s timeouts (and the "$HOME" warning) whenever cwd isn't a project.
+        anaconda = false,
+        anaconda_base = false,
+        anaconda_envs = false,
+        cwd = false,
+        file = false,
+        hatch = false,
+        miniconda_base = false,
+        miniconda_envs = false,
+        pipenv = false,
+        pipx = false,
+        pixi = false,
+        poetry = false,
+        pyenv = false,
       },
     },
     keys = {
