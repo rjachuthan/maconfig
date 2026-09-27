@@ -40,3 +40,6 @@ sketchybar/.config/sketchybar/native/helper
 .claude/
 .cursor/
 !/claude/.claude/
+
+# Pi agent: machine-specific model config (varies per machine, may reveal models used)
+pi/.pi/agent/models.json
