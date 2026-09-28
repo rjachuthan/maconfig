@@ -3,17 +3,32 @@
 // already in the footer: Ollama's currently loaded model, GitHub
 // Copilot's premium-request quota (read from the account's own OAuth token,
 // same endpoint VS Code and pi itself use to refresh the completions
-// token), or OpenRouter's remaining account credit (read from the stored
-// api_key credential, same endpoint the OpenRouter dashboard uses).
+// token), OpenRouter's remaining account credit (read from the stored
+// api_key credential, same endpoint the OpenRouter dashboard uses), or
+// Cursor's included plan usage (read from the local Cursor desktop session
+// in state.vscdb, same DashboardService endpoint the IDE usage UI uses).
 // Nothing is shown when there's nothing real to say — no placeholder text
 // for an unconfigured provider or a failed fetch.
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth } from "@earendil-works/pi-tui";
 
 const fmtK = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : `${n}`);
+
+// Same Nerd Font stand-in + Cursor purple used by rounded-editor.ts footer.
+const CURSOR_ICON = "\uec5c";
+const CURSOR_STATE_DB = join(
+	homedir(),
+	"Library",
+	"Application Support",
+	"Cursor",
+	"User",
+	"globalStorage",
+	"state.vscdb",
+);
 
 // --- Ollama: what's currently loaded locally ---
 let ollamaStatus: { text: string; ok: boolean } | undefined;
@@ -204,10 +219,145 @@ async function pollOpenrouterCredit(onDone?: () => void) {
 	}
 }
 
+// --- Cursor: included plan usage from the local Cursor desktop session ---
+type CursorUsage = {
+	remainingUsd: number;
+	limitUsd: number;
+	pctRemaining: number;
+	message?: string;
+	severity: "success" | "warning" | "error";
+};
+let cursorUsage: CursorUsage | undefined;
+let cursorUsageError: string | undefined;
+let cursorAccessTokenCache: string | undefined;
+
+function readCursorStateValue(key: string): string | undefined {
+	if (!existsSync(CURSOR_STATE_DB)) return undefined;
+	try {
+		const value = execFileSync(
+			"sqlite3",
+			[`file:${CURSOR_STATE_DB}?mode=ro`, `SELECT value FROM ItemTable WHERE key='${key.replace(/'/g, "''")}';`],
+			{ encoding: "utf8", timeout: 3000 },
+		).trim();
+		return value || undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+function cursorAuthHeaders(token: string): Record<string, string> {
+	return {
+		Authorization: `Bearer ${token}`,
+		"Content-Type": "application/json",
+		"Connect-Protocol-Version": "1",
+		"User-Agent": "pi-model-status-widget/1.0",
+		Accept: "application/json",
+	};
+}
+
+async function refreshCursorAccessToken(): Promise<string | undefined> {
+	const refresh = readCursorStateValue("cursorAuth/refreshToken");
+	if (!refresh) return undefined;
+	try {
+		const res = await fetch("https://api2.cursor.sh/oauth/token", {
+			method: "POST",
+			headers: { "Content-Type": "application/json", Accept: "application/json" },
+			body: JSON.stringify({ grant_type: "refresh_token", refresh_token: refresh }),
+			signal: AbortSignal.timeout(5000),
+		});
+		if (!res.ok) return undefined;
+		const data = await res.json();
+		const token = data?.access_token;
+		if (typeof token !== "string" || !token) return undefined;
+		cursorAccessTokenCache = token;
+		return token;
+	} catch {
+		return undefined;
+	}
+}
+
+async function fetchCursorPeriodUsage(token: string): Promise<Response> {
+	return fetch("https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage", {
+		method: "POST",
+		headers: cursorAuthHeaders(token),
+		body: "{}",
+		signal: AbortSignal.timeout(5000),
+	});
+}
+
+function parseCursorUsage(data: any): CursorUsage | undefined {
+	const plan = data?.planUsage;
+	const remainingCents = plan?.remaining;
+	const limitCents = plan?.limit;
+	if (typeof remainingCents !== "number" || typeof limitCents !== "number" || limitCents <= 0) {
+		return undefined;
+	}
+	const remainingUsd = remainingCents / 100;
+	const limitUsd = limitCents / 100;
+	const pctRemaining = (remainingCents / limitCents) * 100;
+	return {
+		remainingUsd,
+		limitUsd,
+		pctRemaining,
+		message: typeof data?.displayMessage === "string" ? data.displayMessage : undefined,
+		severity: pctRemaining >= 50 ? "success" : pctRemaining >= 20 ? "warning" : "error",
+	};
+}
+
+function fmtCursorUsage(u: CursorUsage): string {
+	const filled = Math.max(0, Math.min(BAR_WIDTH, Math.round((u.pctRemaining / 100) * BAR_WIDTH)));
+	const bar = "█".repeat(filled) + "░".repeat(BAR_WIDTH - filled);
+	const msg = u.message ? ` · ${u.message}` : "";
+	return `${bar} $${u.remainingUsd.toFixed(2)} / $${u.limitUsd.toFixed(2)} left (${u.pctRemaining.toFixed(0)}%)${msg}`;
+}
+
+async function pollCursorUsage(onDone?: () => void) {
+	cursorUsageError = undefined;
+	try {
+		let token = cursorAccessTokenCache ?? readCursorStateValue("cursorAuth/accessToken");
+		if (!token) {
+			cursorUsage = undefined;
+			cursorUsageError = "no cursorAuth/accessToken in Cursor state.vscdb (is Cursor desktop signed in?)";
+			return;
+		}
+		cursorAccessTokenCache = token;
+
+		let res = await fetchCursorPeriodUsage(token);
+		if (res.status === 401) {
+			const refreshed = await refreshCursorAccessToken();
+			if (!refreshed) {
+				cursorUsage = undefined;
+				cursorUsageError = "Cursor session expired and refresh failed";
+				return;
+			}
+			res = await fetchCursorPeriodUsage(refreshed);
+		}
+		if (!res.ok) {
+			cursorUsage = undefined;
+			cursorUsageError = `HTTP ${res.status} from GetCurrentPeriodUsage`;
+			return;
+		}
+		const data = await res.json();
+		const parsed = parseCursorUsage(data);
+		if (!parsed) {
+			cursorUsage = undefined;
+			cursorUsageError = "response had no planUsage.remaining/limit";
+		} else {
+			cursorUsage = parsed;
+		}
+	} catch (err) {
+		cursorUsage = undefined;
+		cursorUsageError = err instanceof Error ? err.message : String(err);
+	} finally {
+		onDone?.();
+	}
+}
+
 export default function (pi: ExtensionAPI) {
 	let ollamaTimer: ReturnType<typeof setInterval> | undefined;
 	let copilotTimer: ReturnType<typeof setInterval> | undefined;
 	let openrouterTimer: ReturnType<typeof setInterval> | undefined;
+	let cursorTimer: ReturnType<typeof setInterval> | undefined;
 
 	pi.on("session_start", (_event, ctx: ExtensionContext) => {
 		if (!ctx.hasUI) return;
@@ -227,6 +377,8 @@ export default function (pi: ExtensionAPI) {
 		copilotTimer = setInterval(() => pollCopilotQuota(bump), 5 * 60 * 1000);
 		pollOpenrouterCredit(bump);
 		openrouterTimer = setInterval(() => pollOpenrouterCredit(bump), 5 * 60 * 1000);
+		pollCursorUsage(bump);
+		cursorTimer = setInterval(() => pollCursorUsage(bump), 5 * 60 * 1000);
 
 		ctx.ui.setWidget(
 			"model-status",
@@ -239,12 +391,20 @@ export default function (pi: ExtensionAPI) {
 						return text;
 					}
 				};
+				const cursorLogo = (severity: string) => {
+					// Match rounded-editor footer: Nerd Font stand-in tinted Cursor purple when healthy.
+					if (severity === "success" && theme.getColorMode?.() === "truecolor") {
+						return `\x1b[38;2;138;56;245m${CURSOR_ICON}\x1b[39m`;
+					}
+					return c(severity, CURSOR_ICON);
+				};
 
 				return {
 					dispose() {
 						clearInterval(ollamaTimer);
 						clearInterval(copilotTimer);
 						clearInterval(openrouterTimer);
+						clearInterval(cursorTimer);
 					},
 					invalidate() {},
 					render(width: number): string[] {
@@ -267,6 +427,13 @@ export default function (pi: ExtensionAPI) {
 							const truecolor = theme.getColorMode() === "truecolor";
 							const bar = renderGradientBar(pct, truecolor);
 							const line = `   ${c(severity, "")}  ${bar} ${c("dim", `$${remaining.toFixed(2)} / $${total.toFixed(2)} (${pct.toFixed(0)}%)`)}`;
+							return ["", truncateToWidth(line, width)];
+						} else if (/cursor/i.test(provider)) {
+							if (!cursorUsage) return [];
+							const { remainingUsd, limitUsd, pctRemaining, severity } = cursorUsage;
+							const truecolor = theme.getColorMode() === "truecolor";
+							const bar = renderGradientBar(pctRemaining, truecolor);
+							const line = `   ${cursorLogo(severity)}  ${bar} ${c("dim", `$${remainingUsd.toFixed(2)} / $${limitUsd.toFixed(2)} left (${pctRemaining.toFixed(0)}%)`)}`;
 							return ["", truncateToWidth(line, width)];
 						} else {
 							return []; // no provider-specific fact for this one — stay out of the way
@@ -323,11 +490,24 @@ export default function (pi: ExtensionAPI) {
 				);
 			},
 		});
+
+		pi.registerCommand("cursor-usage", {
+			description: "Refresh and show Cursor plan usage remaining (useful if the widget line stays blank)",
+			handler: async (_args, cmdCtx) => {
+				await pollCursorUsage(bump);
+				cmdCtx.ui.notify(
+					cursorUsage ? fmtCursorUsage(cursorUsage) : `No Cursor usage to show: ${cursorUsageError ?? "unknown reason"}`,
+					cursorUsage ? "info" : "warning",
+				);
+			},
+		});
 	});
 
 	pi.on("session_shutdown", () => {
 		clearInterval(ollamaTimer);
 		clearInterval(copilotTimer);
 		clearInterval(openrouterTimer);
+		clearInterval(cursorTimer);
+		cursorAccessTokenCache = undefined;
 	});
 }

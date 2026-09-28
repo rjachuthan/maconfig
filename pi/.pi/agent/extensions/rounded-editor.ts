@@ -16,6 +16,10 @@ const PROVIDERS: [RegExp, string, string, string][] = [
 	[/bedrock|aws|amazon/, "\u{f0e0f}", "", "ff9900"],
 	[/github/, "\uf09b", "", "c9d1d9"],
 	[/ollama/, "\u{f06a9}", "", "e6e6e6"],
+	// No dedicated Cursor brand glyph exists in Nerd Fonts yet; cod-cursor
+	// (a plain text-cursor icon) is the closest stylistic stand-in, tinted
+	// with Cursor's accent purple.
+	[/cursor/, "\uec5c", "", "8a38f5"],
 ];
 const providerLogo = (provider = "") => {
 	const hit = PROVIDERS.find(([re]) => re.test(provider.toLowerCase()));

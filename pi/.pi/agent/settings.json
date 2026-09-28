@@ -12,6 +12,7 @@
     "npm:@juicesharp/rpiv-todo",
     "npm:@tintinweb/pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
-    "npm:pi-background-tasks"
+    "npm:pi-background-tasks",
+    "npm:pi-cursor-sdk"
   ]
 }
