@@ -2,7 +2,7 @@
   "defaultModel": "gpt-5.6-luna",
   "defaultProvider": "github-copilot",
   "defaultThinkingLevel": "medium",
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "0.99.2",
   "theme": "pi-code",
   "tuiMode": "fullscreen",
   "quietStartup": true,
