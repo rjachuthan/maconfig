@@ -85,6 +85,26 @@ opt.shortmess:append({ W = true, I = true, c = true, C = true })
 
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 
+-- Inside herdr, win32yank panics on stdin ("stream did not contain valid UTF-8"),
+-- so yanks never reach the Windows clipboard. PowerShell tolerates it.
+if vim.env.HERDR_ENV and vim.fn.has("win32") == 1 and vim.fn.executable("pwsh") == 1 then
+  local ps = { "pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-Command" }
+  local copy = vim.list_extend(
+    vim.deepcopy(ps),
+    { "[Console]::InputEncoding = [Text.UTF8Encoding]::new($false); Set-Clipboard -Value ([Console]::In.ReadToEnd())" }
+  )
+  local paste = vim.list_extend(
+    vim.deepcopy(ps),
+    { "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); Get-Clipboard -Raw" }
+  )
+  vim.g.clipboard = {
+    name = "pwsh-herdr",
+    copy = { ["+"] = copy, ["*"] = copy },
+    paste = { ["+"] = paste, ["*"] = paste },
+    cache_enabled = 0,
+  }
+end
+
 vim.schedule(function()
   if vim.env.SSH_TTY then
     opt.clipboard = ""

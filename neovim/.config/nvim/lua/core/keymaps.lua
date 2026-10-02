@@ -9,6 +9,8 @@ map("n", "n", "nzzzv", { desc = "Next search result" })
 map("n", "N", "Nzzzv", { desc = "Prev search result" })
 
 map("n", "<C-h>", "<C-w>h", { desc = "Window left" })
+-- Some terminal/multiplexer stacks (e.g. Warp inside herdr) deliver Ctrl-h as Ctrl+Backspace.
+map("n", "<C-BS>", "<C-w>h", { desc = "Window left" })
 map("n", "<C-j>", "<C-w>j", { desc = "Window down" })
 map("n", "<C-k>", "<C-w>k", { desc = "Window up" })
 map("n", "<C-l>", "<C-w>l", { desc = "Window right" })
@@ -73,6 +75,7 @@ map("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
 -- tmux panes. Fall back to plain window switching when tmux isn't present.
 if vim.env.TMUX == nil then
   map("t", "<C-h>", "<cmd>wincmd h<cr>", { desc = "Window left" })
+  map("t", "<C-BS>", "<cmd>wincmd h<cr>", { desc = "Window left" }) -- Ctrl-h as seen via Warp + herdr
   map("t", "<C-j>", "<cmd>wincmd j<cr>", { desc = "Window down" })
   map("t", "<C-k>", "<cmd>wincmd k<cr>", { desc = "Window up" })
   map("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Window right" })
