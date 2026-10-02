@@ -43,3 +43,8 @@ sketchybar/.config/sketchybar/native/helper
 
 # Pi agent: machine-specific model config (varies per machine, may reveal models used)
 pi/.pi/agent/models.json
+
+# Pi agent: credentials and generated/installed artifacts
+pi/.pi/agent/auth.json
+pi/.pi/agent/install/
+pi/.pi/agent/npm/
