@@ -5,31 +5,25 @@
       "alignment": "left",
       "segments": [
         {
-          "foreground": "#FFBD00",
-          "style": "plain",
-          "template": "{{ .UserName }}'s ",
-          "type": "session"
+          "foreground": "cyan",
+          "style": "powerline",
+          "template": "{{ .Icon }}",
+          "type": "os"
         },
         {
-          "foreground": "#00C6F7",
+          "foreground": "cyan",
           "options": {
-            "style": "folder"
+            "style": "full"
           },
           "style": "plain",
-          "template": "{{ .Path }}/ ",
+          "template": " {{ .Path }} ",
           "type": "path"
         },
         {
-          "foreground": "#F62F2E",
+          "foreground": "lightYellow",
           "style": "plain",
-          "template": "<#ffffff>on</> {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }} ",
+          "template": ":: <lightBlue>git(</>{{ .HEAD }}<lightBlue>)</>",
           "type": "git"
-        },
-        {
-          "foreground": "#98C379",
-          "style": "plain",
-          "template": "<#ffffff>via</>  {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} ",
-          "type": "node"
         }
       ],
       "type": "prompt"
@@ -38,22 +32,50 @@
       "alignment": "right",
       "segments": [
         {
-          "foreground": "#85C980",
-          "style": "diamond",
-          "template": "RAM:{{ (div ((sub .PhysicalTotalMemory .PhysicalAvailableMemory)|float64) 1073741824.0) }}/{{ (div .PhysicalTotalMemory 1073741824.0) }}GB ",
-          "trailing_diamond": " ",
-          "type": "sysinfo"
+          "foreground": "#68a063",
+          "options": {
+            "display_mode": "files",
+            "fetch_package_manager": true,
+            "npm_icon": "/npm",
+            "yarn_icon": "/yarn"
+          },
+          "style": "plain",
+          "template": " {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }}",
+          "type": "node"
         },
         {
-          "foreground": "#ffffff",
-          "leading_diamond": "┋",
+          "foreground": "#4063D8",
           "options": {
-            "style": "roundrock",
-            "threshold": 0
+            "display_mode": "files"
           },
-          "style": "diamond",
-          "template": " {{ .FormattedMs }} ",
-          "type": "executiontime"
+          "style": "plain",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}",
+          "type": "crystal"
+        },
+        {
+          "foreground": "#DE3F24",
+          "options": {
+            "display_mode": "files"
+          },
+          "style": "plain",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}",
+          "type": "ruby"
+        },
+        {
+          "foreground": "#FED142",
+          "options": {
+            "display_mode": "context",
+            "fetch_virtual_env": false
+          },
+          "style": "plain",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}",
+          "type": "python"
+        },
+        {
+          "foreground": "lightGreen",
+          "style": "plain",
+          "template": " {{ .CurrentDate | date .Format }} ",
+          "type": "time"
         }
       ],
       "type": "prompt"
@@ -63,15 +85,18 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "#FFBD00",
-          "style": "plain",
-          "template": "⮞ ",
-          "type": "text"
+          "foreground": "lightGreen",
+          "foreground_templates": ["{{ if gt .Code 0 }}red{{ end }}"],
+          "options": {
+            "always_enabled": true
+          },
+          "style": "powerline",
+          "template": "\u279c ",
+          "type": "status"
         }
       ],
       "type": "prompt"
     }
   ],
-  "final_space": true,
   "version": 4
 }
