@@ -16,8 +16,20 @@ return {
       { "<leader>Tv", "<cmd>ToggleTerm direction=vertical<cr>", desc = "Terminal: vertical" },
       { "<leader>Tt", "<cmd>ToggleTerm<cr>", desc = "Terminal: toggle" },
 
-      { "<leader>Tp", function() terminals.python:toggle() end, desc = "Terminal: Python REPL" },
-      { "<leader>Tn", function() terminals.node:toggle() end, desc = "Terminal: Node REPL" },
+      {
+        "<leader>Tp",
+        function()
+          terminals.python:toggle()
+        end,
+        desc = "Terminal: Python REPL",
+      },
+      {
+        "<leader>Tn",
+        function()
+          terminals.node:toggle()
+        end,
+        desc = "Terminal: Node REPL",
+      },
       {
         "<leader>TH",
         function()
@@ -49,8 +61,12 @@ return {
       auto_scroll = true,
       float_opts = {
         border = "rounded",
-        width = function() return math.floor(vim.o.columns * 0.9) end,
-        height = function() return math.floor(vim.o.lines * 0.9) end,
+        width = function()
+          return math.floor(vim.o.columns * 0.9)
+        end,
+        height = function()
+          return math.floor(vim.o.lines * 0.9)
+        end,
         winblend = 3,
         zindex = 50,
       },
@@ -159,11 +175,18 @@ return {
 
       -- CLI
       {
-        "<leader>ao",
+        "<leader>ag",
         function()
           require("sidekick.cli").toggle({ name = "copilot", focus = true })
         end,
         desc = "Toggle Copilot CLI",
+      },
+      {
+        "<leader>ap",
+        function()
+          require("sidekick.cli").toggle({ name = "pi", focus = true })
+        end,
+        desc = "Toggle Pi CLI",
       },
       {
         "<leader>ac",
@@ -248,7 +271,9 @@ return {
     -- terminal job (e.g. sent straight to a Claude terminal) instead of
     -- switching panes. Disable its mappings and drive it entirely through
     -- lazy.nvim's `<cmd>` keys below, which work correctly from any mode.
-    init = function() vim.g.tmux_navigator_no_mappings = 1 end,
+    init = function()
+      vim.g.tmux_navigator_no_mappings = 1
+    end,
     cmd = {
       "TmuxNavigateLeft",
       "TmuxNavigateDown",
