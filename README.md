@@ -9,7 +9,8 @@ A unified macOS dotfiles system with dynamic theme switching.
 - **Deep Black theme** with vibrant accents and zen mode
 - **Pywal-compatible** 16-color scheme system
 - **Window borders** with JankyBorders integration
-- **Modular Sketchybar** with GitHub notifications, Brew updates, and system monitoring
+- **Modular Sketchybar** with GitHub notifications, Brew updates, and system
+  monitoring
 
 ## Quick Start
 
@@ -56,28 +57,30 @@ maconfig/
 
 ## Keybindings (Aerospace)
 
-| Key | Action |
-|-----|--------|
-| `Alt + Enter` | Open Ghostty |
-| `Alt + 1-9` | Switch to workspace |
-| `Alt + H/J/K/L` | Focus window (vim-style) |
-| `Alt + Shift + H/J/K/L` | Move window |
-| `Alt + Shift + 1-9` | Move window to workspace |
-| `Alt + Tab` | Previous workspace |
-| `Alt + /` | Toggle tiles layout |
-| `Alt + ,` | Toggle accordion layout |
-| `Alt + -` | Resize window smaller |
-| `Alt + =` | Resize window larger |
-| `Alt + Shift + ;` | Enter service mode |
+| Key                     | Action                   |
+| ----------------------- | ------------------------ |
+| `Alt + Enter`           | Open Ghostty             |
+| `Alt + 1-9`             | Switch to workspace      |
+| `Alt + H/J/K/L`         | Focus window (vim-style) |
+| `Alt + Shift + H/J/K/L` | Move window              |
+| `Alt + Shift + 1-9`     | Move window to workspace |
+| `Alt + Tab`             | Previous workspace       |
+| `Alt + /`               | Toggle tiles layout      |
+| `Alt + ,`               | Toggle accordion layout  |
+| `Alt + -`               | Resize window smaller    |
+| `Alt + =`               | Resize window larger     |
+| `Alt + Shift + ;`       | Enter service mode       |
 
 ## Applications
 
 **Configured:**
+
 - Aerospace (window manager)
 - Sketchybar (status bar with modules)
 - JankyBorders (window borders)
 
 **Sketchybar Modules:**
+
 - System: Battery, CPU, Volume
 - Integrations: GitHub notifications, Brew updates
 - Apps: Front app, Spotify
@@ -85,6 +88,7 @@ maconfig/
 - UI: Calendar, Apple menu, Zen mode
 
 **Planned:**
+
 - Neovim
 - Tmux
 - Ghostty (used over WezTerm solely for the quick terminal feature)
@@ -101,6 +105,7 @@ maconfig/
 - gh (GitHub CLI)
 
 **Optional but recommended:**
+
 - Ghostty (used over WezTerm solely for the quick terminal feature)
 - SF Symbols app
 
