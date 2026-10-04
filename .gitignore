@@ -50,3 +50,7 @@ pi/.pi/agent/auth.json
 pi/.pi/agent/install/
 pi/.pi/agent/npm/
 pi/.pi/agent/sessions/
+
+# Local settings files that may hold credentials or machine-specific config
+*.local.json
+claude/.claude/.credentials.json
