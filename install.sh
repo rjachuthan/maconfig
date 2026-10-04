@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # maconfig Installation Script
-# Installs dependencies, sets up symlinks, and applies default theme
+# Installs dependencies and sets up symlinks
 
 set -e
 
@@ -171,21 +171,6 @@ create_symlinks() {
     done
 }
 
-# Setup maconfig directory for theme tracking
-setup_maconfig_dir() {
-    print_status "Setting up maconfig directory..."
-    mkdir -p "$CONFIG_DIR/maconfig"
-    print_success "maconfig directory created"
-}
-
-# Apply default theme
-apply_default_theme() {
-    print_header "Applying Default Theme"
-
-    chmod +x "$SCRIPT_DIR/scripts/theme-switch.sh"
-    "$SCRIPT_DIR/scripts/theme-switch.sh" shiny-black
-}
-
 # Start services
 start_services() {
     print_header "Starting Services"
@@ -229,12 +214,10 @@ print_completion() {
     echo "  • Sketchybar status bar configured (with GitHub, Brew, system monitors)"
     echo "  • JankyBorders window borders configured"
     echo "  • Services started (Sketchybar, JankyBorders, Aerospace)"
-    echo "  • Deep Black theme applied"
     echo ""
     echo -e "${CYAN}Next steps:${NC}"
     echo "  • Log out and back in (or restart) for all changes to take effect"
     echo "  • Run 'gh auth login' to enable GitHub notifications in Sketchybar"
-    echo "  • Use './scripts/theme-switch.sh <theme>' to change themes"
     echo ""
     echo -e "${CYAN}Keybindings (Aerospace):${NC}"
     echo "  • Alt + 1-9: Switch workspace"
@@ -251,7 +234,6 @@ print_completion() {
     echo "  • Alt + Shift + Space: Open Raycast"
     echo "  • Alt + Shift + Up/Down: Volume +/-"
     echo "  • Alt + Shift + M: Mute toggle"
-    echo "  • Alt + Shift + T: Cycle theme"
     echo "  • Alt + Shift + R: Reload Sketchybar"
     echo "  • Alt + Shift + S: Screenshot to clipboard"
     echo "  • Alt + Shift + X: Lock screen"
@@ -269,9 +251,7 @@ main() {
     install_brew_packages
     install_sketchybar_font
     backup_configs
-    setup_maconfig_dir
     create_symlinks
-    apply_default_theme
     start_services
     print_completion
 }

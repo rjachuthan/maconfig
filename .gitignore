@@ -9,9 +9,6 @@
 *.backup
 *~
 
-# Generated files (theme cache)
-active-theme.sh
-
 # Editor files
 *.swp
 *.swo
