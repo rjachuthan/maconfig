@@ -9,9 +9,6 @@
 *.backup
 *~
 
-# Generated files (theme cache)
-active-theme.sh
-
 # Editor files
 *.swp
 *.swo
@@ -43,8 +40,14 @@ sketchybar/.config/sketchybar/native/helper
 
 # Pi agent: machine-specific model config (varies per machine, may reveal models used)
 pi/.pi/agent/models.json
+pi/.pi/agent/models-store.json
 
 # Pi agent: credentials and generated/installed artifacts
 pi/.pi/agent/auth.json
 pi/.pi/agent/install/
 pi/.pi/agent/npm/
+pi/.pi/agent/sessions/
+
+# Local settings files that may hold credentials or machine-specific config
+*.local.json
+claude/.claude/.credentials.json

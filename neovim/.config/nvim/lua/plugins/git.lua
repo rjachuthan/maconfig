@@ -139,8 +139,30 @@ return {
     keys = {
       { "<leader>gs", function() require("neogit").open() end, desc = "Neogit status" },
     },
+    config = function(_, opts)
+      require("neogit").setup(opts)
+
+      -- Neogit shells out to `git submodule` synchronously on every open. On
+      -- Windows that is a sh script costing 3-7s, even with no submodules.
+      -- Skip it when there is no .gitmodules to read.
+      local submodule = require("neogit.lib.git.submodule")
+      local list = submodule.list
+      submodule.list = function(...)
+        local found = vim.fs.find(".gitmodules", { upward = true, path = vim.uv.cwd() })
+        if #found == 0 then
+          return {}
+        end
+        return list(...)
+      end
+    end,
     opts = {
       integrations = { diffview = true, snacks = true },
+      mappings = {
+        status = {
+          ["<tab>"] = "Toggle",
+          ["za"] = false,
+        },
+      },
     },
   },
 }

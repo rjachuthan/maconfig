@@ -16,7 +16,5 @@ alt + shift - x : pmset displaysleepnow
 
 # ─── Script Triggers ──────────────────────────────────────────────────────────
 
-# Theme switcher (cycles through shiny-black variants)
-alt + shift - t     : $HOME/.local/bin/theme-cycle.sh
 alt + shift - r     : sketchybar --reload
 

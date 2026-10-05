@@ -1,18 +1,17 @@
 {
-  "defaultModel": "gpt-5.6-luna",
+  "defaultModel": "gpt-6-luna",
   "defaultProvider": "github-copilot",
   "defaultThinkingLevel": "medium",
   "lastChangelogVersion": "1.0.0",
-  "theme": "pi-code",
+  "theme": "titanium",
   "tuiMode": "fullscreen",
   "quietStartup": true,
   "hideThinkingBlock": true,
   "packages": [
-    "npm:@ollama/pi-web-search",
     "npm:@juicesharp/rpiv-todo",
     "npm:@tintinweb/pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-background-tasks",
-    "npm:pi-cursor-sdk"
+    "npm:@nguyenquangthai/pi-omp-theme"
   ]
 }

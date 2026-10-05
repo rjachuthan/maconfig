@@ -1,108 +1,162 @@
 # maconfig
 
-A unified macOS dotfiles system with dynamic theme switching.
-
-## Features
-
-- **GNU Stow-based** symlink management for clean, modular configs
-- **Dynamic theme switching** across all applications
-- **Deep Black theme** with vibrant accents and zen mode
-- **Pywal-compatible** 16-color scheme system
-- **Window borders** with JankyBorders integration
-- **Modular Sketchybar** with GitHub notifications, Brew updates, and system monitoring
+Personal dotfiles for macOS (with a few Windows pieces), managed with
+[GNU Stow](https://www.gnu.org/software/stow/). Each top-level directory is a
+Stow package that mirrors the layout of `$HOME`.
 
 ## Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/maconfig.git ~/.config/maconfig
+git clone <this-repo-url> ~/.config/maconfig
 cd ~/.config/maconfig
 
-# Run installer
+# Full bootstrap (Homebrew packages, fonts, symlinks, services)
 ./install.sh
+
+# Or link individual packages
+stow -t "$HOME" <package>   # e.g. stow -t "$HOME" tmux
 ```
 
-## Theme Switching
+`.stowrc` already sets `--target=$HOME`. `install.sh` backs up existing
+`aerospace`, `sketchybar`, `borders` and `nvim` configs to
+`~/.config-backup/<timestamp>`, then stows `aerospace`, `sketchybar`,
+`jankyborders`, `neovim` and `skhd`. Other packages are stowed manually.
 
-```bash
-# List available themes
-./scripts/theme-switch.sh --list
+## Packages
 
-# Apply a theme
-./scripts/theme-switch.sh shiny-black
-./scripts/theme-switch.sh shiny-black-cool
-./scripts/theme-switch.sh shiny-black-warm
+| Package        | Target                          | Description                                     |
+| -------------- | ------------------------------- | ----------------------------------------------- |
+| `aerospace`    | `~/.config/aerospace`           | Tiling window manager                           |
+| `sketchybar`   | `~/.config/sketchybar`          | Status bar (modular items and plugins)          |
+| `jankyborders` | `~/.config/borders`             | Window borders                                  |
+| `skhd`         | `~/.config/skhd`                | Global hotkeys (app launchers, reload, lock)    |
+| `ghostty`      | `~/.config/ghostty`             | Terminal (used for its quick terminal)          |
+| `wezterm`      | `~/.config/wezterm`             | Terminal                                        |
+| `alacritty`    | `~/.config/alacritty`           | Terminal                                        |
+| `kitty`        | `~/.config/kitty`               | Terminal                                        |
+| `tmux`         | `~/.config/tmux`                | Terminal multiplexer                            |
+| `neovim`       | `~/.config/nvim`                | Lua config using lazy.nvim                      |
+| `yazi`         | `~/.config/yazi`                | File manager (flavors, plugins, keymap)         |
+| `zsh`          | `~/.config/zsh`, `~/.local/bin` | Shell config, `tmux-sessionizer`, `migrate.sh`  |
+| `qutebrowser`  | `~/.qutebrowser`                | Keyboard-driven browser                         |
+| `ipython`      | `~/.ipython`                    | Databricks profile startup script               |
+| `claude`       | `~/.claude`                     | Claude Code status line (`statusline.js`)       |
+| `pi`           | `~/.pi/agent`                   | Pi agent settings, extensions, theme, skills    |
+| `powershell`   | `~/Documents/PowerShell`        | Windows profile and Oh My Posh theme            |
+
+## Linking on Windows
+
+GNU Stow is a macOS/Linux tool, so on Windows the same result is achieved by
+creating **symbolic links** by hand (or with a script). A symbolic link is a
+filesystem entry that points to a file or directory elsewhere, so edits made
+through `$HOME` land in this repo. Windows offers three kinds:
+
+| Type          | Points to              | Needs elevation?                      | Notes                                      |
+| ------------- | ---------------------- | ------------------------------------- | ------------------------------------------ |
+| Symbolic link | File or directory      | Admin, or Developer Mode turned on    | Closest to what Stow creates               |
+| Junction      | Directory only         | No                                    | Local drives only, absolute target path    |
+| Hard link     | File only              | No                                    | Same volume only, breaks if file replaced  |
+
+Enable **Settings > System > For developers > Developer Mode** once so symbolic
+links work without an elevated shell. Otherwise run PowerShell as
+administrator. Use junctions for directories if you want to avoid both.
+
+Run these in PowerShell 7 from the repo root. Each Stow package maps its inner
+path onto `$HOME`:
+
+```powershell
+$repo = (Get-Location).Path
+
+# Directory symlink (pi agent config -> ~/.pi/agent)
+New-Item -ItemType SymbolicLink `
+  -Path "$HOME\.pi\agent" `
+  -Target "$repo\pi\.pi\agent"
+
+# File symlink (PowerShell profile)
+New-Item -ItemType SymbolicLink `
+  -Path "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1" `
+  -Target "$repo\powershell\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+
+# Junction alternative, no elevation needed (directories only)
+New-Item -ItemType Junction `
+  -Path "$HOME\.claude" `
+  -Target "$repo\claude\.claude"
 ```
 
-## Structure
+Notes:
 
-```
-maconfig/
-├── colors/                 # Theme color schemes (16 colors each)
-│   ├── shiny-black.sh
-│   ├── shiny-black-cool.sh
-│   ├── shiny-black-warm.sh
-│   └── ...
-├── aerospace/              # Stow package: window manager
-│   └── .config/aerospace/
-├── sketchybar/             # Stow package: status bar
-│   └── .config/sketchybar/
-├── jankyborders/           # Stow package: window borders
-│   └── .config/borders/
-├── scripts/                # Utility scripts
-│   └── theme-switch.sh
-└── install.sh              # Bootstrap script
-```
+- The `-Path` must not already exist. Move or delete the existing file or
+  directory first (back it up if it holds local state).
+- Create parent directories first, for example
+  `New-Item -ItemType Directory -Force "$HOME\.pi"`.
+- Some tools read from a different location on Windows. Neovim uses
+  `$env:LOCALAPPDATA\nvim` rather than `~/.config/nvim`, so point the link
+  there.
+- Link single files or subdirectories when the target directory also holds
+  machine-local data (`auth.json`, `sessions/`, `models-store.json`), so those
+  stay out of the repo.
+- Remove a link with `(Get-Item <path>).Delete()` or `Remove-Item <path>`.
+  Deleting a symlink or junction does not delete the repo contents.
+- Check what a path points to with `(Get-Item <path>).Target`.
 
-## Keybindings (Aerospace)
+## Keybindings
 
-| Key | Action |
-|-----|--------|
-| `Alt + Enter` | Open Ghostty |
-| `Alt + 1-9` | Switch to workspace |
-| `Alt + H/J/K/L` | Focus window (vim-style) |
-| `Alt + Shift + H/J/K/L` | Move window |
-| `Alt + Shift + 1-9` | Move window to workspace |
-| `Alt + Tab` | Previous workspace |
-| `Alt + /` | Toggle tiles layout |
-| `Alt + ,` | Toggle accordion layout |
-| `Alt + -` | Resize window smaller |
-| `Alt + =` | Resize window larger |
-| `Alt + Shift + ;` | Enter service mode |
+### Aerospace
 
-## Applications
+| Key                         | Action                           |
+| --------------------------- | -------------------------------- |
+| `Alt + Enter`               | Open Ghostty                     |
+| `Alt + 1-9`                 | Switch to workspace              |
+| `Alt + W/T/B/C/V/G`         | Switch to named workspace        |
+| `Alt + H/J/K/L`             | Focus window (vim-style)         |
+| `Alt + Shift + H/J/K/L`     | Move window                      |
+| `Alt + Shift + 1-9`         | Move window to workspace         |
+| `Alt + Shift + W/T/B/C/V/G` | Move window to named workspace   |
+| `Alt + Tab`                 | Previous workspace               |
+| `Alt + Shift + Tab`         | Move workspace to next monitor   |
+| `Alt + /`                   | Toggle tiles layout              |
+| `Alt + ,`                   | Toggle accordion layout          |
+| `Alt + -` / `Alt + =`       | Resize window smaller / larger   |
+| `Alt + Shift + ;`           | Enter service mode               |
 
-**Configured:**
-- Aerospace (window manager)
-- Sketchybar (status bar with modules)
-- JankyBorders (window borders)
+### SKHD
 
-**Sketchybar Modules:**
-- System: Battery, CPU, Volume
-- Integrations: GitHub notifications, Brew updates
-- Apps: Front app, Spotify
-- Workspace: Aerospace spaces
-- UI: Calendar, Apple menu, Zen mode
+| Key                    | Action                  |
+| ---------------------- | ----------------------- |
+| `Alt + Shift + Return` | Open WezTerm            |
+| `Alt + Shift + B`      | Open Zen Browser        |
+| `Alt + Shift + O`      | Open Obsidian           |
+| `Alt + Shift + G`      | Open Google Chrome      |
+| `Alt + Shift + C`      | Open Cursor             |
+| `Alt + Shift + V`      | Open Visual Studio Code |
+| `Alt + Shift + W`      | Open WhatsApp           |
+| `Alt + Shift + X`      | Lock screen             |
+| `Alt + Shift + R`      | Reload Sketchybar       |
 
-**Planned:**
-- Neovim
-- Tmux
-- Ghostty (used over WezTerm solely for the quick terminal feature)
-- Yazi
-- ZSH
+See `skhd/.config/skhd/skhdrc` for the complete list.
+
+## Sketchybar Modules
+
+Modules live in `sketchybar/.config/sketchybar/modules/`, grouped by area:
+
+- **System:** battery, CPU, volume
+- **Apps:** front app
+- **Integrations:** weather, Homebrew updates
+- **Workspace:** Aerospace spaces (with a zen-mode variant)
+- **UI:** calendar, Apple menu, zen mode
+
+Colors are defined in `theme/colors.sh` and icons in `theme/sf-symbols.sh`.
+The native CPU helper in `native/` is built with `make`.
 
 ## Requirements
 
 - macOS
-- Homebrew (installed automatically)
-- GNU Stow
-- yq (YAML processor)
-- jq (JSON processor)
-- gh (GitHub CLI)
+- Homebrew (installed by `install.sh`)
+- GNU Stow, `yq`, `jq`, `gh`
+- Aerospace, Sketchybar, JankyBorders, skhd
+- JetBrains Mono Nerd Font and the SF Symbols app
 
-**Optional but recommended:**
-- Ghostty (used over WezTerm solely for the quick terminal feature)
-- SF Symbols app
+`install.sh` also installs WezTerm and iTerm2. Ghostty is installed separately.
 
 ## License
 

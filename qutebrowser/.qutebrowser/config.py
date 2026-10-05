@@ -107,7 +107,7 @@ c.content.blocking.adblock.lists = [
 c.content.blocking.method = "both"
 c.content.notifications.enabled = False
 c.content.cookies.accept = "all"
-c.content.tls.certificate_errors = "load-insecurely"
+c.content.tls.certificate_errors = "ask"
 c.content.fullscreen.window = True
 c.content.geolocation = "ask"
 c.content.webgl = True
@@ -125,7 +125,7 @@ config.bind(",s", "config-source")
 config.bind(",d", "set downloads.location.directory ~/Downloads/;; hint links download")
 config.bind(",i", "set downloads.location.directory ~/Pictures/;; hint images download")
 
-config.bind("M", "hint links spawn /Users/rituraj/Codes/scripts/youtube {hint-url}")
+config.bind("M", "hint links spawn ~/Codes/scripts/youtube {hint-url}")
 config.bind(",f", "hint links run open -t https://freedium-mirror.cfd/{hint-url}")
 config.bind(",z", "hint links run open -t https://defuddle.md/freedium-mirror.cfd/{hint-url}")
 config.bind(",u", "hint links run open -t https://defuddle.md/{hint-url}")
