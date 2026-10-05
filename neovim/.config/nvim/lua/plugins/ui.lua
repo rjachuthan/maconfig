@@ -38,6 +38,27 @@ local function slimline_text(text, follow)
   return string.format("%%#%s# %s ", hl, text)
 end
 
+--- Branch of the repo containing the cwd, read straight from `HEAD`. Slimline's
+--- own `git` component takes the branch from gitsigns' buffer-local status, so it
+--- goes blank whenever the current buffer is not a file (dashboard, empty
+--- buffer, explorer...). Handles worktrees/submodules, where `.git` is a file.
+---@return string
+local function cwd_branch()
+  local git = vim.fs.find(".git", { upward = true, path = vim.uv.cwd() })[1]
+  if not git then
+    return ""
+  end
+  if vim.uv.fs_stat(git).type == "file" then
+    local pointer = (vim.fn.readfile(git)[1] or ""):match("^gitdir:%s*(.+)$")
+    if not pointer then
+      return ""
+    end
+    git = vim.fs.normalize(vim.fn.fnamemodify(pointer, ":p"))
+  end
+  local head = vim.fn.readfile(git .. "/HEAD")[1] or ""
+  return head:match("^ref: refs/heads/(.+)$") or head:sub(1, 7)
+end
+
 --- Obsidian vault path, memoized: the dashboard consults it on every open and
 --- `platform.obsidian_vault()` stats a handful of candidate directories.
 ---@return string|nil
@@ -630,7 +651,23 @@ return {
       style = "fg",
       bold = true,
       components = {
-        left = { "mode", "path", "git" },
+        left = {
+          "mode",
+          "path",
+          "git",
+          -- Keep the branch visible when no file buffer feeds slimline's `git`.
+          function()
+            local status = vim.b.gitsigns_status_dict
+            if status and status.head and status.head ~= "" then
+              return ""
+            end
+            local branch = cwd_branch()
+            if branch == "" then
+              return ""
+            end
+            return slimline_text(icons.git.branch .. " " .. branch, "git")
+          end,
+        },
         center = {},
         right = {
           -- Ahead/behind counts against the upstream branch, on top of
