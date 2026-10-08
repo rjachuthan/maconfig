@@ -26,240 +26,240 @@ print_error() { echo -e "${RED}✗${NC} $1"; }
 
 # Check if running on macOS
 check_macos() {
-    if [[ "$(uname)" != "Darwin" ]]; then
-        print_error "This script is designed for macOS only"
-        exit 1
-    fi
-    print_success "Running on macOS"
+  if [[ "$(uname)" != "Darwin" ]]; then
+    print_error "This script is designed for macOS only"
+    exit 1
+  fi
+  print_success "Running on macOS"
 }
 
 # Install Homebrew if not present
 install_homebrew() {
-    if ! command -v brew &> /dev/null; then
-        print_status "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if ! command -v brew &>/dev/null; then
+    print_status "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-        # Add to PATH for Apple Silicon
-        if [[ -f "/opt/homebrew/bin/brew" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-        print_success "Homebrew installed"
-    else
-        print_success "Homebrew already installed"
+    # Add to PATH for Apple Silicon
+    if [[ -f "/opt/homebrew/bin/brew" ]]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
+    print_success "Homebrew installed"
+  else
+    print_success "Homebrew already installed"
+  fi
 }
 
 # Install required packages via Homebrew
 install_brew_packages() {
-    print_header "Installing Homebrew Packages"
+  print_header "Installing Homebrew Packages"
 
-    # Core tools
-    local packages=(
-        "stow"                  # Symlink manager
-        "yq"                    # YAML processor
-        "jq"                    # JSON processor
-        "gh"                    # GitHub CLI
-        "koekeishiya/formulae/skhd"  # Hotkey daemon
-    )
+  # Core tools
+  local packages=(
+    "stow"                      # Symlink manager
+    "yq"                        # YAML processor
+    "jq"                        # JSON processor
+    "gh"                        # GitHub CLI
+    "koekeishiya/formulae/skhd" # Hotkey daemon
+  )
 
-    # Window management
-    local casks=(
-        "nikitabobko/tap/aerospace"  # Window manager
-        "felixkratz/formulae/sketchybar"  # Status bar
-        "felixkratz/formulae/borders"     # Window borders (JankyBorders)
-    )
+  # Window management
+  local casks=(
+    "nikitabobko/tap/aerospace"      # Window manager
+    "felixkratz/formulae/sketchybar" # Status bar
+    "felixkratz/formulae/borders"    # Window borders (JankyBorders)
+  )
 
-    # Terminal & development
-    local dev_casks=(
-        "wezterm"               # Primary terminal
-        "iterm2"                # Dropdown terminal
-        "font-jetbrains-mono"   # Monospace font
-        "font-jetbrains-mono-nerd-font"  # Nerd font variant
-        "sf-symbols"            # SF Symbols app
-    )
+  # Terminal & development
+  local dev_casks=(
+    "wezterm"                       # Primary terminal
+    "iterm2"                        # Dropdown terminal
+    "font-jetbrains-mono"           # Monospace font
+    "font-jetbrains-mono-nerd-font" # Nerd font variant
+    "sf-symbols"                    # SF Symbols app
+  )
 
-    # Optional apps (uncomment as needed)
-    local optional_casks=(
-        # "hammerspoon"         # Automation
-        # "alfred"              # Launcher
-        # "raycast"             # Launcher alternative
-    )
+  # Optional apps (uncomment as needed)
+  local optional_casks=(
+    # "hammerspoon"         # Automation
+    # "alfred"              # Launcher
+    # "raycast"             # Launcher alternative
+  )
 
-    # Install formulae
-    for pkg in "${packages[@]}"; do
-        if brew list "$pkg" &>/dev/null; then
-            print_success "$pkg already installed"
-        else
-            print_status "Installing $pkg..."
-            brew install "$pkg"
-            print_success "$pkg installed"
-        fi
-    done
+  # Install formulae
+  for pkg in "${packages[@]}"; do
+    if brew list "$pkg" &>/dev/null; then
+      print_success "$pkg already installed"
+    else
+      print_status "Installing $pkg..."
+      brew install "$pkg"
+      print_success "$pkg installed"
+    fi
+  done
 
-    # Add taps
-    print_status "Adding Homebrew taps..."
-    brew tap nikitabobko/tap 2>/dev/null || true
-    brew tap FelixKratz/formulae 2>/dev/null || true
-    brew tap homebrew/cask-fonts 2>/dev/null || true
-    brew tap koekeishiya/formulae 2>/dev/null || true
+  # Add taps
+  print_status "Adding Homebrew taps..."
+  brew tap nikitabobko/tap 2>/dev/null || true
+  brew tap FelixKratz/formulae 2>/dev/null || true
+  brew tap homebrew/cask-fonts 2>/dev/null || true
+  brew tap koekeishiya/formulae 2>/dev/null || true
 
-    # Install casks
-    for cask in "${casks[@]}" "${dev_casks[@]}"; do
-        cask_name=$(echo "$cask" | rev | cut -d'/' -f1 | rev)
-        if brew list --cask "$cask_name" &>/dev/null 2>&1 || brew list "$cask_name" &>/dev/null 2>&1; then
-            print_success "$cask_name already installed"
-        else
-            print_status "Installing $cask_name..."
-            brew install --cask "$cask" 2>/dev/null || brew install "$cask" 2>/dev/null || true
-            print_success "$cask_name installed"
-        fi
-    done
+  # Install casks
+  for cask in "${casks[@]}" "${dev_casks[@]}"; do
+    cask_name=$(echo "$cask" | rev | cut -d'/' -f1 | rev)
+    if brew list --cask "$cask_name" &>/dev/null 2>&1 || brew list "$cask_name" &>/dev/null 2>&1; then
+      print_success "$cask_name already installed"
+    else
+      print_status "Installing $cask_name..."
+      brew install --cask "$cask" 2>/dev/null || brew install "$cask" 2>/dev/null || true
+      print_success "$cask_name installed"
+    fi
+  done
 }
 
 # Install sketchybar app font
 install_sketchybar_font() {
-    print_status "Installing Sketchybar app font..."
-    local font_dir="$HOME/Library/Fonts"
-    local font_url="https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.5/sketchybar-app-font.ttf"
+  print_status "Installing Sketchybar app font..."
+  local font_dir="$HOME/Library/Fonts"
+  local font_url="https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.5/sketchybar-app-font.ttf"
 
-    if [[ ! -f "$font_dir/sketchybar-app-font.ttf" ]]; then
-        curl -fsSL "$font_url" -o "$font_dir/sketchybar-app-font.ttf"
-        print_success "Sketchybar app font installed"
-    else
-        print_success "Sketchybar app font already installed"
-    fi
+  if [[ ! -f "$font_dir/sketchybar-app-font.ttf" ]]; then
+    curl -fsSL "$font_url" -o "$font_dir/sketchybar-app-font.ttf"
+    print_success "Sketchybar app font installed"
+  else
+    print_success "Sketchybar app font already installed"
+  fi
 }
 
 # Backup existing configurations
 backup_configs() {
-    print_header "Backing Up Existing Configurations"
+  print_header "Backing Up Existing Configurations"
 
-    local backup_dir="$HOME/.config-backup/$(date +%Y%m%d_%H%M%S)"
-    local configs_to_backup=("aerospace" "sketchybar" "borders" "nvim")
-    local backed_up=false
+  local backup_dir="$HOME/.config-backup/$(date +%Y%m%d_%H%M%S)"
+  local configs_to_backup=("aerospace" "sketchybar" "borders" "nvim")
+  local backed_up=false
 
-    for config in "${configs_to_backup[@]}"; do
-        if [[ -e "$CONFIG_DIR/$config" && ! -L "$CONFIG_DIR/$config" ]]; then
-            mkdir -p "$backup_dir"
-            print_status "Backing up $config..."
-            mv "$CONFIG_DIR/$config" "$backup_dir/"
-            backed_up=true
-        fi
-    done
-
-    if [[ "$backed_up" = true ]]; then
-        print_success "Backups stored in $backup_dir"
-    else
-        print_success "No existing configs to backup"
+  for config in "${configs_to_backup[@]}"; do
+    if [[ -e "$CONFIG_DIR/$config" && ! -L "$CONFIG_DIR/$config" ]]; then
+      mkdir -p "$backup_dir"
+      print_status "Backing up $config..."
+      mv "$CONFIG_DIR/$config" "$backup_dir/"
+      backed_up=true
     fi
+  done
+
+  if [[ "$backed_up" = true ]]; then
+    print_success "Backups stored in $backup_dir"
+  else
+    print_success "No existing configs to backup"
+  fi
 }
 
 # Create symlinks with GNU Stow
 create_symlinks() {
-    print_header "Creating Symlinks"
+  print_header "Creating Symlinks"
 
-    cd "$SCRIPT_DIR"
+  cd "$SCRIPT_DIR"
 
-    local packages=("aerospace" "sketchybar" "jankyborders" "neovim" "skhd")
+  local packages=("aerospace" "sketchybar" "jankyborders" "neovim" "skhd")
 
-    for pkg in "${packages[@]}"; do
-        if [[ -d "$pkg" ]]; then
-            print_status "Stowing $pkg..."
-            stow -v -t "$HOME" "$pkg" 2>&1 | grep -v "^LINK:" || true
-            print_success "$pkg linked"
-        fi
-    done
+  for pkg in "${packages[@]}"; do
+    if [[ -d "$pkg" ]]; then
+      print_status "Stowing $pkg..."
+      stow -v -t "$HOME" "$pkg" 2>&1 | grep -v "^LINK:" || true
+      print_success "$pkg linked"
+    fi
+  done
 }
 
 # Start services
 start_services() {
-    print_header "Starting Services"
+  print_header "Starting Services"
 
-    # Start Sketchybar as a service
-    if command -v sketchybar &>/dev/null; then
-        print_status "Starting Sketchybar..."
-        brew services start sketchybar 2>/dev/null || true
-        print_success "Sketchybar service started"
-    fi
+  # Start Sketchybar as a service
+  if command -v sketchybar &>/dev/null; then
+    print_status "Starting Sketchybar..."
+    brew services start sketchybar 2>/dev/null || true
+    print_success "Sketchybar service started"
+  fi
 
-    # Start JankyBorders as a service
-    if command -v borders &>/dev/null; then
-        print_status "Starting JankyBorders..."
-        brew services start borders 2>/dev/null || true
-        print_success "JankyBorders service started"
-    fi
+  # Start JankyBorders as a service
+  if command -v borders &>/dev/null; then
+    print_status "Starting JankyBorders..."
+    brew services start borders 2>/dev/null || true
+    print_success "JankyBorders service started"
+  fi
 
-    # Start SKHD hotkey daemon
-    if command -v skhd &>/dev/null; then
-        print_status "Starting SKHD..."
-        brew services start skhd 2>/dev/null || true
-        print_success "SKHD service started"
-    fi
+  # Start SKHD hotkey daemon
+  if command -v skhd &>/dev/null; then
+    print_status "Starting SKHD..."
+    brew services start skhd 2>/dev/null || true
+    print_success "SKHD service started"
+  fi
 
-    # Start Aerospace (which will also trigger services via after-startup-command)
-    if command -v aerospace &>/dev/null; then
-        print_status "Starting Aerospace..."
-        open -a AeroSpace 2>/dev/null || true
-        print_success "Aerospace started"
-    fi
+  # Start Aerospace (which will also trigger services via after-startup-command)
+  if command -v aerospace &>/dev/null; then
+    print_status "Starting Aerospace..."
+    open -a AeroSpace 2>/dev/null || true
+    print_success "Aerospace started"
+  fi
 }
 
 # Print completion message
 print_completion() {
-    print_header "Installation Complete!"
+  print_header "Installation Complete!"
 
-    echo -e "${CYAN}What's been set up:${NC}"
-    echo "  • Homebrew packages and CLI tools (gh, jq, yq) installed"
-    echo "  • Aerospace window manager configured"
-    echo "  • Sketchybar status bar configured (with GitHub, Brew, system monitors)"
-    echo "  • JankyBorders window borders configured"
-    echo "  • Services started (Sketchybar, JankyBorders, Aerospace)"
-    echo ""
-    echo -e "${CYAN}Next steps:${NC}"
-    echo "  • Log out and back in (or restart) for all changes to take effect"
-    echo "  • Run 'gh auth login' to enable GitHub notifications in Sketchybar"
-    echo ""
-    echo -e "${CYAN}Keybindings (Aerospace):${NC}"
-    echo "  • Alt + 1-9: Switch workspace"
-    echo "  • Alt + H/J/K/L: Focus window (vim-style)"
-    echo "  • Alt + Shift + H/J/K/L: Move window"
-    echo "  • Alt + /: Toggle tiles layout"
-    echo "  • Alt + ,: Toggle accordion layout"
-    echo ""
-    echo -e "${CYAN}Keybindings (SKHD global):${NC}"
-    echo "  • Alt + Shift + Return: Open WezTerm"
-    echo "  • Alt + Shift + B: Open Zen Browser"
-    echo "  • Alt + Shift + E: Open Yazi file manager"
-    echo "  • Alt + Shift + O: Open Obsidian"
-    echo "  • Alt + Shift + Space: Open Raycast"
-    echo "  • Alt + Shift + Up/Down: Volume +/-"
-    echo "  • Alt + Shift + M: Mute toggle"
-    echo "  • Alt + Shift + R: Reload Sketchybar"
-    echo "  • Alt + Shift + S: Screenshot to clipboard"
-    echo "  • Alt + Shift + X: Lock screen"
-    echo "  • Alt + Shift + D: Move window to next display"
-    echo "  • Alt + Shift + F: Toggle fullscreen"
-    echo ""
+  echo -e "${CYAN}What's been set up:${NC}"
+  echo "  • Homebrew packages and CLI tools (gh, jq, yq) installed"
+  echo "  • Aerospace window manager configured"
+  echo "  • Sketchybar status bar configured (with GitHub, Brew, system monitors)"
+  echo "  • JankyBorders window borders configured"
+  echo "  • Services started (Sketchybar, JankyBorders, Aerospace)"
+  echo ""
+  echo -e "${CYAN}Next steps:${NC}"
+  echo "  • Log out and back in (or restart) for all changes to take effect"
+  echo "  • Run 'gh auth login' to enable GitHub notifications in Sketchybar"
+  echo ""
+  echo -e "${CYAN}Keybindings (Aerospace):${NC}"
+  echo "  • Alt + 1-9: Switch workspace"
+  echo "  • Alt + H/J/K/L: Focus window (vim-style)"
+  echo "  • Alt + Shift + H/J/K/L: Move window"
+  echo "  • Alt + /: Toggle tiles layout"
+  echo "  • Alt + ,: Toggle accordion layout"
+  echo ""
+  echo -e "${CYAN}Keybindings (SKHD global):${NC}"
+  echo "  • Alt + Shift + Return: Open WezTerm"
+  echo "  • Alt + Shift + B: Open Zen Browser"
+  echo "  • Alt + Shift + E: Open Yazi file manager"
+  echo "  • Alt + Shift + O: Open Obsidian"
+  echo "  • Alt + Shift + Space: Open Raycast"
+  echo "  • Alt + Shift + Up/Down: Volume +/-"
+  echo "  • Alt + Shift + M: Mute toggle"
+  echo "  • Alt + Shift + R: Reload Sketchybar"
+  echo "  • Alt + Shift + S: Screenshot to clipboard"
+  echo "  • Alt + Shift + X: Lock screen"
+  echo "  • Alt + Shift + D: Move window to next display"
+  echo "  • Alt + Shift + F: Toggle fullscreen"
+  echo ""
 }
 
 # Main installation flow
 main() {
-    print_header "maconfig Installation"
+  print_header "maconfig Installation"
 
-    check_macos
-    install_homebrew
-    install_brew_packages
-    install_sketchybar_font
-    backup_configs
-    create_symlinks
-    start_services
-    print_completion
+  check_macos
+  install_homebrew
+  install_brew_packages
+  install_sketchybar_font
+  backup_configs
+  create_symlinks
+  start_services
+  print_completion
 }
 
 # Run with optional --dry-run flag
 if [[ "${1:-}" == "--dry-run" ]]; then
-    print_warning "Dry run mode - no changes will be made"
-    # Could add dry-run logic here
+  print_warning "Dry run mode - no changes will be made"
+  # Could add dry-run logic here
 else
-    main
+  main
 fi
