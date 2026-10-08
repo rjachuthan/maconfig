@@ -7,16 +7,21 @@ local opacity = 0.85
 -- Font
 config.font = wezterm.font_with_fallback({
 	{
-		family = "0xProto Nerd Font",
+		family = "JetBrainsMono NF",
 		weight = "Regular",
 	},
 	"SF Pro",
 })
-config.font_size = 16
-config.line_height = 1.2
+config.font_size = 14
+config.line_height = 1.1
 
 -- Colors
 config.color_scheme = "Nucolors (terminal.sexy)"
+
+-- Shell (Windows: PowerShell 7+ instead of Windows PowerShell 5.1)
+if wezterm.target_triple:find("windows") then
+	config.default_prog = { "pwsh.exe", "-NoLogo" }
+end
 
 -- Window
 -- config.initial_rows = 45
