@@ -1,0 +1,5 @@
+{
+  "name": "local-mods",
+  "owner": { "name": "Rituraj Achuthan" },
+  "plugins": [{ "name": "skills-home", "source": "./skills-home", "description": "Lists global and project skills above the prompt at the start of a chat." }]
+}

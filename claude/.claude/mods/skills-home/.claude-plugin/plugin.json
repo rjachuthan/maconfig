@@ -1,0 +1,6 @@
+{
+  "name": "skills-home",
+  "version": "0.1.0",
+  "description": "Lists global and project skills as a bulleted list above the prompt until the first message of a chat.",
+  "types": "./types/index.d.ts"
+}
