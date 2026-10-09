@@ -2,7 +2,6 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 local opacity = 0.85
--- local transparent_bg = "rgba(22, 24, 26, " .. opacity .. ")"
 
 -- Font
 config.font = wezterm.font_with_fallback({
@@ -12,7 +11,7 @@ config.font = wezterm.font_with_fallback({
 	},
 	"SF Pro",
 })
-config.font_size = 14
+config.font_size = 12
 config.line_height = 1.1
 
 -- Colors
@@ -36,10 +35,10 @@ config.win32_system_backdrop = "Acrylic"
 -- config.cursor_blink_rate = 250
 
 config.window_padding = {
-	left = 50,
-	right = 50,
-	top = 20,
-	bottom = 50,
+	left = 5,
+	right = 5,
+	top = 5,
+	bottom = 5,
 }
 
 -- Tabs
