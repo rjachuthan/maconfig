@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Claude Code status line: model, thinking mode, effort. Runs on macOS and Windows (no jq/bash needed).
+const { execFileSync } = require("child_process");
 let raw = "";
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (c) => (raw += c));
@@ -37,5 +38,21 @@ process.stdin.on("end", () => {
     parts.push(c(111, `\u21bb ${left}`) + c(245, ` (${at})`));
   }
 
-  process.stdout.write(parts.join(sep) + "\n");
+  const left = parts.join(sep);
+
+  // Git branch (with nerd-font branch icon), right-aligned when terminal width is known.
+  let branch = "";
+  try {
+    const cwd = (d.workspace && d.workspace.current_dir) || d.cwd || process.cwd();
+    const git = (...a) => execFileSync("git", ["-C", cwd, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 1000 }).trim();
+    branch = git("rev-parse", "--abbrev-ref", "HEAD");
+    if (branch === "HEAD") branch = git("rev-parse", "--short", "HEAD");
+  } catch {}
+  if (!branch) return process.stdout.write(left + "\n");
+
+  const right = c(176, " " + branch, true);
+  const vis = (t) => t.replace(/\x1b\[[0-9;]*m/g, "").length;
+  const cols = Number(process.stdout.columns || process.stderr.columns || process.env.COLUMNS) || 0;
+  const pad = cols - vis(left) - vis(right) - 1;
+  process.stdout.write(left + (pad > 1 ? " ".repeat(pad) : sep) + right + "\n");
 });
