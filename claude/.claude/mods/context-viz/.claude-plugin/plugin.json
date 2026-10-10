@@ -1,0 +1,5 @@
+{
+  "name": "context-viz",
+  "version": "0.1.0",
+  "description": "/context-viz opens a pane that visualizes the context window: system prompt, MCPs, skills, memory, messages and free space."
+}

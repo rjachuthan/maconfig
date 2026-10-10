@@ -1,5 +1,8 @@
 {
   "name": "local-mods",
   "owner": { "name": "Rituraj Achuthan" },
-  "plugins": [{ "name": "skills-home", "source": "./skills-home", "description": "Lists global and project skills above the prompt at the start of a chat." }]
+  "plugins": [
+    { "name": "skills-home", "source": "./skills-home", "description": "Lists global and project skills above the prompt at the start of a chat." },
+    { "name": "context-viz", "source": "./context-viz", "description": "/context-viz opens a pane visualizing context window usage by system prompt, MCPs, skills, memory and messages." }
+  ]
 }
