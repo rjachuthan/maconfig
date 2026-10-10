@@ -40,17 +40,17 @@ process.stdin.on("end", () => {
 
   const left = parts.join(sep);
 
-  // Git branch (with nerd-font branch icon), right-aligned when terminal width is known.
+  // Launch folder + git branch (nerd-font icons), right-aligned when terminal width is known.
+  const cwd = (d.workspace && d.workspace.current_dir) || d.cwd || process.cwd();
+  const dir = (d.workspace && d.workspace.project_dir) || cwd;
+  const folder = dir.replace(/[\\/]+$/, "").split(/[\\/]/).pop() || dir;
   let branch = "";
   try {
-    const cwd = (d.workspace && d.workspace.current_dir) || d.cwd || process.cwd();
     const git = (...a) => execFileSync("git", ["-C", cwd, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 1000 }).trim();
     branch = git("rev-parse", "--abbrev-ref", "HEAD");
     if (branch === "HEAD") branch = git("rev-parse", "--short", "HEAD");
   } catch {}
-  if (!branch) return process.stdout.write(left + "\n");
-
-  const right = c(176, " " + branch, true);
+  const right = [c(110, " " + folder, true), branch && c(176, " " + branch, true)].filter(Boolean).join(sep);
   const vis = (t) => t.replace(/\x1b\[[0-9;]*m/g, "").length;
   const cols = Number(process.stdout.columns || process.stderr.columns || process.env.COLUMNS) || 0;
   const pad = cols - vis(left) - vis(right) - 1;
