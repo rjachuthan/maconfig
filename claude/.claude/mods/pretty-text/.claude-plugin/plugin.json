@@ -1,0 +1,5 @@
+{
+  "name": "pretty-text",
+  "version": "0.1.0",
+  "description": "Renders assistant replies more beautifully: HTML tags become markdown, Mermaid flowcharts are drawn as boxes in the terminal."
+}

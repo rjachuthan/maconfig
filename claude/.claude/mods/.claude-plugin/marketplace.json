@@ -3,6 +3,7 @@
   "owner": { "name": "Rituraj Achuthan" },
   "plugins": [
     { "name": "skills-home", "source": "./skills-home", "description": "Lists global and project skills above the prompt at the start of a chat." },
-    { "name": "context-viz", "source": "./context-viz", "description": "/context-viz opens a pane visualizing context window usage by system prompt, MCPs, skills, memory and messages." }
+    { "name": "context-viz", "source": "./context-viz", "description": "/context-viz opens a pane visualizing context window usage by system prompt, MCPs, skills, memory and messages." },
+    { "name": "pretty-text", "source": "./pretty-text", "description": "Renders replies more beautifully: HTML tags become markdown and Mermaid flowcharts are drawn as boxes." }
   ]
 }
