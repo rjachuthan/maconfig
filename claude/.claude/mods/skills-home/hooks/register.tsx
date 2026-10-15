@@ -85,6 +85,14 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // `/clear` starts a fresh chat in the same process and fires no `session.start`,
+  // so the list (loaded once at startup) only needs to be shown again.
+  on('session.end', async ($, e, next) => {
+    if (e.reason === 'clear') await update($, isHidden, () => false)
+
+    return next(e)
+  })
+
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const lists = await read($, skills)
     const isQuiet = e.props.hasSurvey || e.props.isWorking || lists === null || (await read($, isHidden))
