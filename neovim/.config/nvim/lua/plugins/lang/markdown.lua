@@ -46,7 +46,9 @@ return {
     "iamcco/markdown-preview.nvim",
     ft = "markdown",
     cond = platform.has("node"),
-    build = "cd app && npx --yes yarn install",
+    build = function()
+      vim.fn["mkdp#util#install"]()
+    end,
     init = function()
       vim.g.mkdp_filetypes = { "markdown" }
     end,
