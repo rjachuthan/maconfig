@@ -13,7 +13,9 @@
         {
           "foreground": "cyan",
           "options": {
-            "style": "full"
+            "style": "agnoster_short",
+            "max_depth": 2,
+            "hide_root_location": true
           },
           "style": "plain",
           "template": " {{ .Path }} ",
