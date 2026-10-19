@@ -172,6 +172,18 @@ return {
   },
 
   {
+    "Wansmer/treesj",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    cmd = { "TSJToggle", "TSJSplit", "TSJJoin" },
+    keys = {
+      { "<leader>cj", function() require("treesj").toggle() end, desc = "Split/join block (toggle)" },
+      { "<leader>cJ", function() require("treesj").join() end, desc = "Join block" },
+      { "<leader>cK", function() require("treesj").split() end, desc = "Split block" },
+    },
+    opts = { use_default_keymaps = false, max_join_length = 240 },
+  },
+
+  {
     "kylechui/nvim-surround",
     version = "*",
     event = "VeryLazy",
