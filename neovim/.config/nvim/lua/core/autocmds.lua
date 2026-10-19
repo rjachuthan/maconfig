@@ -36,6 +36,27 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 --- ---------------------------------------------------------------------------
+--- Hide ^M in CRLF files
+--- 'fileformats' only picks dos when *every* line ends in CRLF; a file with a
+--- few stray LF lines falls back to unix and shows ^M everywhere. If the first
+--- line ends in CR, re-read the buffer as dos.
+--- ---------------------------------------------------------------------------
+autocmd("BufReadPost", {
+  group = augroup("crlf"),
+  callback = function(ev)
+    local b = vim.bo[ev.buf]
+    if b.buftype ~= "" or not b.modifiable or b.fileformat ~= "unix" then
+      return
+    end
+    local first = vim.api.nvim_buf_get_lines(ev.buf, 0, 1, false)[1]
+    if first and first:sub(-1) == "\r" then
+      vim.cmd("silent! edit ++ff=dos")
+    end
+  end,
+  desc = "Reload as dos when lines end in ^M",
+})
+
+--- ---------------------------------------------------------------------------
 --- Flash yanked text
 --- Cheap visual confirmation that y actually grabbed what you meant.
 --- ---------------------------------------------------------------------------

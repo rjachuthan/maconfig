@@ -47,6 +47,9 @@ opt.undolevels = 10000
 opt.autowrite = true
 opt.confirm = true
 
+-- Prefer CRLF detection so Windows files don't show ^M
+opt.fileformats = { "dos", "unix" }
+
 opt.swapfile = false
 opt.backup = false
 opt.writebackup = false
