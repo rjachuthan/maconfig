@@ -11,3 +11,7 @@ if ((Get-Command oh-my-posh -ErrorAction SilentlyContinue) -and (Test-Path $ompT
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell --cmd z | Out-String) })
 }
+
+# the prompt's python segment shows the active venv, so stop Activate.ps1 from
+# prefixing its own "(venv)" as well
+$env:VIRTUAL_ENV_DISABLE_PROMPT = 1
