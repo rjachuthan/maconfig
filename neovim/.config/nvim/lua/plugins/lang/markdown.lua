@@ -51,6 +51,10 @@ return {
     end,
     init = function()
       vim.g.mkdp_filetypes = { "markdown" }
+      local assets = vim.fn.stdpath("config") .. "/assets/markdown-preview/"
+      vim.g.mkdp_markdown_css = vim.fs.normalize(assets .. "markdown.css")
+      vim.g.mkdp_highlight_css = vim.fs.normalize(assets .. "highlight.css")
+      vim.g.mkdp_page_title = "${name}"
     end,
     keys = {
       { "<leader>cp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown preview", ft = "markdown" },

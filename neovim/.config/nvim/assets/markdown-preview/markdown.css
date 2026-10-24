@@ -1,0 +1,610 @@
+/*
+ * Blog-style theme for markdown-preview.nvim (replaces the plugin's markdown.css).
+ * Wide layout so images, tables and code blocks fit without horizontal scrolling.
+ * Light/dark follow the plugin's [data-theme] toggle.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap");
+
+:root {
+  --mp-width: 1200px;
+
+  --mp-bg: #f4f5f7;
+  --mp-surface: #ffffff;
+  --mp-text: #24292f;
+  --mp-text-muted: #57606a;
+  --mp-heading: #111827;
+  --mp-accent: #2563eb;
+  --mp-accent-soft: #2563eb14;
+  --mp-border: #e5e7eb;
+  --mp-border-strong: #d0d7de;
+  --mp-code-bg: #f6f8fa;
+  --mp-inline-code-bg: #eff1f5;
+  --mp-inline-code-text: #c2255c;
+  --mp-table-head: #f3f4f6;
+  --mp-table-stripe: #fafbfc;
+  --mp-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.06);
+
+  --mp-note: #2563eb;
+  --mp-tip: #16a34a;
+  --mp-important: #7c3aed;
+  --mp-warning: #d97706;
+  --mp-caution: #dc2626;
+
+  /* keep the plugin's page.css variables in sync */
+  --foreground-color: var(--mp-text);
+  --background-color: var(--mp-surface);
+  --border-color: var(--mp-border);
+}
+
+[data-theme="dark"] {
+  --mp-bg: #0b0e14;
+  --mp-surface: #12161f;
+  --mp-text: #d1d7e0;
+  --mp-text-muted: #8b949e;
+  --mp-heading: #f0f3f6;
+  --mp-accent: #6ea8fe;
+  --mp-accent-soft: #6ea8fe1f;
+  --mp-border: #232a36;
+  --mp-border-strong: #30363d;
+  --mp-code-bg: #0d1117;
+  --mp-inline-code-bg: #1f2633;
+  --mp-inline-code-text: #f78fb3;
+  --mp-table-head: #1a202b;
+  --mp-table-stripe: #151a23;
+  --mp-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+
+  --mp-note: #6ea8fe;
+  --mp-tip: #4ade80;
+  --mp-important: #a78bfa;
+  --mp-warning: #fbbf24;
+  --mp-caution: #f87171;
+
+  --foreground-color: var(--mp-text);
+  --background-color: var(--mp-surface);
+  --border-color: var(--mp-border);
+  --secondary-background-color: var(--mp-bg);
+}
+
+/* ---------- page shell ---------- */
+
+main {
+  background-color: var(--mp-bg) !important;
+  padding: 32px 24px 64px;
+  box-sizing: border-box;
+}
+
+#page-ctn {
+  max-width: var(--mp-width);
+  color: var(--mp-text);
+}
+
+#page-header {
+  background: var(--mp-surface) !important;
+  border: 1px solid var(--mp-border) !important;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 12px 24px !important;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  color: var(--mp-text-muted);
+}
+
+#page-header h3 {
+  font-weight: 500 !important;
+  color: var(--mp-text-muted);
+}
+
+/* ---------- article ---------- */
+
+.markdown-body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--mp-text);
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border);
+  border-radius: 12px;
+  box-shadow: var(--mp-shadow);
+  padding: 56px 72px 72px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#page-header + .markdown-body {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.markdown-body * {
+  box-sizing: border-box;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body details,
+.markdown-body figure {
+  margin: 0 0 1.25em;
+}
+
+/* ---------- headings ---------- */
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  color: var(--mp-heading);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  margin: 2em 0 0.75em;
+  scroll-margin-top: 16px;
+}
+
+.markdown-body h1 {
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 2.6em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.markdown-body h2 {
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 1.85em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.markdown-body h3 {
+  font-size: 1.4em;
+}
+
+.markdown-body h4 {
+  font-size: 1.15em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 0.9em;
+  color: var(--mp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.markdown-body h1 + h2,
+.markdown-body h2 + h3,
+.markdown-body h3 + h4 {
+  margin-top: 1em;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  left: -1.1em;
+  padding-right: 0.3em;
+  color: var(--mp-accent);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  opacity: 1;
+  text-decoration: none;
+}
+
+/* ---------- inline ---------- */
+
+.markdown-body a {
+  color: var(--mp-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--mp-accent) 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s;
+}
+
+.markdown-body a:hover {
+  text-decoration-color: var(--mp-accent);
+}
+
+.markdown-body strong {
+  font-weight: 650;
+  color: var(--mp-heading);
+}
+
+.markdown-body del {
+  color: var(--mp-text-muted);
+}
+
+.markdown-body mark {
+  background: #fde68a;
+  color: #1f2937;
+  padding: 0 0.2em;
+  border-radius: 3px;
+}
+
+.markdown-body kbd {
+  display: inline-block;
+  padding: 0.1em 0.45em;
+  font: 600 0.8em "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  line-height: 1.4;
+  color: var(--mp-text);
+  background: var(--mp-code-bg);
+  border: 1px solid var(--mp-border-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  vertical-align: middle;
+}
+
+/* ---------- code ---------- */
+
+.markdown-body code,
+.markdown-body tt,
+.markdown-body pre {
+  font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, Menlo, monospace;
+  font-variant-ligatures: none;
+}
+
+.markdown-body code {
+  font-size: 0.86em;
+  padding: 0.15em 0.4em;
+  color: var(--mp-inline-code-text);
+  background: var(--mp-inline-code-bg);
+  border-radius: 5px;
+}
+
+.markdown-body code::before,
+.markdown-body code::after {
+  content: none;
+}
+
+.markdown-body a code {
+  color: inherit;
+}
+
+.markdown-body pre {
+  font-size: 0.85em;
+  line-height: 1.6;
+  padding: 18px 22px;
+  overflow: auto;
+  background: var(--mp-code-bg);
+  border: 1px solid var(--mp-border);
+  border-radius: 10px;
+}
+
+.markdown-body pre code,
+.markdown-body pre .hljs {
+  display: block;
+  padding: 0;
+  font-size: inherit;
+  color: var(--mp-text);
+  background: transparent;
+  border-radius: 0;
+  white-space: pre;
+  overflow: visible;
+}
+
+/* ---------- block quotes & alerts ---------- */
+
+.markdown-body blockquote {
+  padding: 0.75em 1.25em;
+  color: var(--mp-text-muted);
+  background: var(--mp-accent-soft);
+  border-left: 4px solid var(--mp-accent);
+  border-radius: 0 8px 8px 0;
+}
+
+.markdown-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .markdown-alert {
+  padding: 0.75em 1.25em;
+  margin-bottom: 1.25em;
+  border-left: 4px solid var(--mp-alert, var(--mp-note));
+  background: color-mix(in srgb, var(--mp-alert, var(--mp-note)) 8%, transparent);
+  border-radius: 0 8px 8px 0;
+}
+
+.markdown-body .markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .markdown-alert-title {
+  font-weight: 600;
+  color: var(--mp-alert, var(--mp-note));
+}
+
+.markdown-body .markdown-alert-note { --mp-alert: var(--mp-note); }
+.markdown-body .markdown-alert-tip { --mp-alert: var(--mp-tip); }
+.markdown-body .markdown-alert-important { --mp-alert: var(--mp-important); }
+.markdown-body .markdown-alert-warning { --mp-alert: var(--mp-warning); }
+.markdown-body .markdown-alert-caution { --mp-alert: var(--mp-caution); }
+
+/* ---------- lists ---------- */
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.75em;
+}
+
+.markdown-body li {
+  margin: 0.3em 0;
+}
+
+.markdown-body li > p {
+  margin: 0.4em 0;
+}
+
+.markdown-body li::marker {
+  color: var(--mp-text-muted);
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0.2em;
+  margin-bottom: 0;
+}
+
+.markdown-body .task-list-item,
+.markdown-body li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+
+.markdown-body .task-list-item input[type="checkbox"],
+.markdown-body li > input[type="checkbox"] {
+  margin: 0 0.5em 0 -1.4em;
+  vertical-align: middle;
+  accent-color: var(--mp-accent);
+}
+
+.markdown-body dl dt {
+  font-weight: 600;
+  margin-top: 1em;
+}
+
+.markdown-body dl dd {
+  margin: 0.25em 0 0 1.5em;
+  color: var(--mp-text-muted);
+}
+
+/* ---------- tables ---------- */
+
+/* Shrink-to-fit inside the article; cells wrap before the table ever scrolls. */
+.markdown-body table {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.92em;
+  line-height: 1.55;
+  border: 1px solid var(--mp-border-strong);
+  border-radius: 10px;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 10px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--mp-border);
+  border-right: 1px solid var(--mp-border);
+}
+
+.markdown-body table th:last-child,
+.markdown-body table td:last-child {
+  border-right: none;
+}
+
+.markdown-body table tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-body table th {
+  font-weight: 600;
+  color: var(--mp-heading);
+  background: var(--mp-table-head);
+  border-bottom: 1px solid var(--mp-border-strong);
+}
+
+.markdown-body table tbody tr:nth-child(2n) {
+  background: var(--mp-table-stripe);
+}
+
+.markdown-body table tbody tr:hover {
+  background: var(--mp-accent-soft);
+}
+
+/* ---------- media ---------- */
+
+.markdown-body img,
+.markdown-body video,
+.markdown-body svg:not(.katex svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body img {
+  display: block;
+  margin: 1.5em auto;
+  border-radius: 8px;
+  background: transparent;
+}
+
+/* inline badges (e.g. shields.io) stay inline */
+.markdown-body p > a > img,
+.markdown-body img[src*="shields.io"],
+.markdown-body img[src*="badge"] {
+  display: inline-block;
+  margin: 0 0.15em;
+  border-radius: 0;
+}
+
+.markdown-body figure {
+  text-align: center;
+}
+
+.markdown-body figcaption,
+.markdown-body img + em {
+  display: block;
+  margin-top: -0.75em;
+  font-size: 0.9em;
+  color: var(--mp-text-muted);
+  text-align: center;
+}
+
+.markdown-body .mermaid,
+.markdown-body .flowchart,
+.markdown-body .sequence-diagrams,
+.markdown-body .graphviz {
+  display: flex;
+  justify-content: center;
+  margin: 1.5em 0;
+  overflow-x: auto;
+}
+
+.markdown-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
+
+/* ---------- misc ---------- */
+
+.markdown-body hr {
+  height: 1px;
+  margin: 3em 0;
+  padding: 0;
+  border: 0;
+  background: var(--mp-border);
+}
+
+.markdown-body details {
+  padding: 0.75em 1.25em;
+  border: 1px solid var(--mp-border);
+  border-radius: 8px;
+}
+
+.markdown-body details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.markdown-body details[open] summary {
+  margin-bottom: 0.75em;
+}
+
+.markdown-body .footnotes {
+  font-size: 0.9em;
+  color: var(--mp-text-muted);
+  border-top: 1px solid var(--mp-border);
+  margin-top: 3em;
+  padding-top: 1em;
+}
+
+.markdown-body .footnotes-sep {
+  display: none;
+}
+
+.markdown-body .table-of-contents {
+  padding: 1em 1.5em;
+  margin-bottom: 2em;
+  background: var(--mp-code-bg);
+  border: 1px solid var(--mp-border);
+  border-radius: 10px;
+}
+
+.markdown-body .table-of-contents ol,
+.markdown-body .table-of-contents ul {
+  margin: 0;
+  list-style: none;
+  padding-left: 1em;
+}
+
+.markdown-body .table-of-contents > ol,
+.markdown-body .table-of-contents > ul {
+  padding-left: 0;
+}
+
+.markdown-body .table-of-contents a {
+  text-decoration: none;
+}
+
+.markdown-body ::selection {
+  background: color-mix(in srgb, var(--mp-accent) 25%, transparent);
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 900px) {
+  main {
+    padding: 0;
+  }
+
+  .markdown-body {
+    padding: 28px 20px 40px;
+    border-radius: 0;
+    font-size: 16px;
+  }
+
+  #page-header {
+    border-radius: 0 !important;
+  }
+
+  .markdown-body h1 {
+    font-size: 2em;
+  }
+
+  .markdown-body h2 {
+    font-size: 1.5em;
+  }
+}
+
+@media print {
+  main {
+    background: #fff !important;
+    padding: 0;
+  }
+
+  #page-header {
+    display: none !important;
+  }
+
+  .markdown-body {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+}

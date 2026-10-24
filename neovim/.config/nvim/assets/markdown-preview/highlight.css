@@ -1,0 +1,127 @@
+/*
+ * highlight.js theme for markdown-preview.nvim (replaces the plugin's highlight.css).
+ * GitHub-style colours, with a dark variant driven by the plugin's [data-theme].
+ */
+
+:root {
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+  --hl-tag: #116329;
+  --hl-meta: #6639ba;
+  --hl-add-fg: #116329;
+  --hl-add-bg: #dafbe1;
+  --hl-del-fg: #82071e;
+  --hl-del-bg: #ffebe9;
+}
+
+[data-theme="dark"] {
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+  --hl-tag: #7ee787;
+  --hl-meta: #d2a8ff;
+  --hl-add-fg: #aff5b4;
+  --hl-add-bg: #033a16;
+  --hl-del-fg: #ffdcd7;
+  --hl-del-bg: #67060c;
+}
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  color: inherit;
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-template-tag {
+  color: var(--hl-keyword);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-template-variable,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: var(--hl-string);
+}
+
+.hljs-number,
+.hljs-variable,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  color: var(--hl-number);
+}
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-section,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--hl-title);
+}
+
+.hljs-type,
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-title.class_,
+.hljs-params {
+  color: var(--hl-type);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-property {
+  color: var(--hl-attr);
+}
+
+.hljs-name,
+.hljs-tag {
+  color: var(--hl-tag);
+}
+
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: var(--hl-meta);
+}
+
+.hljs-section {
+  font-weight: 600;
+}
+
+.hljs-addition {
+  color: var(--hl-add-fg);
+  background: var(--hl-add-bg);
+}
+
+.hljs-deletion {
+  color: var(--hl-del-fg);
+  background: var(--hl-del-bg);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
