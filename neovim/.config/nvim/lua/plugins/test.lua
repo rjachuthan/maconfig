@@ -1,3 +1,12 @@
+-- neotest position ids are absolute, OS-native paths (backslashes on Windows);
+-- `expand("%")` is relative with forward slashes, so it matches nothing.
+---@param mods string
+---@return string
+local function path(mods)
+  local p = vim.fn.expand(mods)
+  return require("core.platform").is_win and (p:gsub("/", "\\")) or p
+end
+
 return {
   {
     "nvim-neotest/neotest",
@@ -8,7 +17,7 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
-      { "<leader>tt", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run file" },
+      { "<leader>tt", function() require("neotest").run.run(path("%:p")) end, desc = "Run file" },
       {
         "<leader>tT",
         function()
@@ -24,7 +33,7 @@ return {
       { "<leader>to", function() require("neotest").output.open({ enter = true }) end, desc = "Show output" },
       { "<leader>tO", function() require("neotest").output_panel.toggle() end, desc = "Toggle output panel" },
       { "<leader>tS", function() require("neotest").run.stop() end, desc = "Stop" },
-      { "<leader>tw", function() require("neotest").watch.toggle(vim.fn.expand("%")) end, desc = "Toggle watch" },
+      { "<leader>tw", function() require("neotest").watch.toggle(path("%:p")) end, desc = "Toggle watch" },
       { "<leader>ta", function() require("neotest").run.attach() end, desc = "Attach" },
       {
         "<leader>td",
@@ -33,7 +42,7 @@ return {
       },
       {
         "<leader>tF",
-        function() require("neotest").run.run(vim.fn.expand("%:p:h")) end,
+        function() require("neotest").run.run(path("%:p:h")) end,
         desc = "Run all tests in folder",
       },
     },
