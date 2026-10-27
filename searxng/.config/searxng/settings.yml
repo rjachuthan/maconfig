@@ -1,0 +1,24 @@
+# Overrides on top of SearXNG defaults: https://docs.searxng.org/admin/settings/
+use_default_settings: true
+
+general:
+  instance_name: "searxng"
+
+search:
+  # json is needed for scripts / agents (e.g. curl '...?q=foo&format=json')
+  formats:
+    - html
+    - json
+
+server:
+  # Overridden by the SEARXNG_SECRET env var (see .env)
+  secret_key: "overridden-by-env"
+  # Single-user local instance: no bot limiter (it needs Valkey/Redis)
+  limiter: false
+  image_proxy: true
+
+ui:
+  static_use_hash: true
+  default_theme: simple
+  theme_args:
+    simple_style: dark
