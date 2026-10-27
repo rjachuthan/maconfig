@@ -8,3 +8,7 @@ key = "prefix+k"
 type = "plugin_action"
 command = "herdr-bar.open"
 description = "command bar"
+
+[experimental]
+# Pass Kitty graphics through to Ghostty so nvim (snacks.image) can show images
+kitty_graphics = true

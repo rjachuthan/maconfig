@@ -60,6 +60,41 @@ return {
     },
   },
 
+  --- Render the current SVG in a float via snacks.image (ImageMagick does the
+  --- rasterising). svg is deliberately not added to snacks.image `formats`:
+  --- that would hijack every .svg buffer into a read-only image viewer, and
+  --- SVGs get edited as text far more often than they get looked at.
+  {
+    "folke/snacks.nvim",
+    keys = {
+      {
+        "<leader>fv",
+        function()
+          local file = vim.api.nvim_buf_get_name(0)
+          if vim.fn.fnamemodify(file, ":e"):lower() ~= "svg" then
+            vim.notify("Not an SVG file", vim.log.levels.WARN)
+            return
+          end
+          if vim.bo.modified then
+            vim.notify("Previewing the saved file; buffer has unsaved changes", vim.log.levels.WARN)
+          end
+          local buf = vim.api.nvim_create_buf(false, true)
+          Snacks.win({
+            buf = buf,
+            width = 0.8,
+            height = 0.8,
+            border = "rounded",
+            title = " " .. vim.fn.fnamemodify(file, ":t") .. " ",
+            bo = { filetype = "image", modifiable = false, swapfile = false },
+            keys = { q = "close" },
+          })
+          Snacks.image.placement.new(buf, file, { conceal = true, auto_resize = true })
+        end,
+        desc = "Preview SVG",
+      },
+    },
+  },
+
   --- Inline latest/outdated versions in package.json, plus change/delete on
   --- the dependency under the cursor.
   {
