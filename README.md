@@ -35,6 +35,7 @@ stow -t "$HOME" <package>   # e.g. stow -t "$HOME" tmux
 | `alacritty`    | `~/.config/alacritty`           | Terminal                                        |
 | `kitty`        | `~/.config/kitty`               | Terminal                                        |
 | `tmux`         | `~/.config/tmux`                | Terminal multiplexer                            |
+| `herdr`        | `~/.config/herdr/config.toml`   | Terminal multiplexer for coding agents          |
 | `neovim`       | `~/.config/nvim`                | Lua config using lazy.nvim                      |
 | `yazi`         | `~/.config/yazi`                | File manager (flavors, plugins, keymap)         |
 | `zsh`          | `~/.config/zsh`, `~/.local/bin` | Shell config, `tmux-sessionizer`, `migrate.sh`  |
