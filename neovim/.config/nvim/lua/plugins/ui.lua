@@ -44,11 +44,18 @@ end
 --- buffer, explorer...). Handles worktrees/submodules, where `.git` is a file.
 ---@return string
 local function cwd_branch()
-  local git = vim.fs.find(".git", { upward = true, path = vim.uv.cwd() })[1]
+  -- `vim.fs.find` throws (EPERM) when an ancestor dir is unreadable, e.g. a
+  -- macOS privacy-protected folder the terminal has no access to.
+  local ok, found = pcall(vim.fs.find, ".git", { upward = true, path = vim.uv.cwd() })
+  local git = ok and found[1]
   if not git then
     return ""
   end
-  if vim.uv.fs_stat(git).type == "file" then
+  local stat = vim.uv.fs_stat(git)
+  if not stat then
+    return ""
+  end
+  if stat.type == "file" then
     local pointer = (vim.fn.readfile(git)[1] or ""):match("^gitdir:%s*(.+)$")
     if not pointer then
       return ""

@@ -131,8 +131,10 @@ autocmd({ "BufWinEnter", "BufEnter" }, {
       return --  scratch/unnamed; there is nothing to match against
     end
 
-    local ft = vim.filetype.match({ buf = buf, filename = name })
-    if ft then
+    --- `vim.filetype.match` asserts on `uv.cwd()`, which fails (EPERM) when
+    --- the cwd is a macOS privacy-protected dir the terminal can't access.
+    local ok, ft = pcall(vim.filetype.match, { buf = buf, filename = name })
+    if ok and ft then
       vim.bo[buf].filetype = ft
       return
     end
