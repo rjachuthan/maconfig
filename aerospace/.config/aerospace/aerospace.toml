@@ -36,6 +36,11 @@ persistent-workspaces = ["1", "2", "3", "4", "5"]
 # Binding mode change callback
 on-mode-changed = ['exec-and-forget sketchybar --trigger aerospace_mode_change']
 
+# Workspace change callback
+exec-on-workspace-change = ['/bin/bash', '-c',
+  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+]
+
 [key-mapping]
 preset = 'qwerty'
 

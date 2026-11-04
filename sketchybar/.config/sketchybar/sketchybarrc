@@ -50,7 +50,8 @@ add_gap() {
     icon.drawing=off label.drawing=off background.drawing=off
 }
 
-# Left: [app icon + name] [mode tag, only outside aerospace's main mode]
+# Left: [workspace] [app icon + name] [mode tag]
+source "$MODULE_DIR/workspace/workspace.item.sh"
 source "$MODULE_DIR/apps/front_app.item.sh"
 sketchybar --add bracket focus front_app \
   --set focus "${pill[@]}"
