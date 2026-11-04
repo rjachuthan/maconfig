@@ -1,52 +1,30 @@
 #!/bin/bash
-# Sketchybar Colors - Generated from theme
-# This file is sourced by sketchybarrc
 
-# Load active theme (fallback to shiny-black if not set)
-THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/maconfig/active-theme.sh"
-if [[ -f "$THEME_FILE" ]]; then
-    source "$THEME_FILE"
-else
-    # Fallback: shiny-black defaults
-    color_background="0f0f12"
-    color_foreground="e8e8ed"
-    color5="c678dd"
-    color8="3e4452"
-    color13="e48bff"
-    color15="ffffff"
-    gradient_start="c678dd"
-    gradient_end="e06c9f"
-fi
+# Sketchybar Colors - Deep Black with Vibrant Accents
+# This file defines all color constants used throughout the sketchybar config
 
-# Convert hex to sketchybar format (0xAARRGGBB)
-hex_to_sketchybar() {
-    local hex="${1#\#}"
-    local alpha="${2:-ff}"
-    echo "0x${alpha}${hex}"
-}
+# Color Palette - Vibrant complementary colors on black
+export BLACK=0xff0a0a0a          # Deep black background
+export WHITE=0xffe0e0e0          # Bright white for text
+export RED=0xffff5f87            # Vibrant pink-red
+export GREEN=0xff5fff87          # Vibrant mint green
+export BLUE=0xff5fafff           # Vibrant sky blue
+export YELLOW=0xffffd75f         # Vibrant yellow
+export ORANGE=0xffff875f         # Vibrant orange
+export MAGENTA=0xffaf5fff        # Vibrant purple/magenta (workspace indicator)
+export CYAN=0xff5fffd7           # Vibrant cyan
+export GREY=0xff6b6b6b           # Muted gray for inactive elements
+export TRANSPARENT=0x00000000
 
-# Bar colors
-export BAR_COLOR=$(hex_to_sketchybar "$color_background" "e6")
-export BAR_BORDER_COLOR=$(hex_to_sketchybar "$color8" "80")
+# General bar colors
+export BAR_COLOR=0xf2000000      # Near-opaque black floating bar
+export BAR_BORDER_COLOR=0xff1f1f1f  # Hairline outline so the bar lifts off dark wallpapers
+export ICON_COLOR=$WHITE         # White icons with colorful accents per module
+export LABEL_COLOR=$WHITE        # White text
+export BACKGROUND_1=0xff111111   # Pill fill (item groups)
+export BACKGROUND_2=0xff262626   # Pill hairline border
 
-# Item colors
-export ITEM_BG_COLOR=$(hex_to_sketchybar "$color8" "60")
-export ACCENT_COLOR=$(hex_to_sketchybar "$color5" "ff")
-export ACCENT_BRIGHT=$(hex_to_sketchybar "$color13" "ff")
+export POPUP_BACKGROUND_COLOR=0xff0a0a0a
+export POPUP_BORDER_COLOR=$BACKGROUND_2
 
-# Text colors
-export TEXT_COLOR=$(hex_to_sketchybar "$color_foreground" "ff")
-export TEXT_BRIGHT=$(hex_to_sketchybar "$color15" "ff")
-export TEXT_DIM=$(hex_to_sketchybar "$color8" "ff")
-
-# Gradient for active workspace
-export GRADIENT_START=$(hex_to_sketchybar "$gradient_start" "ff")
-export GRADIENT_END=$(hex_to_sketchybar "$gradient_end" "ff")
-
-# Transparent
-export TRANSPARENT="0x00000000"
-
-# Status colors
-export SUCCESS_COLOR=$(hex_to_sketchybar "98c379" "ff")
-export WARNING_COLOR=$(hex_to_sketchybar "e5c07b" "ff")
-export ERROR_COLOR=$(hex_to_sketchybar "e06c75" "ff")
+export SHADOW_COLOR=$BLACK

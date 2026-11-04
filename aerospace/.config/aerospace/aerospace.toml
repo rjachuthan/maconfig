@@ -10,13 +10,6 @@ after-startup-command = [
   'exec-and-forget skhd',
 ]
 
-# Notify Sketchybar about workspace changes
-exec-on-workspace-change = [
-  '/bin/bash',
-  '-c',
-  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
-]
-
 # Start at login
 start-at-login = true
 
@@ -41,7 +34,7 @@ automatically-unhide-macos-hidden-apps = false
 persistent-workspaces = ["1", "2", "3", "4", "5"]
 
 # Binding mode change callback
-on-mode-changed = []
+on-mode-changed = ['exec-and-forget sketchybar --trigger aerospace_mode_change']
 
 [key-mapping]
 preset = 'qwerty'
