@@ -17,13 +17,14 @@ export GREY=0xff6b6b6b           # Muted gray for inactive elements
 export TRANSPARENT=0x00000000
 
 # General bar colors
-export BAR_COLOR=0xff000000      # Opaque pure black bar matching WezTerm Nucolors background
+export BAR_COLOR=0xf2000000      # Near-opaque black floating bar
+export BAR_BORDER_COLOR=0xff1f1f1f  # Hairline outline so the bar lifts off dark wallpapers
 export ICON_COLOR=$WHITE         # White icons with colorful accents per module
 export LABEL_COLOR=$WHITE        # White text
-export BACKGROUND_1=0xcc1a1a1a   # Visible dark gray background for item groups
-export BACKGROUND_2=0xff2a2a2a   # Lighter gray border/highlight
+export BACKGROUND_1=0xff111111   # Pill fill (item groups)
+export BACKGROUND_2=0xff262626   # Pill hairline border
 
-export POPUP_BACKGROUND_COLOR=0xff0a0a0a
+export POPUP_BACKGROUND_COLOR=0xf20a0a0a
 export POPUP_BORDER_COLOR=$MAGENTA
 
 export SHADOW_COLOR=$BLACK

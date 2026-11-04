@@ -12,34 +12,36 @@ cd "$NATIVE_DIR" && make 2>/dev/null
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
 
 # Setting up the general bar appearance and default values
-sketchybar --bar height=42 \
+sketchybar --bar height=$BAR_HEIGHT \
   color=$BAR_COLOR \
-  shadow=on \
+  border_color=$BAR_BORDER_COLOR \
+  border_width=1 \
+  shadow=off \
   position=top \
   sticky=on \
-  padding_right=10 \
-  padding_left=10 \
-  corner_radius=9 \
-  y_offset=10 \
-  margin=10 \
-  blur_radius=20 \
-  notch_width=0 \
+  padding_right=$BAR_PADDING_RIGHT \
+  padding_left=$BAR_PADDING_LEFT \
+  corner_radius=$BAR_CORNER_RADIUS \
+  y_offset=$BAR_Y_OFFSET \
+  margin=$BAR_MARGIN \
+  blur_radius=$BAR_BLUR_RADIUS \
+  notch_width=$BAR_NOTCH_WIDTH \
   \
   --default updates=when_shown \
-  icon.font="$FONT:Bold:16.0" \
+  icon.font="$ICON_FONT" \
   icon.color=$ICON_COLOR \
   icon.padding_left=$PADDINGS \
   icon.padding_right=$PADDINGS \
-  label.font="$FONT:Semibold:13.0" \
+  label.font="$LABEL_FONT" \
   label.color=$LABEL_COLOR \
   label.padding_left=$PADDINGS \
   label.padding_right=$PADDINGS \
   padding_right=$PADDINGS \
   padding_left=$PADDINGS \
-  background.height=30 \
-  background.corner_radius=2 \
-  popup.background.border_width=2 \
-  popup.background.corner_radius=2 \
+  background.height=$BACKGROUND_HEIGHT \
+  background.corner_radius=$BACKGROUND_CORNER_RADIUS \
+  popup.background.border_width=$POPUP_BORDER_WIDTH \
+  popup.background.corner_radius=$POPUP_CORNER_RADIUS \
   popup.background.border_color=$POPUP_BORDER_COLOR \
   popup.background.color=$POPUP_BACKGROUND_COLOR \
   popup.background.shadow.drawing=on
@@ -65,13 +67,21 @@ source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
 source "$MODULE_DIR/system/cpu.item.sh"
 
-# Add bracket around right-side items for grouped background
-sketchybar --add bracket status brew battery volume_icon \
-  --set status background.color=$BACKGROUND_1 \
-  background.border_color=$BACKGROUND_2 \
-  background.border_width=2 \
-  background.corner_radius=9 \
-  background.height=30
+# Group right-side items into matching pills (same fill, hairline, radius, height)
+pill=(
+  background.color=$BACKGROUND_1
+  background.border_color=$BACKGROUND_2
+  background.border_width=1
+  background.corner_radius=$BACKGROUND_CORNER_RADIUS
+  background.height=$BACKGROUND_HEIGHT
+  background.drawing=on
+)
+
+sketchybar --add bracket status battery volume_icon \
+  --set status "${pill[@]}" \
+  \
+  --add bracket cpu cpu.user cpu.top \
+  --set cpu "${pill[@]}"
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update

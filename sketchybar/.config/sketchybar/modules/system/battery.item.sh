@@ -13,8 +13,10 @@ source "$CONFIG_DIR/config.sh"
 
 sketchybar --add item battery right                                   \
            --set battery script="$MODULE_DIR/system/battery.plugin.sh" \
-                         icon.font="$FONT:Regular:19.0"               \
-                         padding_right=5                              \
+                         icon.font="$FONT:Regular:17.0"               \
+                         icon.padding_left=10                         \
+                         icon.padding_right=6                         \
+                         padding_right=0                              \
                          padding_left=0                               \
                          label.drawing=off                            \
                          update_freq=120                              \

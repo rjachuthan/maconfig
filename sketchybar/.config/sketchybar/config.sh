@@ -24,20 +24,20 @@ export PLUGIN_DIR="$CONFIG_DIR/plugins"
 # ============================================================================
 
 export FONT="SF Pro"  # Needs Regular, Bold, Semibold, Heavy and Black variants
-export PADDINGS=3     # All paddings use this value (icon, label, background)
+export PADDINGS=4     # All paddings use this value (icon, label, background)
 
 # ============================================================================
 # Bar Settings
 # ============================================================================
 
-export BAR_HEIGHT=39
-export BAR_CORNER_RADIUS=9
-export BAR_Y_OFFSET=10
-export BAR_MARGIN=10
-export BAR_BLUR_RADIUS=40
+export BAR_HEIGHT=38
+export BAR_CORNER_RADIUS=14
+export BAR_Y_OFFSET=6
+export BAR_MARGIN=12
+export BAR_BLUR_RADIUS=30
 export BAR_NOTCH_WIDTH=0
-export BAR_PADDING_RIGHT=10
-export BAR_PADDING_LEFT=10
+export BAR_PADDING_RIGHT=8
+export BAR_PADDING_LEFT=8
 
 # ============================================================================
 # Default Item Settings
@@ -45,10 +45,10 @@ export BAR_PADDING_LEFT=10
 
 export ICON_FONT="$FONT:Bold:14.0"
 export LABEL_FONT="$FONT:Semibold:13.0"
-export BACKGROUND_HEIGHT=30
-export BACKGROUND_CORNER_RADIUS=9
-export POPUP_BORDER_WIDTH=2
-export POPUP_CORNER_RADIUS=9
+export BACKGROUND_HEIGHT=26     # Pill height
+export BACKGROUND_CORNER_RADIUS=8   # Pill radius
+export POPUP_BORDER_WIDTH=1
+export POPUP_CORNER_RADIUS=10
 
 # ============================================================================
 # Helper Process

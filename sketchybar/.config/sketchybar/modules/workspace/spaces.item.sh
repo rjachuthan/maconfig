@@ -18,15 +18,15 @@ sketchybar --add item        current_workspace left                          \
                              icon.drawing=off                                 \
                              label.font="$FONT:Bold:13.0"                    \
                              label.color=$WHITE                               \
-                             label.padding_left=12                            \
-                             label.padding_right=12                           \
-                             padding_left=4                                   \
-                             padding_right=15                                 \
+                             label.padding_left=10                            \
+                             label.padding_right=10                           \
+                             padding_left=2                                   \
+                             padding_right=6                                  \
                              background.color=$BACKGROUND_1                   \
                              background.border_color=$BACKGROUND_2            \
-                             background.border_width=2                        \
-                             background.corner_radius=8                       \
-                             background.height=26                             \
+                             background.border_width=1                        \
+                             background.corner_radius=$BACKGROUND_CORNER_RADIUS                      \
+                             background.height=$BACKGROUND_HEIGHT                         \
                              background.drawing=on                            \
                              script="$MODULE_DIR/workspace/space.plugin.sh"  \
            --subscribe       current_workspace aerospace_workspace_change     \
