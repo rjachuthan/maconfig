@@ -46,10 +46,24 @@ sketchybar --bar height=$BAR_HEIGHT \
   popup.background.color=$POPUP_BACKGROUND_COLOR \
   popup.background.shadow.drawing=on
 
+# Shared pill style
+pill=(
+  background.color=$BACKGROUND_1
+  background.border_color=$BACKGROUND_2
+  background.border_width=1
+  background.corner_radius=$BACKGROUND_CORNER_RADIUS
+  background.height=$BACKGROUND_HEIGHT
+  background.drawing=on
+)
+
 # Left
 source "$MODULE_DIR/ui/apple.item.sh"
 source "$MODULE_DIR/workspace/spaces.item.sh"
 source "$MODULE_DIR/apps/front_app.item.sh"
+
+# One pill: "<workspace>:  <app icon> <app name>"
+sketchybar --add bracket focus current_workspace front_app \
+  --set focus "${pill[@]}"
 
 # Zen mode workspace handler
 sketchybar --add item zen_spaces_handler left \
@@ -68,14 +82,6 @@ source "$MODULE_DIR/system/volume.item.sh"
 source "$MODULE_DIR/system/cpu.item.sh"
 
 # Group right-side items into matching pills (same fill, hairline, radius, height)
-pill=(
-  background.color=$BACKGROUND_1
-  background.border_color=$BACKGROUND_2
-  background.border_width=1
-  background.corner_radius=$BACKGROUND_CORNER_RADIUS
-  background.height=$BACKGROUND_HEIGHT
-  background.drawing=on
-)
 
 sketchybar --add bracket status battery volume_icon \
   --set status "${pill[@]}" \

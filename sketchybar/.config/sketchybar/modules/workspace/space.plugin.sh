@@ -13,7 +13,7 @@ source "$CONFIG_DIR/config.sh"
 update() {
   local focused_workspace
   focused_workspace=$(aerospace list-workspaces --focused 2>/dev/null)
-  sketchybar --animate tanh 20 --set current_workspace label="$focused_workspace"
+  sketchybar --animate tanh 20 --set current_workspace label="${focused_workspace}:"
 }
 
 mouse_clicked() {
