@@ -75,7 +75,8 @@ install_brew_packages() {
     "iterm2"                        # Dropdown terminal
     "font-jetbrains-mono"           # Monospace font
     "font-jetbrains-mono-nerd-font" # Nerd font variant
-    "font-aptos"                    # Microsoft Office default font (Keynote PPTX imports)
+    "font-0xproto-nerd-font"        # Ghostty terminal font
+    "font-aptos"                   # Microsoft Office default font (Keynote PPTX imports)
     "sf-symbols"                    # SF Symbols app
   )
 
