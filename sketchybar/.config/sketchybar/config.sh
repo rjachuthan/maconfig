@@ -31,7 +31,7 @@ export PADDINGS=4     # All paddings use this value (icon, label, background)
 # ============================================================================
 
 export BAR_HEIGHT=38
-export BAR_CORNER_RADIUS=14
+export BAR_CORNER_RADIUS=10
 export BAR_Y_OFFSET=6
 export BAR_MARGIN=12
 export BAR_BLUR_RADIUS=30
@@ -46,9 +46,9 @@ export BAR_PADDING_LEFT=8
 export ICON_FONT="$FONT:Bold:14.0"
 export LABEL_FONT="$FONT:Semibold:13.0"
 export BACKGROUND_HEIGHT=26     # Pill height
-export BACKGROUND_CORNER_RADIUS=8   # Pill radius
+export BACKGROUND_CORNER_RADIUS=6   # Pill radius
 export POPUP_BORDER_WIDTH=1
-export POPUP_CORNER_RADIUS=10
+export POPUP_CORNER_RADIUS=8
 
 # ============================================================================
 # Helper Process
