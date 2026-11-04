@@ -2,10 +2,7 @@
 
 source "$CONFIG_DIR/config.sh"
 
-# Fixed location: Ealing Broadway
-get_location() {
-  echo '{"city": "Ealing Broadway", "country_name": "United Kingdom", "latitude": 51.5157, "longitude": -0.3008, "timezone": "Europe/London"}'
-}
+source "$MODULE_DIR/integrations/weather.lib.sh"
 
 # Fetch weather data from Open-Meteo API
 fetch_weather() {
@@ -16,9 +13,10 @@ fetch_weather() {
 
   local url="https://api.open-meteo.com/v1/forecast"
   url+="?latitude=${lat}&longitude=${lon}"
-  url+="&current=temperature_2m,weather_code,apparent_temperature"
+  url+="&current=temperature_2m,weather_code,apparent_temperature,relative_humidity_2m,wind_speed_10m"
   url+="&hourly=temperature_2m,weather_code&forecast_hours=6"
-  url+="&temperature_unit=celsius&timezone=${tz}"
+  url+="&daily=temperature_2m_max,temperature_2m_min&forecast_days=1"
+  url+="&temperature_unit=celsius&timezone=auto"
 
   curl -s --max-time 10 "$url" 2>/dev/null
 }
@@ -42,6 +40,9 @@ map_weather_code() {
 
 # Main update function
 update() {
+  # Refresh location first so a move invalidates stale weather
+  get_location >/dev/null
+
   # Try to get cached data first
   local cached=$(cache_get "weather_data")
 
