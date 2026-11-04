@@ -13,12 +13,12 @@ fetch_corelocation() {
   local out
   # No coreutils `timeout` on macOS, so use perl's alarm to cap the wait
   out=$(perl -e 'alarm 10; exec @ARGV' CoreLocationCLI \
-        --format '%latitude|%longitude|%locality|%country' 2>/dev/null) || return 1
-  local lat lon city country
-  IFS='|' read -r lat lon city country <<<"$out"
+        --format '%latitude|%longitude|%locality|%country|%isoCountryCode' 2>/dev/null) || return 1
+  local lat lon city country cc
+  IFS='|' read -r lat lon city country cc <<<"$out"
   [[ "$lat" =~ ^-?[0-9.]+$ && "$lon" =~ ^-?[0-9.]+$ ]] || return 1
-  jq -cn --arg c "$city" --arg k "$country" --argjson la "$lat" --argjson lo "$lon" \
-    '{city: $c, country_name: $k, latitude: $la, longitude: $lo, timezone: "auto"}'
+  jq -cn --arg c "$city" --arg k "$country" --arg cc "$cc" --argjson la "$lat" --argjson lo "$lon" \
+    '{city: $c, country_name: $k, country_code: $cc, latitude: $la, longitude: $lo, timezone: "auto"}'
 }
 
 fetch_location() {
@@ -29,12 +29,12 @@ fetch_location() {
   fi
   raw=$(curl -s --max-time 6 "https://ipwho.is/" 2>/dev/null)
   if echo "$raw" | jq -e '.success == true and .latitude != null' >/dev/null 2>&1; then
-    echo "$raw" | jq -c '{city, country_name: .country, latitude, longitude, timezone: .timezone.id}'
+    echo "$raw" | jq -c '{city, country_name: .country, country_code, latitude, longitude, timezone: .timezone.id}'
     return 0
   fi
   raw=$(curl -s --max-time 6 "https://ipinfo.io/json" 2>/dev/null)
   if echo "$raw" | jq -e '.loc != null' >/dev/null 2>&1; then
-    echo "$raw" | jq -c '{city, country_name: .country, latitude: (.loc | split(",")[0] | tonumber), longitude: (.loc | split(",")[1] | tonumber), timezone}'
+    echo "$raw" | jq -c '{city, country_name: .country, country_code: .country, latitude: (.loc | split(",")[0] | tonumber), longitude: (.loc | split(",")[1] | tonumber), timezone}'
     return 0
   fi
   return 1
