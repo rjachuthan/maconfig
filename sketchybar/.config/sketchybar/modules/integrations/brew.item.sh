@@ -16,6 +16,7 @@ source "$CONFIG_DIR/config.sh"
 sketchybar --add event brew_update \
   --add item brew right \
   --set brew update_freq=300 \
+  drawing=off \
   script="$MODULE_DIR/integrations/brew.plugin.sh" \
   icon=􀐛 \
   icon.color="$ORANGE" \

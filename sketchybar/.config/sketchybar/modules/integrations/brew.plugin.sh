@@ -10,6 +10,9 @@ fi
 
 source "$CONFIG_DIR/config.sh"
 
+# Only show the item when outdated packages exceed this number
+BREW_SHOW_THRESHOLD=15
+
 update() {
   # Work around Homebrew environment bug by calling through a login shell
   # (Homebrew crashes with "undefined method 'success?' for nil" when run directly from sketchybar)
@@ -27,7 +30,10 @@ update() {
   local label="$count"
   [[ "$count" == "0" ]] && label="􀆅"
 
-  update_item "$NAME" label="$label" icon.color="$color" label.color="$color"
+  local drawing="off"
+  (( count > BREW_SHOW_THRESHOLD )) && drawing="on"
+
+  update_item "$NAME" drawing="$drawing" label="$label" icon.color="$color" label.color="$color"
 }
 
 update
