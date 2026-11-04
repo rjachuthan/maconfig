@@ -96,7 +96,7 @@ sketchybar --add bracket status battery volume_icon \
   --set status "${pill[@]}" \
   \
   --add bracket cpu cpu.user cpu.top \
-  --set cpu "${pill[@]}"
+  --set cpu "${pill[@]}" background.border_width=0
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
