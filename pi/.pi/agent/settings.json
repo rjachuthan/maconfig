@@ -12,6 +12,7 @@
     "npm:@tintinweb/pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-background-tasks",
-    "npm:@nguyenquangthai/pi-omp-theme"
+    "npm:@nguyenquangthai/pi-omp-theme",
+    "npm:pi-web-access"
   ]
 }
