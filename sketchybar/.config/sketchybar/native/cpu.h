@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-static const char TOPPROC[32] = { "/bin/ps -Aceo pid,pcpu,comm -r" };
+static const char TOPPROC[32] = { "/bin/ps -Aceo comm -r" };
 static const char FILTER_PATTERN[16] = { "com.apple." };
 
 struct cpu {
@@ -67,6 +67,7 @@ static inline void cpu_update(struct cpu* cpu) {
 
     fgets(line, sizeof(line), file);
     fgets(line, sizeof(line), file);
+    line[strcspn(line, "\n")] = '\0';
 
     char* start = strstr(line, FILTER_PATTERN);
     char topproc[32];
