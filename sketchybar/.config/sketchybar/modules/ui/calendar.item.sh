@@ -50,6 +50,9 @@ sketchybar --add item     clock.ist right                             \
                           click_script="$MODULE_DIR/ui/zen.plugin.sh" \
            --subscribe    calendar system_woke                        \
                                                                       \
+           --add item     gap.clock right                             \
+           --set gap.clock width=6 background.drawing=off icon.drawing=off label.drawing=off padding_left=0 padding_right=0 \
+                                                                      \
            --add bracket  clock calendar clock.uk clock.ist           \
            --set clock    background.color=$BACKGROUND_1              \
                           background.border_color=$BACKGROUND_2      \

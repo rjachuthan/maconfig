@@ -56,6 +56,13 @@ pill=(
   background.drawing=on
 )
 
+# Fixed-width spacer between right-side pills
+add_gap() {
+  sketchybar --add item "$1" right \
+    --set "$1" width=6 padding_left=0 padding_right=0 \
+    icon.drawing=off label.drawing=off background.drawing=off
+}
+
 # Left
 source "$MODULE_DIR/ui/apple.item.sh"
 source "$MODULE_DIR/workspace/spaces.item.sh"
@@ -77,8 +84,10 @@ sketchybar --add item zen_spaces_handler left \
 source "$MODULE_DIR/ui/calendar.item.sh"
 source "$MODULE_DIR/integrations/brew.item.sh"
 source "$MODULE_DIR/integrations/weather.item.sh"
+add_gap gap.weather
 source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
+add_gap gap.status
 source "$MODULE_DIR/system/cpu.item.sh"
 
 # Group right-side items into matching pills (same fill, hairline, radius, height)

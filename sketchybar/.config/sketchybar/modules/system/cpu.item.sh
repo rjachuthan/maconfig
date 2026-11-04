@@ -31,7 +31,7 @@ sketchybar --add item        cpu.top right                 \
                              update_freq=2                 \
                              mach_helper="$HELPER_NAME"    \
                                                            \
-           --add graph       cpu.sys right 75              \
+           --add graph       cpu.sys right 50              \
            --set cpu.sys     width=0                       \
                              graph.color=$RED              \
                              graph.fill_color=$RED         \
@@ -41,8 +41,9 @@ sketchybar --add item        cpu.top right                 \
                              background.drawing=on         \
                              background.color=$TRANSPARENT \
                                                            \
-           --add graph       cpu.user right 75             \
+           --add graph       cpu.user right 50             \
            --set cpu.user    graph.color=$BLUE             \
+                             padding_left=8                \
                              label.drawing=off             \
                              icon.drawing=off              \
                              background.height=30          \

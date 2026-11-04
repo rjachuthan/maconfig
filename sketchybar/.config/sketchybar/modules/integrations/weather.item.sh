@@ -13,7 +13,7 @@ sketchybar --add event weather_update \
                  icon.padding_right=2 \
                  label.padding_left=2 \
                  label.padding_right=10 \
-                 padding_left=4 \
+                 padding_left=0 \
                  padding_right=0 \
                  background.color="$BACKGROUND_1" \
                  background.border_color="$BACKGROUND_2" \

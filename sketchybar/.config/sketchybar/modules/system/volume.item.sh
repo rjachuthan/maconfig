@@ -33,7 +33,7 @@ volume_icon=(
   icon.align=left
   icon.color=$GREY
   icon.font="$FONT:Regular:14.0"
-  label.width=26
+  label.width=22
   label.align=left
   label.font="$FONT:Regular:14.0"
 )

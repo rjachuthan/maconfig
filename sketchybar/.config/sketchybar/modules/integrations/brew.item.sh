@@ -25,8 +25,8 @@ sketchybar --add event brew_update \
   icon.padding_left=10 \
   icon.padding_right=2 \
   label.padding_right=10 \
-  padding_left=4 \
-  padding_right=0 \
+  padding_left=0 \
+  padding_right=6 \
   background.color="$BACKGROUND_1" \
   background.border_color="$BACKGROUND_2" \
   background.border_width=1 \
