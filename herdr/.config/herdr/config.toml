@@ -3,6 +3,18 @@ onboarding = false
 [ui]
 status_indicators = "symbols"
 
+# Agent logos: $logo is set per pane by local-plugins/agent-logos.
+# Line 1: status + workspace; line 2: brand-coloured logo + task title.
+[ui.sidebar.agents]
+rows = [["state_icon", "machine", "workspace"], ["$logo", "tab"]]
+
+[ui.sidebar.agents.rows_by_agent]
+claude = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#D97757" }, "tab"]]
+codex = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#10A37F" }, "tab"]]
+gemini = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#4796E3" }, "tab"]]
+copilot = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#8957E5" }, "tab"]]
+pi = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#F5C2E7" }, "tab"]]
+
 [[keys.command]]
 key = "prefix+k"
 type = "plugin_action"

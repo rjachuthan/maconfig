@@ -1,0 +1,16 @@
+id = "agent-logos"
+name = "Agent Logos"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Sets a $logo sidebar token on every agent pane with its CLI's Nerd Font glyph"
+# Shell + jq; Windows has neither, so the plugin stays inert there.
+platforms = ["linux", "macos"]
+
+# Tag panes that already run an agent when the server starts.
+[[startup]]
+command = ["sh", "scripts/logos.sh"]
+
+# Re-tag whenever a pane picks up (or switches) an agent.
+[[events]]
+on = "pane.agent_detected"
+command = ["sh", "scripts/logos.sh"]
