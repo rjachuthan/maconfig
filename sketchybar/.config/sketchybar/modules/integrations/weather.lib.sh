@@ -61,3 +61,53 @@ get_location() {
   local last=$(load_state "weather_last_location")
   echo "${last:-$DEFAULT_LOCATION}"
 }
+
+# Map a WMO weather code to an SF Symbol. Second argument is Open-Meteo's
+# is_day flag (1 = day, 0 = night) so clear/partly cloudy use moon variants.
+map_weather_code() {
+  local code=$1 is_day=${2:-1}
+  case $code in
+    0)              [[ $is_day == 0 ]] && echo "$WEATHER_CLEAR_NIGHT" || echo "$WEATHER_CLEAR_DAY" ;;
+    1|2)            [[ $is_day == 0 ]] && echo "$WEATHER_PARTLY_NIGHT" || echo "$WEATHER_PARTLY_DAY" ;;
+    3)              echo "$WEATHER_CLOUDY" ;;
+    45|48)          echo "$WEATHER_FOG" ;;
+    51|53|55|56|57) echo "$WEATHER_DRIZZLE" ;;
+    61|63|66|80|81) echo "$WEATHER_RAIN" ;;
+    65|67|82)       echo "$WEATHER_HEAVY_RAIN" ;;
+    71|73|75|77|85|86) echo "$WEATHER_SNOW" ;;
+    95|96|99)       echo "$WEATHER_STORM" ;;
+    *)              echo "$WEATHER_UNKNOWN" ;;
+  esac
+}
+
+# Does this WMO code mean rain (drizzle, rain, showers or storm)?
+is_rain() {
+  case $1 in
+    51|53|55|56|57|61|63|65|66|67|80|81|82|95|96|99) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+get_weather_desc() {
+  case $1 in
+    0) echo "Clear" ;;
+    1|2) echo "Partly Cloudy" ;;
+    3) echo "Overcast" ;;
+    45|48) echo "Foggy" ;;
+    51|53|55) echo "Drizzle" ;;
+    56|57) echo "Freezing Drizzle" ;;
+    61|63|65) echo "Rain" ;;
+    66|67) echo "Freezing Rain" ;;
+    71|73|75) echo "Snow" ;;
+    77) echo "Snow Grains" ;;
+    80|81|82) echo "Rain Showers" ;;
+    85|86) echo "Snow Showers" ;;
+    95|96|99) echo "Thunderstorm" ;;
+    *) echo "Unknown" ;;
+  esac
+}
+
+# Neutral white, with a colour only for freezing or hot temperatures
+temp_color() {
+  select_color_by_range "$1" "-999-0:$CYAN" "1-29:$WHITE" "30-999:$RED"
+}

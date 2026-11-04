@@ -1,36 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-# General Icons
-LOADING=􀖇
-APPLE=􀣺
-PREFERENCES=􀺽
-ACTIVITY=􀒓
-LOCK=􀒳
-BELL=􀋚
-BELL_DOT=􀝗
+# SF Symbols glyphs (requires the SF Symbols app / SF Pro font)
 
-# Git Icons
-GIT_ISSUE=􀍷
-GIT_DISCUSSION=􀒤
-GIT_PULL_REQUEST=􀙡
-GIT_COMMIT=􀡚
-GIT_INDICATOR=􀂓
-
-# Spotify Icons
-SPOTIFY_BACK=􀊎
-SPOTIFY_PLAY_PAUSE=􀊈
-SPOTIFY_NEXT=􀊐
-SPOTIFY_SHUFFLE=􀊝
-SPOTIFY_REPEAT=􀊞
-
-# Yabai/Aerospace Icons
-YABAI_STACK=􀏭
-YABAI_FULLSCREEN_ZOOM=􀏜
-YABAI_PARENT_ZOOM=􀥃
-YABAI_FLOAT=􀢌
-YABAI_GRID=􀧍
-
-# Battery Icons
+# Battery
 BATTERY_100=􀛨
 BATTERY_75=􀺸
 BATTERY_50=􀺶
@@ -38,9 +10,23 @@ BATTERY_25=􀛩
 BATTERY_0=􀛪
 BATTERY_CHARGING=􀢋
 
-# Volume Icons
+# Volume
 VOLUME_100=􀊩
 VOLUME_66=􀊧
 VOLUME_33=􀊥
 VOLUME_10=􀊡
 VOLUME_0=􀊣
+
+# Weather
+WEATHER_CLEAR_DAY=􀆮          # sun.max.fill
+WEATHER_CLEAR_NIGHT=􀇁        # moon.stars.fill
+WEATHER_PARTLY_DAY=􀇕         # cloud.sun.fill
+WEATHER_PARTLY_NIGHT=􀇛       # cloud.moon.fill
+WEATHER_CLOUDY=􀇃             # cloud.fill
+WEATHER_FOG=􀇋                # cloud.fog.fill
+WEATHER_DRIZZLE=􀇅            # cloud.drizzle.fill
+WEATHER_RAIN=􀇇               # cloud.rain.fill
+WEATHER_HEAVY_RAIN=􀇉         # cloud.heavyrain.fill
+WEATHER_SNOW=􀇏               # cloud.snow.fill
+WEATHER_STORM=􀇟              # cloud.bolt.rain.fill
+WEATHER_UNKNOWN=􀁜            # questionmark.circle

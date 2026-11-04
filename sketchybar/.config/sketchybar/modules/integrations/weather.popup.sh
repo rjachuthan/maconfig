@@ -3,53 +3,6 @@
 source "$CONFIG_DIR/config.sh"
 source "$MODULE_DIR/integrations/weather.lib.sh"
 
-# Map WMO weather codes to emoji icons (same as plugin)
-map_weather_code() {
-  local code=$1
-  case $code in
-    0) echo "☀️" ;;
-    1|2|3) echo "⛅" ;;
-    45|48) echo "🌫️" ;;
-    51|53|55|56|57) echo "🌦️" ;;
-    61|63|65|66|67) echo "🌧️" ;;
-    71|73|75|77) echo "❄️" ;;
-    80|81|82) echo "🌧️" ;;
-    85|86) echo "🌨️" ;;
-    95|96|99) echo "⛈️" ;;
-    *) echo "❓" ;;
-  esac
-}
-
-# Check if weather code indicates rain
-is_rain() {
-  local code=$1
-  case $code in
-    51|53|55|56|57|61|63|65|66|67|80|81|82|95|96|99) echo "yes" ;;
-    *) echo "no" ;;
-  esac
-}
-
-# Get weather description
-get_weather_desc() {
-  local code=$1
-  case $code in
-    0) echo "Clear" ;;
-    1|2) echo "Partly Cloudy" ;;
-    3) echo "Overcast" ;;
-    45|48) echo "Foggy" ;;
-    51|53|55) echo "Drizzle" ;;
-    56|57) echo "Freezing Drizzle" ;;
-    61|63|65) echo "Rain" ;;
-    66|67) echo "Freezing Rain" ;;
-    71|73|75) echo "Snow" ;;
-    77) echo "Snow Grains" ;;
-    80|81|82) echo "Rain Showers" ;;
-    85|86) echo "Snow Showers" ;;
-    95|96|99) echo "Thunderstorm" ;;
-    *) echo "Unknown" ;;
-  esac
-}
-
 toggle_popup() {
   # Get cached weather data
   local weather_data=$(cache_get "weather_data")
@@ -63,7 +16,7 @@ toggle_popup() {
     return
   fi
 
-  # Detected location (IP based, cached)
+  # Detected location (cached)
   local location=$(get_location)
   local location_text="$(echo "$location" | jq -r '[.city, .country_name] | map(select(. != null and . != "")) | join(", ")')"
 
@@ -71,10 +24,11 @@ toggle_popup() {
   local current_temp=$(echo "$weather_data" | jq -r '.current.temperature_2m')
   local feels_like=$(echo "$weather_data" | jq -r '.current.apparent_temperature')
   local current_code=$(echo "$weather_data" | jq -r '.current.weather_code')
+  local current_is_day=$(echo "$weather_data" | jq -r '.current.is_day // 1')
 
   # Round temperatures
-  current_temp=${current_temp%.*}
-  feels_like=${feels_like%.*}
+  current_temp=$(printf '%.0f' "$current_temp")
+  feels_like=$(printf '%.0f' "$feels_like")
 
   # Extra details (absent in older cached data, so each is optional)
   local humidity=$(echo "$weather_data" | jq -r '.current.relative_humidity_2m // empty')
@@ -90,7 +44,7 @@ toggle_popup() {
   for d in "${details[@]}"; do details_text+="${details_text:+$sep}$d"; done
 
   local current_desc=$(get_weather_desc "$current_code")
-  local current_icon=$(map_weather_code "$current_code")
+  local current_icon=$(map_weather_code "$current_code" "$current_is_day")
 
   # Build popup content (vertical card, fixed inner width so rows align)
   local W=240
@@ -118,7 +72,8 @@ toggle_popup() {
   sketchybar --add item weather.popup.current popup.weather \
              --set weather.popup.current "${row[@]}" \
                    icon="$current_icon" \
-                   icon.font="$FONT:Regular:28.0" \
+                   icon.font="$FONT:Regular:24.0" \
+                   icon.color="$(temp_color "$current_temp")" \
                    icon.width=46 \
                    icon.align=left \
                    label="${current_temp}°C" \
@@ -174,24 +129,24 @@ toggle_popup() {
   local times=$(echo "$weather_data" | jq -r '.hourly.time[]')
   local temps=$(echo "$weather_data" | jq -r '.hourly.temperature_2m[]')
   local codes=$(echo "$weather_data" | jq -r '.hourly.weather_code[]')
+  local days=$(echo "$weather_data" | jq -r 'if .hourly.is_day then .hourly.is_day[] else .hourly.time[] | 1 end')
 
   local hour_count=0
   local rain_warning=""
 
-  while IFS= read -r time && IFS= read -r temp <&3 && IFS= read -r code <&4; do
+  while IFS= read -r time && IFS= read -r temp <&3 && IFS= read -r code <&4 && IFS= read -r day <&5; do
     if [[ $hour_count -ge 6 ]]; then
       break
     fi
 
     # "2026-02-15T15:00" -> "15:00"
     local hour=$(echo "$time" | sed 's/.*T\([0-9:]*\).*/\1/')
-    temp=${temp%.*}
+    temp=$(printf '%.0f' "$temp")
 
-    local icon=$(map_weather_code "$code")
-    local will_rain=$(is_rain "$code")
+    local icon=$(map_weather_code "$code" "$day")
 
-    if [[ "$will_rain" == "yes" && -z "$rain_warning" ]]; then
-      rain_warning="💧 Rain expected at $hour"
+    if is_rain "$code" && [[ -z "$rain_warning" ]]; then
+      rain_warning="Rain expected at $hour"
     fi
 
     sketchybar --add item "weather.popup.hour${hour_count}" popup.weather \
@@ -207,7 +162,7 @@ toggle_popup() {
                      label.align=left
 
     ((hour_count++))
-  done < <(echo "$times") 3< <(echo "$temps") 4< <(echo "$codes")
+  done < <(echo "$times") 3< <(echo "$temps") 4< <(echo "$codes") 5< <(echo "$days")
 
   # Rain warning
   if [[ -n "$rain_warning" ]]; then
@@ -215,11 +170,15 @@ toggle_popup() {
 
     sketchybar --add item weather.popup.rain_warning popup.weather \
                --set weather.popup.rain_warning "${row[@]}" \
-                     icon.drawing=off \
+                     icon="$WEATHER_RAIN" \
+                     icon.font="$FONT:Regular:13.0" \
+                     icon.color="$CYAN" \
+                     icon.width=24 \
+                     icon.align=left \
                      label="$rain_warning" \
                      label.font="$FONT:Bold:12.0" \
                      label.color="$CYAN" \
-                     label.width=$W \
+                     label.width=$((W-24)) \
                      label.align=left
   fi
 

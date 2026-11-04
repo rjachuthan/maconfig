@@ -1,99 +1,62 @@
 #!/bin/bash
 
-source "$CONFIG_DIR/config.sh"
+# Weather Module - Plugin
+# Fetches current conditions from Open-Meteo (cached 15 min)
 
+source "$CONFIG_DIR/config.sh"
 source "$MODULE_DIR/integrations/weather.lib.sh"
 
-# Fetch weather data from Open-Meteo API
 fetch_weather() {
   local location=$(get_location)
   local lat=$(echo "$location" | jq -r '.latitude')
   local lon=$(echo "$location" | jq -r '.longitude')
-  local tz=$(echo "$location" | jq -r '.timezone')
 
   local url="https://api.open-meteo.com/v1/forecast"
   url+="?latitude=${lat}&longitude=${lon}"
-  url+="&current=temperature_2m,weather_code,apparent_temperature,relative_humidity_2m,wind_speed_10m"
-  url+="&hourly=temperature_2m,weather_code&forecast_hours=6"
+  url+="&current=temperature_2m,weather_code,is_day,apparent_temperature,relative_humidity_2m,wind_speed_10m"
+  url+="&hourly=temperature_2m,weather_code,is_day&forecast_hours=6"
   url+="&daily=temperature_2m_max,temperature_2m_min&forecast_days=1"
   url+="&temperature_unit=celsius&timezone=auto"
 
   curl -s --max-time 10 "$url" 2>/dev/null
 }
 
-# Map WMO weather codes to emoji icons
-map_weather_code() {
-  local code=$1
-  case $code in
-    0) echo "☀️" ;;           # Clear sky
-    1|2|3) echo "⛅" ;;       # Partly cloudy
-    45|48) echo "🌫️" ;;      # Fog
-    51|53|55|56|57) echo "🌦️" ;;  # Drizzle
-    61|63|65|66|67) echo "🌧️" ;;  # Rain
-    71|73|75|77) echo "❄️" ;;     # Snow
-    80|81|82) echo "🌧️" ;;       # Rain showers
-    85|86) echo "🌨️" ;;          # Snow showers
-    95|96|99) echo "⛈️" ;;       # Thunderstorm
-    *) echo "❓" ;;              # Unknown
-  esac
-}
-
-# Main update function
 update() {
   # Refresh location first so a move invalidates stale weather
   get_location >/dev/null
 
-  # Try to get cached data first
-  local cached=$(cache_get "weather_data")
+  local json=$(cache_get "weather_data")
 
-  if [[ -z "$cached" ]]; then
-    # Cache miss or expired - fetch fresh data
-    local json=$(fetch_weather)
+  if [[ -z "$json" ]]; then
+    json=$(fetch_weather)
 
     if [[ -z "$json" ]] || ! echo "$json" | jq -e .current >/dev/null 2>&1; then
-      # API failure - use last known good data or show error
-      local last_good=$(load_state "weather_last_good")
-      if [[ -n "$last_good" ]]; then
-        json="$last_good"
-      else
-        update_item "$NAME" icon="❌" label="No data" icon.color="$RED"
+      # API failure: fall back to the last good response
+      json=$(load_state "weather_last_good")
+      if [[ -z "$json" ]]; then
+        update_item "$NAME" icon="$WEATHER_UNKNOWN" label="--" icon.color="$GREY" label.color="$GREY"
         return 1
       fi
     else
-      # Success - cache for 15 min and persist as fallback
       cache_set "weather_data" "$json" 900
       save_state "weather_last_good" "$json"
     fi
-  else
-    json="$cached"
   fi
 
-  # Parse current weather
   local temp=$(echo "$json" | jq -r '.current.temperature_2m')
-  local feels_like=$(echo "$json" | jq -r '.current.apparent_temperature')
   local code=$(echo "$json" | jq -r '.current.weather_code')
+  local is_day=$(echo "$json" | jq -r '.current.is_day // 1')
+  temp=$(printf '%.0f' "$temp")
 
-  # Round to integer
-  temp=${temp%.*}
-  feels_like=${feels_like%.*}
+  local color=$(temp_color "$temp")
 
-  # Get weather icon
-  local icon=$(map_weather_code "$code")
-
-  # Temperature-based color
-  local color=$(select_color_by_range "$temp" \
-    "-999--10:$CYAN" "-9-5:$BLUE" "6-15:$WHITE" \
-    "16-25:$YELLOW" "26-30:$ORANGE" "31-999:$RED")
-
-  # Update display
   update_item "$NAME" \
-    icon="$icon" \
+    icon="$(map_weather_code "$code" "$is_day")" \
     label="${temp}°" \
     icon.color="$color" \
     label.color="$color"
 }
 
-# Event dispatcher
 case "$SENDER" in
   "routine"|"forced"|"weather_update"|"system_woke") update ;;
 esac

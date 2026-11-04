@@ -1,22 +1,14 @@
 #!/bin/bash
 
 # Volume Module - Item Configuration
-# Displays volume level with slider and audio device switcher
-
-
-# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
-if [[ -z "$CONFIG_DIR" ]]; then
-  CONFIG_DIR="$HOME/.config/sketchybar"
-fi
-
-source "$CONFIG_DIR/config.sh"
+# Volume icon; click it to reveal a slider that sets the volume
 
 volume_slider=(
   script="$MODULE_DIR/system/volume.plugin.sh"
   updates=on
   label.drawing=off
   icon.drawing=off
-  slider.highlight_color=$BLUE
+  slider.highlight_color=$WHITE
   slider.background.height=5
   slider.background.corner_radius=3
   slider.background.color=$BACKGROUND_2
@@ -36,12 +28,6 @@ volume_icon=(
   label.width=22
   label.align=left
   label.font="$FONT:Regular:14.0"
-)
-
-status_bracket=(
-  background.color=$BACKGROUND_1
-  background.border_color=$BACKGROUND_2
-  background.border_width=2
 )
 
 sketchybar --add slider volume right            \

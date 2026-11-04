@@ -3,21 +3,13 @@
 # Front App Module - Item Configuration
 # Displays the currently focused application with icon
 
-
-# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
-if [[ -z "$CONFIG_DIR" ]]; then
-  CONFIG_DIR="$HOME/.config/sketchybar"
-fi
-
-source "$CONFIG_DIR/config.sh"
-
 sketchybar --add       item         front_app left                          \
            --set       front_app    script="$MODULE_DIR/apps/front_app.plugin.sh" \
                                     icon.font="sketchybar-app-font:Regular:16.0" \
                                     padding_left=0                          \
                                     padding_right=0                         \
-                                    icon.padding_left=6                     \
-                                    icon.padding_right=0                    \
+                                    icon.padding_left=10                    \
+                                    icon.padding_right=2                    \
                                     label.padding_right=12                  \
                                     label.color=$WHITE                      \
                                     label.font="$FONT:Bold:12.5"            \

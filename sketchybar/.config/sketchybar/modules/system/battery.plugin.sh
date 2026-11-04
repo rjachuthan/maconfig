@@ -1,30 +1,25 @@
 #!/bin/bash
 
 # Battery Module - Plugin
-# Updates battery icon and color based on percentage and charging state
-
-
-# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
-if [[ -z "$CONFIG_DIR" ]]; then
-  CONFIG_DIR="$HOME/.config/sketchybar"
-fi
+# Icon reflects the level (or a bolt while actually charging). The percentage
+# label shows only while charging or below LOW_THRESHOLD.
 
 source "$CONFIG_DIR/config.sh"
 
-update() {
-  local percentage=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
-  local charging=$(pmset -g batt | grep 'AC Power')
+LOW_THRESHOLD=30
 
-  # Exit if no battery info available
+update() {
+  local batt=$(pmset -g batt)
+  local percentage=$(echo "$batt" | grep -Eo "\d+%" | cut -d% -f1)
+
+  # No battery (desktop Mac)
   [[ -z "$percentage" ]] && exit 0
 
-  # Handle charging state
-  if [[ -n "$charging" ]]; then
-    update_item "$NAME" icon="$BATTERY_CHARGING" icon.color="$WHITE" drawing=on
-    return 0
-  fi
+  # "; charging;" only while current flows in; "charged" or
+  # "AC attached; not charging" show the normal level icon instead
+  local charging=""
+  echo "$batt" | grep -q "; charging;" && charging="yes"
 
-  # Select icon based on battery percentage
   local icon=$(select_icon_by_range "$percentage" \
     "0-9:$BATTERY_0" \
     "10-29:$BATTERY_25" \
@@ -32,14 +27,22 @@ update() {
     "60-89:$BATTERY_75" \
     "90-100:$BATTERY_100")
 
-  # Select color based on battery percentage
   local color=$(select_color_by_range "$percentage" \
-    "0-29:$RED" \
-    "30-59:$ORANGE" \
-    "60-100:$WHITE")
+    "0-14:$RED" \
+    "15-29:$ORANGE" \
+    "30-100:$WHITE")
 
-  # Always show battery item
-  update_item "$NAME" icon="$icon" icon.color="$color" drawing=on
+  local show_label="off"
+  if [[ -n "$charging" ]]; then
+    icon="$BATTERY_CHARGING"
+    color="$WHITE"
+    show_label="on"
+  elif (( percentage < LOW_THRESHOLD )); then
+    show_label="on"
+  fi
+
+  update_item "$NAME" icon="$icon" icon.color="$color" \
+    label="${percentage}%" label.color="$color" label.drawing="$show_label"
 }
 
 update

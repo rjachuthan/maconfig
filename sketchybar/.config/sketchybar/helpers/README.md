@@ -5,7 +5,6 @@ This directory contains auto-generated helper files from the [sketchybar-app-fon
 ## Files
 
 - `icon_map.sh` - Auto-generated icon mapping function (444 app mappings)
-- `app_icons.lua` - Icon data for Lua-based configurations
 
 ## Updating Icons
 
@@ -27,9 +26,8 @@ npm run build:install
 
 ## Usage
 
-The `icon_map.sh` file is sourced in:
-- `lib/icons.sh` - For library functions
-- `plugins/front_app.sh` - For front app display
+The `icon_map.sh` file is sourced by `lib/common.sh`, which exposes
+`get_app_icon` (used by the front app module).
 
 To use the icon map in your scripts:
 

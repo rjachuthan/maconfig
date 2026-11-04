@@ -1,33 +1,27 @@
 #!/bin/bash
 
-# Sketchybar Configuration - Central configuration file
-# This file contains all paths, constants, and shared settings
+# Sketchybar central configuration: paths, layout constants, shared styles.
+# Sourced by sketchybarrc and by every plugin script.
 
 # ============================================================================
-# Directory Paths
+# Paths
 # ============================================================================
 
-export CONFIG_DIR="$HOME/.config/sketchybar"
+export CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
 export LIB_DIR="$CONFIG_DIR/lib"
-export THEME_DIR="$CONFIG_DIR/theme"
 export MODULE_DIR="$CONFIG_DIR/modules"
-export UTILS_DIR="$CONFIG_DIR/utils"
 export NATIVE_DIR="$CONFIG_DIR/native"
 export HELPERS_DIR="$CONFIG_DIR/helpers"
 
-# Legacy paths (for backward compatibility during migration)
-export ITEM_DIR="$CONFIG_DIR/items"
-export PLUGIN_DIR="$CONFIG_DIR/plugins"
-
 # ============================================================================
-# Font Settings
+# Fonts
 # ============================================================================
 
 export FONT="SF Pro"  # Needs Regular, Bold, Semibold, Heavy and Black variants
-export PADDINGS=4     # All paddings use this value (icon, label, background)
+export PADDINGS=4     # Default icon, label and item padding
 
 # ============================================================================
-# Bar Settings
+# Bar
 # ============================================================================
 
 export BAR_HEIGHT=38
@@ -40,33 +34,38 @@ export BAR_PADDING_RIGHT=8
 export BAR_PADDING_LEFT=8
 
 # ============================================================================
-# Default Item Settings
+# Item defaults
 # ============================================================================
 
 export ICON_FONT="$FONT:Bold:14.0"
 export LABEL_FONT="$FONT:Semibold:13.0"
-export BACKGROUND_HEIGHT=26     # Pill height
+export BACKGROUND_HEIGHT=26         # Pill height
 export BACKGROUND_CORNER_RADIUS=6   # Pill radius
 export POPUP_BORDER_WIDTH=1
 export POPUP_CORNER_RADIUS=8
 
 # ============================================================================
-# Helper Process
+# Helper process
 # ============================================================================
 
 export HELPER_NAME="git.felix.helper"
 
 # ============================================================================
-# Load Core Libraries
+# Colors, icons and libraries
 # ============================================================================
 
-# Load theme files
-source "$THEME_DIR/colors.sh"
-source "$THEME_DIR/sf-symbols.sh"
-
-# Load lib files
+source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/icons.sh"
 source "$LIB_DIR/common.sh"
-source "$LIB_DIR/ui.sh"
-source "$LIB_DIR/events.sh"
 source "$LIB_DIR/state.sh"
-source "$LIB_DIR/icons.sh"
+source "$LIB_DIR/ui.sh"
+
+# Shared pill style (same fill, hairline, radius and height everywhere)
+pill=(
+  background.color=$BACKGROUND_1
+  background.border_color=$BACKGROUND_2
+  background.border_width=1
+  background.corner_radius=$BACKGROUND_CORNER_RADIUS
+  background.height=$BACKGROUND_HEIGHT
+  background.drawing=on
+)

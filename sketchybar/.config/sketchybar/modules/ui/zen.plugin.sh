@@ -1,25 +1,13 @@
 #!/bin/bash
 
-# Zen Mode Module - Plugin
-# Toggles minimal display mode
+# Zen Mode - toggles a minimal bar (focus pill + clock only)
+# Usage: zen.plugin.sh [on|off]   (no argument toggles)
 
-
-# Auto-detect CONFIG_DIR if not set (for IDE/shellcheck compatibility)
-if [[ -z "$CONFIG_DIR" ]]; then
-  CONFIG_DIR="$HOME/.config/sketchybar"
-fi
-
+CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
 source "$CONFIG_DIR/config.sh"
 
-# Handle different invocation modes
-if [[ "$1" == "on" ]]; then
-  enable_zen_mode
-elif [[ "$1" == "off" ]]; then
-  disable_zen_mode
-else
-  # Toggle based on current state
-  toggle_zen_mode
-fi
-
-# Update space visibility after toggling zen mode
-update_zen_spaces
+case "$1" in
+  on)  enable_zen_mode ;;
+  off) disable_zen_mode ;;
+  *)   toggle_zen_mode ;;
+esac

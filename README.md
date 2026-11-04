@@ -133,6 +133,7 @@ Notes:
 | `Alt + Shift + W`      | Open WhatsApp           |
 | `Alt + Shift + X`      | Lock screen             |
 | `Alt + Shift + R`      | Reload Sketchybar       |
+| `Alt + Shift + Z`      | Toggle Sketchybar zen   |
 
 See `skhd/.config/skhd/skhdrc` for the complete list.
 
@@ -143,10 +144,10 @@ Modules live in `sketchybar/.config/sketchybar/modules/`, grouped by area:
 - **System:** battery, CPU, volume
 - **Apps:** front app
 - **Integrations:** weather, Homebrew updates
-- **Workspace:** Aerospace spaces (with a zen-mode variant)
-- **UI:** calendar, Apple menu, zen mode
+- **Workspace:** Aerospace binding mode tag (orange outside the main mode)
+- **UI:** calendar, zen mode (`Alt + Shift + Z`)
 
-Colors are defined in `theme/colors.sh` and icons in `theme/sf-symbols.sh`.
+Colors are defined in `colors.sh` and SF Symbols glyphs in `icons.sh`.
 The native CPU helper in `native/` is built with `make`.
 
 ## Requirements

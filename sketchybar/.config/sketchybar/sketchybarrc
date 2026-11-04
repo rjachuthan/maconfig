@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Load central configuration and libraries
 source "$HOME/.config/sketchybar/config.sh"
@@ -7,9 +7,6 @@ source "$HOME/.config/sketchybar/config.sh"
 killall helper 2>/dev/null
 cd "$NATIVE_DIR" && make 2>/dev/null
 "$NATIVE_DIR/helper" "$HELPER_NAME" >/dev/null 2>&1 &
-
-# Unload the macOS on screen indicator overlay for volume change
-launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
 
 # Setting up the general bar appearance and default values
 sketchybar --bar height=$BAR_HEIGHT \
@@ -46,16 +43,6 @@ sketchybar --bar height=$BAR_HEIGHT \
   popup.background.color=$POPUP_BACKGROUND_COLOR \
   popup.background.shadow.drawing=on
 
-# Shared pill style
-pill=(
-  background.color=$BACKGROUND_1
-  background.border_color=$BACKGROUND_2
-  background.border_width=1
-  background.corner_radius=$BACKGROUND_CORNER_RADIUS
-  background.height=$BACKGROUND_HEIGHT
-  background.drawing=on
-)
-
 # Fixed-width spacer between right-side pills
 add_gap() {
   sketchybar --add item "$1" right \
@@ -63,22 +50,11 @@ add_gap() {
     icon.drawing=off label.drawing=off background.drawing=off
 }
 
-# Left
-source "$MODULE_DIR/ui/apple.item.sh"
-source "$MODULE_DIR/workspace/spaces.item.sh"
+# Left: [app icon + name] [mode tag, only outside aerospace's main mode]
 source "$MODULE_DIR/apps/front_app.item.sh"
-
-# One pill: "<workspace>:  <app icon> <app name>"
-sketchybar --add bracket focus current_workspace front_app \
+sketchybar --add bracket focus front_app \
   --set focus "${pill[@]}"
-
-# Zen mode workspace handler
-sketchybar --add item zen_spaces_handler left \
-  --set zen_spaces_handler drawing=off \
-  script="$MODULE_DIR/workspace/zen_spaces.plugin.sh" \
-  --subscribe zen_spaces_handler aerospace_workspace_change
-
-# Center
+source "$MODULE_DIR/workspace/mode.item.sh"
 
 # Right
 source "$MODULE_DIR/ui/calendar.item.sh"
@@ -90,13 +66,15 @@ source "$MODULE_DIR/system/volume.item.sh"
 add_gap gap.status
 source "$MODULE_DIR/system/cpu.item.sh"
 
-# Group right-side items into matching pills (same fill, hairline, radius, height)
-
+# Group right-side items into matching pills
 sketchybar --add bracket status battery volume_icon \
   --set status "${pill[@]}" \
   \
   --add bracket cpu cpu.user cpu.top \
   --set cpu "${pill[@]}" background.border_width=0
+
+# Restore zen mode across reloads
+is_zen_mode && enable_zen_mode
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
