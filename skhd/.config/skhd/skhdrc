@@ -17,4 +17,5 @@ alt + shift - x : pmset displaysleepnow
 # ─── Script Triggers ──────────────────────────────────────────────────────────
 
 alt + shift - r     : sketchybar --reload
+alt + shift - z     : ~/.config/sketchybar/modules/ui/zen.plugin.sh
 
