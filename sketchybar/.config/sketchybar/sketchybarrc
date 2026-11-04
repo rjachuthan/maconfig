@@ -65,6 +65,9 @@ source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
 add_gap gap.status
 source "$MODULE_DIR/system/cpu.item.sh"
+add_gap gap.herdr
+# herdr agents that need attention (hidden when none)
+source "$MODULE_DIR/integrations/herdr.item.sh"
 
 # Group right-side items into matching pills
 sketchybar --add bracket status battery volume_icon \

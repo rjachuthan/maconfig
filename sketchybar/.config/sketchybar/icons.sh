@@ -2,6 +2,11 @@
 
 # SF Symbols glyphs (requires the SF Symbols app / SF Pro font)
 
+# Herdr agents (the herdr logo itself is assets/herdr.png)
+AGENT_WORKING=􀀂              # circle.lefthalf.fill
+AGENT_BLOCKED=􀇿              # exclamationmark.triangle.fill
+AGENT_DONE=􀁣                 # checkmark.circle.fill
+
 # Battery
 BATTERY_100=􀛨
 BATTERY_75=􀺸
