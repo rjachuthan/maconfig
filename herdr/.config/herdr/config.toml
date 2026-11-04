@@ -21,13 +21,13 @@ window_title = "{workspace} · {tab}"
 delivery = "system"
 
 # Agent logos: $logo is set per pane by local-plugins/agent-logos.
-# Line 1: status + workspace; line 2: brand-coloured logo + live task title.
+# Line 1: status + brand-coloured logo + workspace; line 2: live task title.
 # Rule glyphs must match logo_for() in local-plugins/agent-logos/scripts/logos.sh.
 [ui.sidebar.agents]
-row_gap = 1
+row_gap = 0
 rows = [
-  ["state_icon", "machine", "workspace"],
   [
+    "state_icon",
     { token = "$logo", rules = [
       { equals = "󰛄", fg = "#D97757" }, # claude
       { equals = "", fg = "#10A37F" }, # codex
@@ -39,8 +39,10 @@ rows = [
       { equals = "󰀲", fg = "#EE6018" }, # droid
       { equals = "󱐋", fg = "#F34E3F" }, # amp
     ] },
-    "terminal_title_stripped",
+    "machine",
+    "workspace",
   ],
+  ["terminal_title_stripped"],
 ]
 
 [[keys.command]]
