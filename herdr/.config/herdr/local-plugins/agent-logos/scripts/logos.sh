@@ -1,6 +1,7 @@
 #!/bin/sh
-# Report a `logo` token on each agent pane so the sidebar can render `$logo`.
-# Glyphs are Nerd Font codepoints; colours live in config.toml (rows_by_agent).
+# Report a `logo` token on agent panes so the sidebar can render `$logo`.
+# Glyphs are Nerd Font codepoints; colours live in config.toml (rules on $logo).
+# Startup tags every agent pane; agent_detected events tag only the event's pane.
 
 HERDR="${HERDR_BIN_PATH:-herdr}"
 
@@ -19,8 +20,18 @@ logo_for() {
   esac
 }
 
+# Pane the event is about; empty on startup (or unknown payload) => tag all panes.
+target=""
+if [ "$HERDR_PLUGIN_EVENT" != "startup" ]; then
+  target=$(printf '%s' "$HERDR_PLUGIN_EVENT_JSON" |
+    jq -r 'first(.. | objects | .pane_id? // empty)' 2>/dev/null)
+  [ -n "$target" ] || target="$HERDR_PANE_ID"
+fi
+
 "$HERDR" agent list 2>/dev/null |
-  jq -r '.result.agents[]? | select(.agent != null) | "\(.pane_id) \(.agent)"' |
+  jq -r --arg t "$target" '.result.agents[]?
+    | select(.agent != null and ($t == "" or .pane_id == $t))
+    | "\(.pane_id) \(.agent)"' |
   while read -r pane agent; do
     "$HERDR" pane report-metadata "$pane" --source agent-logos \
       --token "logo=$(logo_for "$agent")" >/dev/null 2>&1

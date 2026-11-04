@@ -1,26 +1,50 @@
 onboarding = false
 
+[theme]
+# Follow Ghostty's ANSI palette; "reset" lets its translucent background show through.
+name = "terminal"
+
+[theme.custom]
+sidebar_bg = "reset"
+
 [ui]
 status_indicators = "symbols"
+sidebar_max_width = 42
+# Blocked/done agents float to the top instead of mirroring the spaces list.
+agent_panel_sort = "priority"
+prompt_new_tab_name = false
+hide_tab_bar_when_single_tab = true
+tab_bar_right = [{ type = "zoom" }]
+window_title = "{workspace} · {tab}"
+
+[ui.toast]
+delivery = "system"
 
 # Agent logos: $logo is set per pane by local-plugins/agent-logos.
-# Line 1: status + workspace; line 2: brand-coloured logo + task title.
+# Line 1: status + workspace; line 2: brand-coloured logo + live task title.
+# Rule glyphs must match logo_for() in local-plugins/agent-logos/scripts/logos.sh.
 [ui.sidebar.agents]
-rows = [["state_icon", "machine", "workspace"], ["$logo", "tab"]]
-
-[ui.sidebar.agents.rows_by_agent]
-claude = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#D97757" }, "tab"]]
-codex = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#10A37F" }, "tab"]]
-gemini = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#4796E3" }, "tab"]]
-copilot = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#8957E5" }, "tab"]]
-pi = [["state_icon", "machine", "workspace"], [{ token = "$logo", fg = "#F5C2E7" }, "tab"]]
+row_gap = 1
+rows = [
+  ["state_icon", "machine", "workspace"],
+  [
+    { token = "$logo", rules = [
+      { equals = "󰛄", fg = "#D97757" }, # claude
+      { equals = "", fg = "#10A37F" }, # codex
+      { equals = "󰫢", fg = "#4796E3" }, # gemini
+      { equals = "", fg = "#8957E5" }, # copilot
+      { equals = "󰏿", fg = "#F5C2E7" }, # pi
+      { equals = "󰆾", fg = "#E5E5E5" }, # cursor
+      { equals = "󰅩", fg = "#FAB283" }, # opencode
+      { equals = "󰀲", fg = "#EE6018" }, # droid
+      { equals = "󱐋", fg = "#F34E3F" }, # amp
+    ] },
+    "terminal_title_stripped",
+  ],
+]
 
 [[keys.command]]
 key = "prefix+k"
 type = "plugin_action"
 command = "herdr-bar.open"
 description = "command bar"
-
-[experimental]
-# Pass Kitty graphics through to Ghostty so nvim (snacks.image) can show images
-kitty_graphics = true
