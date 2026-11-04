@@ -43,9 +43,9 @@ sketchybar --bar height=$BAR_HEIGHT \
   popup.background.color=$POPUP_BACKGROUND_COLOR \
   popup.background.shadow.drawing=on
 
-# Fixed-width spacer between right-side pills
+# Fixed-width spacer between pills. Usage: add_gap NAME [left|right]
 add_gap() {
-  sketchybar --add item "$1" right \
+  sketchybar --add item "$1" "${2:-right}" \
     --set "$1" width=6 padding_left=0 padding_right=0 \
     icon.drawing=off label.drawing=off background.drawing=off
 }
@@ -56,6 +56,10 @@ source "$MODULE_DIR/apps/front_app.item.sh"
 sketchybar --add bracket focus front_app \
   --set focus "${pill[@]}"
 source "$MODULE_DIR/workspace/mode.item.sh"
+# Now playing with transport controls (hidden when nothing is playing)
+add_gap gap.media left
+sketchybar --set gap.media drawing=off
+source "$MODULE_DIR/integrations/media.item.sh"
 
 # Right
 source "$MODULE_DIR/ui/calendar.item.sh"

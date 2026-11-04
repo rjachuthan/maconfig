@@ -60,6 +60,7 @@ install_brew_packages() {
     "jq"                        # JSON processor
     "gh"                        # GitHub CLI
     "koekeishiya/formulae/skhd" # Hotkey daemon
+    "media-control"             # Now-playing info for the sketchybar media pill
   )
 
   # Window management

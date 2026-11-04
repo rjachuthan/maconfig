@@ -8,6 +8,12 @@ AGENT_BLOCKED=􀇿              # exclamationmark.triangle.fill
 AGENT_DONE=􀁣                 # checkmark.circle.fill
 AGENT_IDLE=􀀀                 # circle
 
+# Media controls
+MEDIA_PLAY=􀊄                 # play.fill
+MEDIA_PAUSE=􀊆                # pause.fill
+MEDIA_PREV=􀊊                 # backward.fill
+MEDIA_NEXT=􀊌                 # forward.fill
+
 # Battery
 BATTERY_100=􀛨
 BATTERY_75=􀺸
