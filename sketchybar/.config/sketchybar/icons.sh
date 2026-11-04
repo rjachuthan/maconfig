@@ -6,6 +6,7 @@
 AGENT_WORKING=􀀂              # circle.lefthalf.fill
 AGENT_BLOCKED=􀇿              # exclamationmark.triangle.fill
 AGENT_DONE=􀁣                 # checkmark.circle.fill
+AGENT_IDLE=􀀀                 # circle
 
 # Battery
 BATTERY_100=􀛨

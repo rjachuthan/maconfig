@@ -4,7 +4,8 @@
 # Right-side pill summarising herdr agents that need attention:
 #   ◐ working   ⚠ blocked (waiting on approval/question)   ✓ done (not yet seen)
 # Idle agents (finished and already viewed) are not counted; with nothing
-# active only the herdr logo shows. Click for a popup listing each agent;
+# active only the herdr logo shows. Click for a popup listing every agent
+# (idle ones too) with its CLI logo from assets/agents/;
 # click a row to jump to it in herdr (which marks it seen).
 #
 # Right-side items are laid out right-to-left, so they are added in reverse:
