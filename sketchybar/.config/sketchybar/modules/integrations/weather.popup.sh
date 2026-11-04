@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "$CONFIG_DIR/config.sh"
+source "$MODULE_DIR/integrations/weather.lib.sh"
 
 # Map WMO weather codes to emoji icons (same as plugin)
 map_weather_code() {
@@ -62,8 +63,9 @@ toggle_popup() {
     return
   fi
 
-  # Fixed location: Ealing Broadway
-  local location_text="Ealing Broadway, United Kingdom"
+  # Detected location (IP based, cached)
+  local location=$(get_location)
+  local location_text="$(echo "$location" | jq -r '[.city, .country_name] | map(select(. != null and . != "")) | join(", ")')"
 
   # Parse current weather
   local current_temp=$(echo "$weather_data" | jq -r '.current.temperature_2m')
@@ -74,83 +76,101 @@ toggle_popup() {
   current_temp=${current_temp%.*}
   feels_like=${feels_like%.*}
 
+  # Extra details (absent in older cached data, so each is optional)
+  local humidity=$(echo "$weather_data" | jq -r '.current.relative_humidity_2m // empty')
+  local wind=$(echo "$weather_data" | jq -r '.current.wind_speed_10m // empty')
+  local t_max=$(echo "$weather_data" | jq -r '.daily.temperature_2m_max[0] // empty')
+  local t_min=$(echo "$weather_data" | jq -r '.daily.temperature_2m_min[0] // empty')
+  local details=()
+  [[ -n "$t_max" && -n "$t_min" ]] && details+=("H ${t_max%.*}°  L ${t_min%.*}°")
+  [[ -n "$humidity" ]] && details+=("${humidity%.*}% humidity")
+  [[ -n "$wind" ]] && details+=("${wind%.*} km/h")
+  local details_text=""
+  local sep="  ·  "
+  for d in "${details[@]}"; do details_text+="${details_text:+$sep}$d"; done
+
   local current_desc=$(get_weather_desc "$current_code")
   local current_icon=$(map_weather_code "$current_code")
 
-  # Build popup content
+  # Build popup content (vertical card, fixed inner width so rows align)
+  local W=240
   sketchybar --remove '/weather.popup.*/'
+
+  # Shared row style: no icon/label padding surprises, consistent side margins
+  local row=(
+    icon.padding_left=0 icon.padding_right=0
+    label.padding_left=0 label.padding_right=0
+    padding_left=14 padding_right=14
+    background.drawing=off
+  )
 
   # Location header
   sketchybar --add item weather.popup.location popup.weather \
-             --set weather.popup.location \
-                   icon="📍" \
+             --set weather.popup.location "${row[@]}" \
+                   icon.drawing=off \
                    label="$location_text" \
                    label.font="$FONT:Bold:13.0" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=8 \
-                   background.padding_bottom=4 \
-                   icon.padding_right=6
+                   label.width=$W \
+                   label.align=left \
+                   y_offset=0
 
-  # Current conditions - icon on separate line
-  sketchybar --add item weather.popup.current_icon popup.weather \
-             --set weather.popup.current_icon \
+  # Current conditions: big icon + temperature on one row
+  sketchybar --add item weather.popup.current popup.weather \
+             --set weather.popup.current "${row[@]}" \
                    icon="$current_icon" \
-                   label="" \
-                   icon.font="$FONT:Regular:24.0" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=4 \
-                   background.padding_bottom=2
-
-  # Current temperature
-  sketchybar --add item weather.popup.current_temp popup.weather \
-             --set weather.popup.current_temp \
-                   icon="" \
+                   icon.font="$FONT:Regular:28.0" \
+                   icon.width=46 \
+                   icon.align=left \
                    label="${current_temp}°C" \
-                   label.font="$FONT:Bold:16.0" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=2 \
-                   background.padding_bottom=2
+                   label.font="$FONT:Bold:24.0" \
+                   label.width=$((W-46)) \
+                   label.align=left
 
-  # Current description and feels like
-  sketchybar --add item weather.popup.current_desc popup.weather \
-             --set weather.popup.current_desc \
-                   icon="" \
-                   label="$current_desc • Feels like ${feels_like}°" \
-                   label.font="$FONT:Regular:11.0" \
+  # Description + feels like
+  sketchybar --add item weather.popup.desc popup.weather \
+             --set weather.popup.desc "${row[@]}" \
+                   icon.drawing=off \
+                   label="$current_desc  ·  Feels like ${feels_like}°" \
+                   label.font="$FONT:Regular:11.5" \
                    label.color="$GREY" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=2 \
-                   background.padding_bottom=6
+                   label.width=$W \
+                   label.align=left
 
-  # Separator
-  sketchybar --add item weather.popup.separator popup.weather \
-             --set weather.popup.separator \
-                   icon="" \
-                   label="━━━━━━━━━━━━━━━━━━" \
-                   label.color="$GREY" \
-                   label.font="$FONT:Regular:8.0" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=4 \
-                   background.padding_bottom=4
+  # Details: high/low, humidity, wind
+  if [[ -n "$details_text" ]]; then
+    sketchybar --add item weather.popup.details popup.weather \
+               --set weather.popup.details "${row[@]}" \
+                     icon.drawing=off \
+                     label="$details_text" \
+                     label.font="$FONT:Regular:11.5" \
+                     label.color="$GREY" \
+                     label.width=$W \
+                     label.align=left
+  fi
+
+  # Divider (1px line)
+  add_divider() {
+    sketchybar --add item "$1" popup.weather \
+               --set "$1" icon.drawing=off label.drawing=off \
+                     width=$((W+28)) padding_left=0 padding_right=0 \
+                     background.drawing=on background.height=1 \
+                     background.color="$BACKGROUND_2" \
+                     background.corner_radius=0 \
+                     y_offset=0
+  }
+  add_divider weather.popup.divider1
 
   # Forecast header
   sketchybar --add item weather.popup.forecast_header popup.weather \
-             --set weather.popup.forecast_header \
-                   icon="🕐" \
-                   label="Next 6 Hours" \
-                   label.font="$FONT:Semibold:12.0" \
-                   background.padding_left=12 \
-                   background.padding_right=12 \
-                   background.padding_top=4 \
-                   background.padding_bottom=6 \
-                   icon.padding_right=6
+             --set weather.popup.forecast_header "${row[@]}" \
+                   icon.drawing=off \
+                   label="NEXT 6 HOURS" \
+                   label.font="$FONT:Heavy:9.0" \
+                   label.color="$GREY" \
+                   label.width=$W \
+                   label.align=left
 
-  # Hourly forecast (next 6 hours) - each hour on separate line
+  # Hourly forecast: time on the left, "icon  temp" right-aligned
   local times=$(echo "$weather_data" | jq -r '.hourly.time[]')
   local temps=$(echo "$weather_data" | jq -r '.hourly.temperature_2m[]')
   local codes=$(echo "$weather_data" | jq -r '.hourly.weather_code[]')
@@ -163,60 +183,44 @@ toggle_popup() {
       break
     fi
 
-    # Extract hour from ISO timestamp (e.g., "2026-02-15T15:00" -> "15:00")
+    # "2026-02-15T15:00" -> "15:00"
     local hour=$(echo "$time" | sed 's/.*T\([0-9:]*\).*/\1/')
-
-    # Round temperature
     temp=${temp%.*}
 
     local icon=$(map_weather_code "$code")
     local will_rain=$(is_rain "$code")
 
-    # Track if rain is coming
     if [[ "$will_rain" == "yes" && -z "$rain_warning" ]]; then
       rain_warning="💧 Rain expected at $hour"
     fi
 
-    # Add each hour as a separate item for vertical layout
     sketchybar --add item "weather.popup.hour${hour_count}" popup.weather \
-               --set "weather.popup.hour${hour_count}" \
+               --set "weather.popup.hour${hour_count}" "${row[@]}" \
                      icon="$hour" \
-                     label="$icon  ${temp}°" \
-                     icon.font="$FONT:Regular:11.0" \
-                     label.font="$FONT:Regular:12.0" \
-                     icon.width=50 \
+                     icon.font="$FONT:Medium:12.0" \
+                     icon.color="$GREY" \
+                     icon.width=64 \
                      icon.align=left \
-                     background.padding_left=16 \
-                     background.padding_right=16 \
-                     background.padding_top=4 \
-                     background.padding_bottom=4
+                     label="$icon   ${temp}°" \
+                     label.font="$FONT:Semibold:12.5" \
+                     label.width=$((W-64)) \
+                     label.align=left
 
     ((hour_count++))
   done < <(echo "$times") 3< <(echo "$temps") 4< <(echo "$codes")
 
-  # Add rain warning if applicable
+  # Rain warning
   if [[ -n "$rain_warning" ]]; then
-    sketchybar --add item weather.popup.separator2 popup.weather \
-               --set weather.popup.separator2 \
-                     icon="" \
-                     label="━━━━━━━━━━━━━━━━━━" \
-                     label.color="$GREY" \
-                     label.font="$FONT:Regular:8.0" \
-                     background.padding_left=12 \
-                     background.padding_right=12 \
-                     background.padding_top=4 \
-                     background.padding_bottom=4
+    add_divider weather.popup.divider2
 
     sketchybar --add item weather.popup.rain_warning popup.weather \
-               --set weather.popup.rain_warning \
-                     icon="" \
+               --set weather.popup.rain_warning "${row[@]}" \
+                     icon.drawing=off \
                      label="$rain_warning" \
                      label.font="$FONT:Bold:12.0" \
                      label.color="$CYAN" \
-                     background.padding_left=12 \
-                     background.padding_right=12 \
-                     background.padding_top=4 \
-                     background.padding_bottom=8
+                     label.width=$W \
+                     label.align=left
   fi
 
   # Toggle popup visibility

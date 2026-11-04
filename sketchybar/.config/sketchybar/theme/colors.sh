@@ -24,7 +24,7 @@ export LABEL_COLOR=$WHITE        # White text
 export BACKGROUND_1=0xff111111   # Pill fill (item groups)
 export BACKGROUND_2=0xff262626   # Pill hairline border
 
-export POPUP_BACKGROUND_COLOR=0xf20a0a0a
-export POPUP_BORDER_COLOR=$MAGENTA
+export POPUP_BACKGROUND_COLOR=0xff0a0a0a
+export POPUP_BORDER_COLOR=$BACKGROUND_2
 
 export SHADOW_COLOR=$BLACK

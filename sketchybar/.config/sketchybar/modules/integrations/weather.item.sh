@@ -20,5 +20,7 @@ sketchybar --add event weather_update \
                  background.border_width=1 \
                  background.drawing=on \
                  popup.align=right \
-                 popup.horizontal=on \
+                 popup.horizontal=off \
+                 popup.height=28 \
+                 popup.y_offset=6 \
            --subscribe weather weather_update system_woke
