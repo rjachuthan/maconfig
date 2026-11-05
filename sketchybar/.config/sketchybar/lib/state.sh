@@ -58,7 +58,8 @@ cache_invalidate() {
 # ============================================================================
 
 # Items (and brackets) hidden in zen mode. brew is handled separately because
-# it is only shown above its outdated-package threshold.
+# it is only shown above its outdated-package threshold, docker because it is
+# only shown while the daemon is running.
 ZEN_ITEMS="weather gap.weather battery volume volume_icon status gap.status cpu cpu.top cpu.percent cpu.sys cpu.user"
 
 is_zen_mode() {
@@ -68,7 +69,7 @@ is_zen_mode() {
 enable_zen_mode() {
   save_state zen_mode on
   local args=() item
-  for item in $ZEN_ITEMS brew; do args+=(--set "$item" drawing=off); done
+  for item in $ZEN_ITEMS brew docker gap.docker; do args+=(--set "$item" drawing=off); done
   sketchybar "${args[@]}"
 }
 
@@ -77,8 +78,9 @@ disable_zen_mode() {
   local args=() item
   for item in $ZEN_ITEMS; do args+=(--set "$item" drawing=on); done
   sketchybar "${args[@]}"
-  # Let brew decide its own visibility again
+  # Let brew and docker decide their own visibility again
   trigger_event brew_update
+  trigger_event docker_update
 }
 
 toggle_zen_mode() {

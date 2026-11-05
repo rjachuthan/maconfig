@@ -70,6 +70,10 @@ source "$MODULE_DIR/system/battery.item.sh"
 source "$MODULE_DIR/system/volume.item.sh"
 add_gap gap.status
 source "$MODULE_DIR/system/cpu.item.sh"
+# Running Docker containers (hidden while the daemon is down)
+add_gap gap.docker
+sketchybar --set gap.docker drawing=off
+source "$MODULE_DIR/integrations/docker.item.sh"
 add_gap gap.herdr
 # herdr agents that need attention (hidden when none)
 source "$MODULE_DIR/integrations/herdr.item.sh"
