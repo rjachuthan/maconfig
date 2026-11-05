@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Battery Module - Plugin
-# Icon reflects the level (or a bolt while actually charging). The percentage
-# label shows only while charging or below LOW_THRESHOLD.
+# Icon always reflects the real level. On AC power the label shows a bolt and
+# the percentage (green while current flows in, white when plugged in but
+# held/charged). On battery the label shows only below LOW_THRESHOLD.
 
 source "$CONFIG_DIR/config.sh"
 
@@ -15,9 +16,9 @@ update() {
   # No battery (desktop Mac)
   [[ -z "$percentage" ]] && exit 0
 
-  # "; charging;" only while current flows in; "charged" or
-  # "AC attached; not charging" show the normal level icon instead
-  local charging=""
+  # "AC attached" covers charging, charged and optimised-charging holds
+  local plugged="" charging=""
+  echo "$batt" | grep -q "AC Power" && plugged="yes"
   echo "$batt" | grep -q "; charging;" && charging="yes"
 
   local icon=$(select_icon_by_range "$percentage" \
@@ -32,17 +33,19 @@ update() {
     "15-29:$ORANGE" \
     "30-100:$WHITE")
 
+  local label="${percentage}%"
   local show_label="off"
-  if [[ -n "$charging" ]]; then
-    icon="$BATTERY_CHARGING"
+  if [[ -n "$plugged" ]]; then
+    label="$BATTERY_BOLT ${percentage}%"
     color="$WHITE"
+    [[ -n "$charging" ]] && color="$GREEN"
     show_label="on"
   elif (( percentage < LOW_THRESHOLD )); then
     show_label="on"
   fi
 
   update_item "$NAME" icon="$icon" icon.color="$color" \
-    label="${percentage}%" label.color="$color" label.drawing="$show_label"
+    label="$label" label.color="$color" label.drawing="$show_label"
 }
 
 update

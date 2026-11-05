@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Battery Module - Item Configuration
-# Battery icon; the percentage appears only while charging or when low
+# Battery icon; bolt + percentage on AC power, percentage alone when low
 
 sketchybar --add item battery right                                   \
            --set battery script="$MODULE_DIR/system/battery.plugin.sh" \
