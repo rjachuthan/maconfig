@@ -3,6 +3,8 @@ local map = vim.keymap.set
 map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true, desc = "Down" })
 map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true, desc = "Up" })
 
+-- Replaced once noice loads by versions that scroll an open LSP hover first
+-- (plugins/ui.lua); these cover the moment before that.
 map("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })
 map("n", "<C-u>", "<C-u>zz", { desc = "Half page up" })
 map("n", "n", "nzzzv", { desc = "Next search result" })

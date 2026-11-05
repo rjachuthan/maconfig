@@ -25,15 +25,30 @@ local autocmd = vim.api.nvim_create_autocmd
 --- Matters constantly here: git checkout, a formatter run in another terminal,
 --- Claude Code editing a file you have open.
 --- ---------------------------------------------------------------------------
-autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+--- FocusGained alone isn't enough: focus events don't reliably make it through
+--- herdr, and an agent in another pane edits files while you're not looking.
+--- BufEnter/CursorHold catch it as soon as you touch the editor, and the timer
+--- catches it while you're just watching the screen. Unmodified buffers reload
+--- silently ('autoread'); a modified one prompts, which is what you want when
+--- you and an agent have both changed the same file.
+local function checktime()
+  if vim.o.buftype == "nofile" or vim.fn.getcmdwintype() ~= "" then
+    return
+  end
+  if vim.api.nvim_get_mode().mode ~= "n" then
+    return --  never interrupt insert/visual/cmdline with a reload prompt
+  end
+  pcall(vim.cmd.checktime)
+end
+
+autocmd({ "FocusGained", "TermClose", "TermLeave", "BufEnter", "CursorHold" }, {
   group = augroup("checktime"),
-  callback = function()
-    if vim.o.buftype ~= "nofile" then
-      vim.cmd("checktime")
-    end
-  end,
+  callback = checktime,
   desc = "Reload buffer if the file changed on disk",
 })
+
+local checktime_timer = assert(vim.uv.new_timer())
+checktime_timer:start(2000, 2000, vim.schedule_wrap(checktime))
 
 --- ---------------------------------------------------------------------------
 --- Hide ^M in CRLF files

@@ -7,7 +7,6 @@ g.maplocalleader = "\\"
 g.autoformat = true
 g.python_lsp = "basedpyright"
 g.python_ruff = "ruff"
-g.deprecation_warnings = false
 g.markdown_recommended_style = 0
 
 opt.number = true
@@ -47,8 +46,12 @@ opt.undolevels = 10000
 opt.autowrite = true
 opt.confirm = true
 
--- Prefer CRLF detection so Windows files don't show ^M
-opt.fileformats = { "dos", "unix" }
+-- LF everywhere, on both macOS and Windows. The first entry is what *new*
+-- files get, so "dos" first meant every file created here was CRLF -- which
+-- then got committed as CRLF and made gitsigns mark every line as changed on
+-- the other machine. Existing CRLF files are still detected as dos (and kept
+-- that way on write); the `crlf` autocmd handles files with mixed endings.
+opt.fileformats = { "unix", "dos" }
 
 opt.swapfile = false
 opt.backup = false

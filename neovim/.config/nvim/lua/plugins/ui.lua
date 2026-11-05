@@ -226,11 +226,11 @@ return {
         desc = "Jumps",
       },
       {
-        "<leader>sr",
+        "<leader>sR",
         function()
           Snacks.picker.resume()
         end,
-        desc = "Resume last search",
+        desc = "Resume last picker",
       },
       {
         "<leader>su",
@@ -303,13 +303,6 @@ return {
           Snacks.picker.grep()
         end,
         desc = "Find in files (VS Code)",
-      },
-      {
-        "<C-b>",
-        function()
-          Snacks.explorer()
-        end,
-        desc = "Toggle sidebar (VS Code)",
       },
 
       {
@@ -585,30 +578,33 @@ return {
     "folke/noice.nvim",
     event = "VeryLazy",
     dependencies = { "MunifTanjim/nui.nvim" },
+    -- <C-b> is herdr's prefix and never reaches nvim, so the usual <C-f>/<C-b>
+    -- pair can't be used here. <C-d>/<C-u> scroll an open hover/signature
+    -- float when there is one, and are the normal centred half-page scroll
+    -- otherwise (same as core/keymaps.lua, which covers the moment before
+    -- noice loads).
     keys = {
       {
-        "<c-f>",
+        "<c-d>",
         function()
           if not require("noice.lsp").scroll(4) then
-            return "<c-f>"
+            return "<c-d>zz"
           end
         end,
         silent = true,
         expr = true,
-        mode = { "i", "n", "s" },
-        desc = "Scroll forward (LSP doc)",
+        desc = "Half page down / scroll LSP doc",
       },
       {
-        "<c-b>",
+        "<c-u>",
         function()
           if not require("noice.lsp").scroll(-4) then
-            return "<c-b>"
+            return "<c-u>zz"
           end
         end,
         silent = true,
         expr = true,
-        mode = { "i", "n", "s" },
-        desc = "Scroll backward (LSP doc)",
+        desc = "Half page up / scroll LSP doc",
       },
     },
     opts = {

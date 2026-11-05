@@ -44,8 +44,8 @@ return {
                 -- "workspace" re-analyses the whole tree on every change --
                 -- on a monorepo (or anything with a fat site-packages /
                 -- dbt_packages next door) that is seconds of lag and
-                -- hundreds of MB resident. ruff already runs project-wide
-                -- via nvim-lint, so the type checker only needs what's open.
+                -- hundreds of MB resident. The type checker only needs
+                -- what's open.
                 diagnosticMode = "openFilesOnly",
               },
             },
@@ -83,29 +83,19 @@ return {
       return opts
     end,
   },
+  --- Ruff does all three jobs; nothing else is needed:
+  ---   lint      the `ruff` language server above (live, as you type)
+  ---   autofix   `ruff_fix` on save, plus <leader>ca for the unsafe ones
+  ---   format    `ruff_format` + `ruff_organize_imports` on save
+  --- It is deliberately *not* in nvim-lint as well: the language server
+  --- already publishes the same diagnostics, so every problem showed twice.
+  --- These are conform's built-in definitions, which respect the project's
+  --- ruff.toml / pyproject.toml (rule selection, line length, excludes).
   {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
-        python = { "ruff_format", "ruff_organize_imports" },
-      },
-      formatters = {
-        ruff_format = {
-          command = "ruff",
-          args = { "format", "--stdin-filename", "$FILENAME", "-" },
-        },
-        ruff_organize_imports = {
-          command = "ruff",
-          args = { "check", "--select", "I", "--fix", "--stdin-filename", "$FILENAME", "-" },
-        },
-      },
-    },
-  },
-  {
-    "mfussenegger/nvim-lint",
-    opts = {
-      linters_by_ft = {
-        python = { "ruff" },
+        python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
       },
     },
   },
@@ -131,15 +121,15 @@ return {
     dependencies = { "mfussenegger/nvim-dap" },
     keys = {
       {
-        "<leader>dPt",
+        "<leader>dm",
         function()
           require("dap-python").test_method()
         end,
-        desc = "Debug method",
+        desc = "Debug test method",
         ft = "python",
       },
       {
-        "<leader>dPc",
+        "<leader>dM",
         function()
           require("dap-python").test_class()
         end,

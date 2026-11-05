@@ -37,6 +37,13 @@ return {
         "ninja",
         "rst",
         "csv",
+        "dockerfile",
+        "make",
+        "gitcommit",
+        "git_rebase",
+        "gitignore",
+        "powershell",
+        "xml",
       },
     },
     config = function(_, opts)

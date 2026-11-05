@@ -160,9 +160,8 @@ return {
 
       -- Linters that shell out to a slow external process. These run on
       -- read and write only -- never on InsertLeave, where they would mean
-      -- a process spawn every time you tap <Esc>. ruff is deliberately not
-      -- here: it returns in single-digit milliseconds, so live feedback
-      -- while editing Python is worth the spawn.
+      -- a process spawn every time you tap <Esc>. (Python isn't linted
+      -- here at all -- the ruff language server covers it.)
       slow = { "sqlfluff", "shellcheck", "markdownlint-cli2" },
 
       -- Coalesce bursts of events (`:wa`, a fast <Esc><Esc>) into one run.

@@ -11,8 +11,9 @@ return {
         lua_ls = {
           settings = {
             Lua = {
+              -- `vim` is typed by lazydev.nvim (plugins/lsp.lua), so no
+              -- `diagnostics.globals` override is needed.
               workspace = { checkThirdParty = false },
-              diagnostics = { globals = { "vim" } },
             },
           },
         },

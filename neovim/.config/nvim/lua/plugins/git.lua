@@ -58,6 +58,9 @@ return {
     "folke/snacks.nvim",
     keys = {
       { "<leader>gb", git_branches, desc = "Git branches" },
+      -- Every uncommitted hunk in the repo, one entry each with a diff
+      -- preview -- the quick way to review what an agent just changed.
+      { "<leader>gH", function() Snacks.picker.git_diff() end, desc = "Changed hunks (picker)" },
     },
   },
 

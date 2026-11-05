@@ -31,29 +31,8 @@ local function setup_inlay_hints(buf, client)
   vim.lsp.inlay_hint.enable(true, { bufnr = buf })
 end
 
----@param buf integer
----@param client vim.lsp.Client
-local function setup_document_highlight(buf, client)
-  if not client:supports_method("textDocument/documentHighlight") then
-    return
-  end
-  local group = vim.api.nvim_create_augroup("nvim_lsp_highlight_" .. buf, { clear = true })
-  vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-    group = group,
-    buffer = buf,
-    callback = function() vim.lsp.buf.document_highlight() end,
-  })
-  vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufLeave" }, {
-    group = group,
-    buffer = buf,
-    callback = function() vim.lsp.buf.clear_references() end,
-  })
-  vim.api.nvim_create_autocmd("LspDetach", {
-    buffer = buf,
-    once = true,
-    callback = function() pcall(vim.api.nvim_del_augroup_by_id, group) end,
-  })
-end
+-- Highlighting other references of the symbol under the cursor is done by
+-- snacks.words (plugins/ui.lua).
 
 ---@param buf integer
 local function setup_keymaps(buf)
@@ -93,7 +72,6 @@ function M.setup()
       end
       setup_keymaps(ev.buf)
       setup_inlay_hints(ev.buf, client)
-      setup_document_highlight(ev.buf, client)
     end,
     desc = "Configure buffer-local LSP keymaps/features on attach",
   })

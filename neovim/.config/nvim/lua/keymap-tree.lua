@@ -21,10 +21,9 @@ local M = {}
 --- silently mangled). Names from nerdfonts.com/cheat-sheet.
 M.groups = {
   --- Top-level prefixes
+  -- sidekick: Copilot NES, plus a terminal for any AI CLI (Claude, Pi,
+  -- Copilot, ...).
   { "<leader>a", group = "ai", icon = "\u{f544} " }, -- nf-fa-robot
-  -- sidekick: Copilot NES, plus a terminal for any AI CLI (Copilot, Claude,
-  -- Codex, Gemini, ...) -- not Copilot-only, despite the icon.
-  { "<leader>ag", group = "sidekick", icon = "\u{f113} " }, -- nf-fa-github_alt
   { "<leader>b", group = "buffer", icon = "\u{f0c5} " }, -- nf-fa-files_o
   { "<leader>c", group = "code", icon = "\u{f121} " }, -- nf-fa-code
   { "<leader>C", group = "csv", icon = "\u{f0ce} " }, -- nf-fa-table
@@ -58,23 +57,31 @@ M.groups = {
 --- this at runtime; it exists so the answer to "where is <leader>g defined?"
 --- takes five seconds instead of a grep.
 ---
----   <leader>a   plugins/tools.lua        claudecode.nvim
----   <leader>ag  plugins/tools.lua        sidekick.nvim (Copilot NES + AI CLIs)
+---   <leader>a   plugins/tools.lua        sidekick.nvim
+---                 ac Claude   ap Pi   ag Copilot   as select CLI
+---                 aa ask (prompt picker)   at/af/av send this/file/selection
+---                 ad detach   an/au/ax next-edit suggestion: jump/request/clear
 ---   <leader>b   plugins/ui.lua           bufferline
 ---   <leader>c   util/lsp.lua             LSP actions (on LspAttach)
----               plugins/editor.lua       cw/cW: swap parameter (textobjects)
+---               plugins/editor.lua       cw/cW swap parameter, cj/cJ/cK treesj
+---               plugins/lang/python.lua  co organize imports, cv venv
+---               plugins/lang/markdown.lua cp markdown preview
 ---   <leader>C   plugins/lang/sql.lua     csvview
 ---   <leader>d   plugins/debug.lua        nvim-dap
----   <leader>f   plugins/ui.lua           snacks.picker + snacks.explorer
+---               plugins/lang/python.lua  dm/dM debug test method/class
+---   <leader>f   plugins/ui.lua           snacks.picker
+---               plugins/lang/web.lua     fv preview SVG
 ---   <leader>g   plugins/git.lua          gitsigns / diffview / neogit
+---                 gs status   gd diff view   gH changed hunks   gb branches
 ---   <leader>j   plugins/lang/json.lua    jq.nvim (jq/yq over the buffer)
 ---   <leader>n   plugins/lang/notebook.lua ipynb.nvim
----   <leader>o   plugins/lang/markdown.lua obsidian.nvim
+---   <leader>o   plugins/lang/obsidian.lua obsidian.nvim
 ---   <leader>P   plugins/lang/web.lua     package-info.nvim
 ---   <leader>q   plugins/editor.lua       persistence.nvim
 ---               core/keymaps.lua         qc: quit window
 ---   <leader>r   plugins/lang/python.lua  iron.nvim (Databricks Connect REPL)
----   <leader>s   plugins/ui.lua           snacks.picker
+---   <leader>s   plugins/ui.lua           snacks.picker (sR resumes the last one)
+---               plugins/editor.lua       sr/sw grug-far, st/sT/sq todos
 ---   <leader>t   plugins/test.lua         neotest
 ---   <leader>T   plugins/tools.lua        toggleterm
 ---   <leader>u   plugins/ui.lua           snacks.toggle
@@ -85,10 +92,14 @@ M.groups = {
 ---   <leader>,        buffers             <leader>:  command history
 ---   <leader>e        file explorer       <leader>l  Lazy (core/lazy.lua)
 ---   <leader>D        database UI         <leader>m  multicursor
+---   <leader>.        scratch buffer      <leader>S  select scratch buffer
 ---   <leader>w        write file (core/keymaps.lua)
 ---
 --- Window motions are not on a <leader> prefix: <C-hjkl> to move, <C-arrow>
---- to resize (core/keymaps.lua).
+--- to resize (core/keymaps.lua). <C-d>/<C-u> scroll an open LSP hover float,
+--- otherwise half a page (plugins/ui.lua, noice).
+---
+--- Reserved by herdr, never reaches nvim: <C-b> (herdr's prefix).
 
 --- ---------------------------------------------------------------------------
 --- VS Code compatibility layer
@@ -103,7 +114,6 @@ M.groups = {
 ---   <C-p>       find files              plugins/ui.lua    (snacks.picker)
 ---   <C-S-p>     command palette         plugins/ui.lua    (snacks.picker)
 ---   <C-S-f>     find in project         plugins/ui.lua    (snacks.picker)
----   <C-b>       toggle sidebar          plugins/ui.lua    (snacks.explorer)
 ---   <C-`>       toggle terminal         plugins/tools.lua (toggleterm)
 ---   <C-/>       toggle comment          built-in gcc, remapped in editor.lua
 ---   <C-s>       save                    core/keymaps.lua

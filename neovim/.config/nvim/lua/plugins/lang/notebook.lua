@@ -3,16 +3,34 @@ local platform = require("core.platform")
 return {
   {
     "ajbucci/ipynb.nvim",
-    -- Must load eagerly (not lazy on ft="ipynb"): the plugin works by
-    -- registering a BufReadCmd for *.ipynb that intercepts the file read
-    -- and renders a facade buffer instead of raw JSON. If loaded lazily on
-    -- ft, the FileType event that would trigger the load only fires AFTER
-    -- Neovim's default reader has already loaded the raw JSON into the
-    -- buffer, so the BufReadCmd gets registered too late for the first
-    -- notebook opened in a session and you just see raw JSON.
-    lazy = false,
+    -- The plugin works by registering a BufReadCmd for *.ipynb (inside its
+    -- setup()) that renders a facade buffer instead of raw JSON. Loading it
+    -- on ft="ipynb" is too late -- FileType fires after Neovim's default
+    -- reader has already put the raw JSON in the buffer. Loading it eagerly
+    -- works, but drags lspconfig, mason and treesitter into every startup.
+    --
+    -- So: a one-shot BufReadCmd stub claims the first notebook read, loads
+    -- the plugin (which registers its real handlers), then hands that buffer
+    -- to the plugin's reader. Every later notebook goes straight to the
+    -- plugin's own autocmd.
+    lazy = true,
     init = function()
       vim.filetype.add({ extension = { ipynb = "ipynb" } })
+
+      local stub = vim.api.nvim_create_augroup("nvim_ipynb_lazy", { clear = true })
+      vim.api.nvim_create_autocmd("BufReadCmd", {
+        group = stub,
+        pattern = "*.ipynb",
+        callback = function(ev)
+          vim.api.nvim_del_augroup_by_id(stub)
+          require("lazy").load({ plugins = { "ipynb.nvim" } })
+          -- Same guard as the plugin's own handler: nb:// picker previews.
+          if not ev.file:match("^%w+://") then
+            require("ipynb.io").open_notebook(ev.buf, ev.file)
+          end
+        end,
+        desc = "Load ipynb.nvim on the first notebook read",
+      })
     end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter",

@@ -210,12 +210,12 @@ return {
         desc = "Detach CLI session",
       },
       {
-        "<leader>ap",
+        "<leader>aa",
         function()
           require("sidekick.cli").prompt()
         end,
         mode = { "n", "x" },
-        desc = "Select prompt",
+        desc = "Ask (select prompt)",
       },
       {
         "<leader>at",
@@ -254,14 +254,8 @@ return {
       },
     },
   },
-  {
-    "mason-org/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "copilot-language-server" })
-      return opts
-    end,
-  },
+  -- No separate mason entry for copilot-language-server: mason-lspconfig
+  -- already installs it from the `copilot` server above.
 
   {
     "christoomey/vim-tmux-navigator",
