@@ -1,7 +1,7 @@
-theme = "light:Horizon Bright,dark:Adventure"
+theme = "light:Horizon Bright,dark:Abernathy"
 
-background-opacity = 0.75
-background-blur-radius = 12
+background-opacity = .85
+background-blur-radius = 15
 
 font-size = 16
 font-family = 0xProto Nerd Font Mono
