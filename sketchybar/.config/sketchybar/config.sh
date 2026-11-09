@@ -25,9 +25,9 @@ export PADDINGS=4     # Default icon, label and item padding
 # ============================================================================
 
 export BAR_HEIGHT=38
-export BAR_CORNER_RADIUS=10
+export BAR_CORNER_RADIUS=5
 export BAR_Y_OFFSET=6
-export BAR_MARGIN=12
+export BAR_MARGIN=10
 export BAR_BLUR_RADIUS=30
 export BAR_NOTCH_WIDTH=0
 export BAR_PADDING_RIGHT=8
