@@ -1,9 +1,10 @@
-theme = "light:Horizon Bright,dark:Abernathy"
+theme = "light:Horizon Bright,dark:3024 Night"
 
-background-opacity = .85
-background-blur-radius = 15
+background-opacity = .90
+background-blur = macos-glass-clear
+background-opacity-cells = true
 
-font-size = 16
+font-size = 15
 font-family = 0xProto Nerd Font Mono
 
 shell-integration = zsh
