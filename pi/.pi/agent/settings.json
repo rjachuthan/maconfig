@@ -2,7 +2,7 @@
   "defaultModel": "gpt-6-luna",
   "defaultProvider": "github-copilot",
   "defaultThinkingLevel": "medium",
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "theme": "titanium",
   "tuiMode": "fullscreen",
   "quietStartup": true,
@@ -14,5 +14,10 @@
     "npm:pi-background-tasks",
     "npm:@nguyenquangthai/pi-omp-theme",
     "npm:pi-web-access"
-  ]
+  ],
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:@tintinweb/pi-subagents\",\"scope\":\"user\"}": "0.23.0",
+    "{\"source\":\"npm:@nguyenquangthai/pi-omp-theme\",\"scope\":\"user\"}": "1.0.26",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.46.0"
+  }
 }
