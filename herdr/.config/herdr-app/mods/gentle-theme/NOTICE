@@ -1,0 +1,17 @@
+Gentle Herdr
+Copyright 2026 Mayloparra24
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This project includes code derived from herdr (https://herdr.dev),
+Copyright its authors, licensed under the Apache License, Version 2.0:
+
+- mods/gentle-chrome/ is a modified copy of herdr's workspace-chrome mod
+  (herdr-app 0.1.12). Changed: the brand row and asset paths.
+- mods/gentle-tabs/ is a modified copy of herdr's tabs mod
+  (herdr-app 0.1.12). Changed: a right-panel toggle button before "+".
+- mods/gentle-files/ is a modified copy of herdr's files mod
+  (herdr-app 0.1.12). Changed: file-type icons; files open in a tab.
+- mods/gentle-changes/ is a modified copy of herdr's changes mod
+  (herdr-app 0.1.12). Changed: keeps the last folder when a mod pane takes focus.
+- layouts/gentle-herdr.json is based on herdr's main layout.

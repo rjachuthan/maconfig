@@ -36,6 +36,7 @@ stow -t "$HOME" <package>   # e.g. stow -t "$HOME" tmux
 | `kitty`        | `~/.config/kitty`               | Terminal                                        |
 | `tmux`         | `~/.config/tmux`                | Terminal multiplexer                            |
 | `herdr`        | `~/.config/herdr/config.toml`   | Terminal multiplexer for coding agents          |
+|                | `~/.config/herdr-app`           | Herdr app settings and Gentle Herdr layout      |
 | `neovim`       | `~/.config/nvim`                | Lua config using lazy.nvim                      |
 | `yazi`         | `~/.config/yazi`                | File manager (flavors, plugins, keymap)         |
 | `zsh`          | `~/.config/zsh`, `~/.local/bin` | Shell config, `tmux-sessionizer`, `migrate.sh`  |
@@ -96,6 +97,13 @@ Notes:
 - Link single files or subdirectories when the target directory also holds
   machine-local data (`auth.json`, `sessions/`, `models-store.json`), so those
   stay out of the repo.
+- Herdr app: link only the files listed under `herdr/.config/herdr-app`
+  (`settings.json`, `programs.json`, `layouts/gentle-herdr.*`,
+  `themes/gentle-shell.json`, `mods/gentle-*`), never the whole folder. Herdr
+  rewrites its own layouts, mods and state there on every start. Check the
+  home folder with `herdr-app --help` (the `Home:` line; `HERDR_APP_HOME`
+  overrides it). `keys.json` is not tracked because the macOS one uses `cmd`
+  keys.
 - Remove a link with `(Get-Item <path>).Delete()` or `Remove-Item <path>`.
   Deleting a symlink or junction does not delete the repo contents.
 - Check what a path points to with `(Get-Item <path>).Target`.

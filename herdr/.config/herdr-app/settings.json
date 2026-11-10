@@ -1,0 +1,10 @@
+{
+  "zoom": 1.0,
+  "sounds": {
+    "enabled": true
+  },
+  "font": "0xProto Nerd Font Mono",
+  "font_size": 13.0,
+  "font_ligatures": false,
+  "minimum_contrast": 1.0
+}

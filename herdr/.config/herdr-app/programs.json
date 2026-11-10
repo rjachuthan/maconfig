@@ -1,0 +1,12 @@
+{
+  "programs": {
+    "gentle-shell": {
+      "name": "Gentle Shell",
+      "icon": "mods/gentle-theme/flower.svg",
+      "tint": true,
+      "tile": "#342230",
+      "color": "#f095c8",
+      "match": ["gentle-shell", "gentle-pi"]
+    }
+  }
+}
