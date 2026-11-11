@@ -614,12 +614,34 @@ return {
           ["vim.lsp.util.stylize_markdown"] = true,
         },
         signature = { enabled = true },
+        -- fidget.nvim owns LSP progress: it groups per client and updates in
+        -- place instead of stacking one mini message per progress token.
+        progress = { enabled = false },
       },
       presets = {
         bottom_search = true,
         command_palette = true,
         long_message_to_split = true,
         lsp_doc_border = true,
+      },
+    },
+  },
+
+  {
+    "j-hui/fidget.nvim",
+    event = "LspAttach",
+    opts = {
+      progress = {
+        suppress_on_insert = true, -- no flicker while typing
+        ignore_done_already = true, -- skip tasks that finish before first render
+        display = {
+          done_ttl = 2, -- seconds a finished task lingers
+          render_limit = 8, -- cap lines per client group
+        },
+      },
+      notification = {
+        override_vim_notify = false, -- snacks.notifier keeps handling vim.notify
+        window = { winblend = 0, border = "none" },
       },
     },
   },
