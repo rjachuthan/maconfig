@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # CPU Module - Item Configuration
-# Displays CPU usage with graphs
+# Displays CPU usage with graphs. Click for the top memory consumers, each
+# with a ✕ to force kill it (see memory.plugin.sh).
+
+MEMORY_CLICK="$MODULE_DIR/system/memory.plugin.sh click"
 
 sketchybar --add item        cpu.top right                 \
            --set cpu.top     label.font="$FONT:Semibold:7" \
@@ -14,6 +17,7 @@ sketchybar --add item        cpu.top right                 \
                              width=0                       \
                              padding_right=12              \
                              y_offset=6                    \
+                             click_script="$MEMORY_CLICK"  \
                                                            \
            --add item        cpu.percent right             \
            --set cpu.percent label.font="$FONT:Heavy:12"   \
@@ -25,6 +29,7 @@ sketchybar --add item        cpu.top right                 \
                              icon.drawing=off              \
                              update_freq=2                 \
                              mach_helper="$HELPER_NAME"    \
+                             click_script="$MEMORY_CLICK"  \
                                                            \
            --add graph       cpu.sys right 44              \
            --set cpu.sys     width=0                       \
@@ -35,6 +40,7 @@ sketchybar --add item        cpu.top right                 \
                              background.height=30          \
                              background.drawing=on         \
                              background.color=$TRANSPARENT \
+                             click_script="$MEMORY_CLICK"  \
                                                            \
            --add graph       cpu.user right 44             \
            --set cpu.user    graph.color=$BLUE             \
@@ -45,4 +51,5 @@ sketchybar --add item        cpu.top right                 \
                              icon.drawing=off              \
                              background.height=30          \
                              background.drawing=on         \
-                             background.color=$TRANSPARENT
+                             background.color=$TRANSPARENT \
+                             click_script="$MEMORY_CLICK"
