@@ -162,6 +162,13 @@
                       "content": {
                         "mod": "gentle-changes"
                       }
+                    },
+                    {
+                      "id": "graph",
+                      "type": "block",
+                      "content": {
+                        "mod": "git-graph"
+                      }
                     }
                   ]
                 }
