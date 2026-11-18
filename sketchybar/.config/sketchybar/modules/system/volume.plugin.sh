@@ -15,12 +15,19 @@ volume_change() {
     "10-33:$VOLUME_33" \
     "34-66:$VOLUME_66" \
     "67-100:$VOLUME_100")
+  local font="$FONT:Regular:14.0"
+
+  # Headphones replace the level icon: Bluetooth vs wired (USB / jack)
+  case "$("$NATIVE_DIR/audio_output" 2>/dev/null)" in
+    bluetooth) icon=$AUDIO_BLUETOOTH; font="$NERD_FONT:Regular:17.0" ;;
+    wired) icon=$AUDIO_WIRED; font="$NERD_FONT:Regular:17.0" ;;
+  esac
 
   # Muted is dimmed; any other level is plain white
   local color=$WHITE
   [[ "$INFO" == "0" ]] && color=$GREY
 
-  update_item volume_icon label="$icon" label.color="$color"
+  update_item volume_icon label="$icon" label.font="$font" label.color="$color"
   update_slider volume "$INFO" "$WIDTH"
 
   sleep 2

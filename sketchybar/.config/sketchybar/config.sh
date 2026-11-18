@@ -18,6 +18,7 @@ export HELPERS_DIR="$CONFIG_DIR/helpers"
 # ============================================================================
 
 export FONT="SF Pro"  # Needs Regular, Bold, Semibold, Heavy and Black variants
+export NERD_FONT="JetBrainsMono Nerd Font"  # Device glyphs (font-jetbrains-mono-nerd-font)
 export PADDINGS=4     # Default icon, label and item padding
 
 # ============================================================================

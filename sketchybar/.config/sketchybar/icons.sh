@@ -29,6 +29,10 @@ VOLUME_33=􀊥
 VOLUME_10=􀊡
 VOLUME_0=􀊣
 
+# Audio output devices (Nerd Font glyphs, drawn with $NERD_FONT)
+AUDIO_BLUETOOTH=󰥰          # md-headphones_bluetooth
+AUDIO_WIRED=󰋋              # md-headphones
+
 # Weather
 WEATHER_CLEAR_DAY=􀆮          # sun.max.fill
 WEATHER_CLEAR_NIGHT=􀇁        # moon.stars.fill

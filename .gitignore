@@ -32,6 +32,7 @@ sketchybar/.config/sketchybar/utils/
 
 # Compiled native helper binary
 sketchybar/.config/sketchybar/native/helper
+sketchybar/.config/sketchybar/native/audio_output
 
 # Claude Code settings
 .claude/
