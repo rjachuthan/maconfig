@@ -152,7 +152,7 @@ if.app-id = "app.zen-browser.zen"
 run = ["move-node-to-workspace B"]
 
 [[on-window-detected]]
-if.app-id = "com.todesktop.230313mzl4w4u92"
+if.app-id = "com.anthropic.claudefordesktop"
 run = ["move-node-to-workspace C"]
 
 [[on-window-detected]]
