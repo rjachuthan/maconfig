@@ -131,6 +131,37 @@ return {
     opts = {},
   },
 
+  -- PR review and issues. Provider setup (orgs, projects, views) is
+  -- machine-local and kept out of this public repo: it lives in
+  -- stdpath("data")/local/atlas.lua, which returns a table of atlas opts.
+  {
+    "emrearmagan/atlas.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "sindrets/diffview.nvim",
+    },
+    cmd = "Atlas",
+    keys = {
+      { "<leader>gp", "<cmd>Atlas pulls .<cr>", desc = "Pull requests" },
+      { "<leader>gr", "<cmd>Atlas review .<cr>", desc = "Review current branch PR" },
+      { "<leader>gR", "<cmd>Atlas review<cr>", desc = "Review PR (pick)" },
+      { "<leader>gi", "<cmd>Atlas issues .<cr>", desc = "Issues / work items" },
+      { "<leader>gP", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
+    },
+    opts = function()
+      local defaults = {}
+      local path = vim.fs.joinpath(vim.fn.stdpath("data"), "local", "atlas.lua")
+      if vim.uv.fs_stat(path) then
+        local ok, local_opts = pcall(dofile, path)
+        if ok and type(local_opts) == "table" then
+          return vim.tbl_deep_extend("force", defaults, local_opts)
+        end
+        vim.notify("atlas: failed to load " .. path .. ": " .. tostring(local_opts), vim.log.levels.ERROR)
+      end
+      return defaults
+    end,
+  },
+
   {
     "NeogitOrg/neogit",
     dependencies = {
