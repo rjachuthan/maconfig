@@ -4,6 +4,7 @@
   "id": "root",
   "type": "row",
   "titlebar": "none",
+  "toast": "gentle-toast",
   "traffic_lights": [
     12,
     16
@@ -183,7 +184,7 @@
             "px": 28
           },
           "content": {
-            "mod": "workspace-status"
+            "mod": "gentle-status"
           }
         }
       ]
