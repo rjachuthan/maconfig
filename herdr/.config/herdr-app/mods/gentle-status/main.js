@@ -1,10 +1,11 @@
 // cloned_from: workspace-status (herdr-app 0.1.16); changes: Claude usage chip after the
-// machine, opening the usage popup (props.role === "usage"); icons stay in mods/workspace-chrome/.
-import { View, div, svg } from "gpui-kit";
+// machine, opening the usage popup (props.role === "usage": Claude, Codex, Copilot);
+// icons stay in mods/workspace-chrome/.
+import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, agents, theme, run, window, keys, shared, props, openOverlay, checking } from "herdr";
-import { KEY, refresh, until, color } from "./usage.js";
-import { UsagePopup } from "./popup.js";
+import { spaces, agents, theme, run, window, keys, shared, props, openOverlay, checking, layout } from "herdr";
+import { KEY, PROVIDERS, refreshAll, until, color } from "./usage.js";
+import { UsagePopup, POPUP } from "./popup.js";
 
 const EVERY = 5 * 60000;
 // A Herdr notification (an agent finished or needs you; gentle-toast pings
@@ -12,14 +13,32 @@ const EVERY = 5 * 60000;
 // together share one request (the endpoint rate-limits).
 const SETTLE = 5000, GAP = 30000, PING = "claude.usage.ping";
 
-// Sized to what it shows: header, each limit, the weekly breakdown, the link.
-const popupHeight = u => 104 + (u?.error ? 22 : 0) + (u?.limits?.length ?? 0) * 52 + (u?.breakdown?.length ? 42 + u.breakdown.length * 20 : 0) + (u?.extra ? 30 : 0);
+// Where the popup opens: its bottom just above the status bar (the bar is the
+// window's bottom block), its left edge on the chip's. Window coordinates: the
+// pointer minus where it is inside the chip, and gpui's own window (herdr's
+// window() import shadows the global) for the height.
+function anchor(e) {
+  const vp = globalThis.window?.viewport_size?.();
+  const bar = find(layout(), "status")?.size?.px ?? 28;
+  if (!vp?.height) return "pointer";
+  const left = (e.position?.x ?? 0) - (e.local_position?.x ?? 0);
+  return { x: Math.max(8, Math.min(left - 2, vp.width - POPUP.width - 8)), y: Math.max(8, vp.height - bar - POPUP.height - 4) };
+}
+
+function find(node, id) {
+  if (node?.id === id) return node;
+  for (const child of node?.children ?? []) {
+    const found = find(child, id);
+    if (found) return found;
+  }
+  return null;
+}
 
 class StatusBar {
   init(cx) {
     if (checking()) return;
     this.last = 0;
-    const go = () => { this.last = Date.now(); refresh(); };
+    const go = () => { this.last = Date.now(); refreshAll(); };
     go();
     cx.timer.every(EVERY, () => { if (Date.now() - this.last > GAP) go(); });
     this.ping = shared(PING)?.at ?? 0;
@@ -48,7 +67,7 @@ class StatusBar {
 
   usage(t) {
     const u = shared(KEY);
-    const bar = l => div().w(22).h(4).rounded(2).bg(t.border).child(div().h_full().rounded(2).bg(color(t, l)).w(Math.max(l.percent ? 2 : 0, Math.min(22, l.percent * 0.22))));
+    const bar = l => div().w(22).h(4).rounded(2).bg(t.border).child(div().h_full().rounded(2).bg(color(t, l, PROVIDERS[0].tint)).w(Math.max(l.percent ? 2 : 0, Math.min(22, l.percent * 0.22))));
     // The bar shows the session only; the weekly limits are in the popup.
     const l = u?.limits?.find(x => x.kind === "session") ?? u?.limits?.[0];
     return h_flex().id("claude-usage").h(20).px(6).gap(7).items_center().rounded(5).cursor_pointer()
@@ -57,14 +76,12 @@ class StatusBar {
       // Anchored above the chip, its left edge on the chip's, wherever the press was.
       .on_mouse_down("left", (e, cx) => {
         cx.stop_propagation();
-        const b = e.bounds, height = popupHeight(shared(KEY));
-        openOverlay({ mod: "gentle-status", kind: "popup", width: 340, height, props: { role: "usage" },
-          at: b ? { x: Math.max(8, b.x - 4), y: Math.max(8, b.y - height - 6) } : "pointer" });
+        openOverlay({ mod: "gentle-status", kind: "popup", ...POPUP, props: { role: "usage" }, at: anchor(e) });
       })
-      .child(svg("mods/gentle-status/claude.svg").size(12).text_color("#d97757"))
+      .child(image("mods/gentle-status/claude.svg").w(13).h(13).flex_none())
       .when(!l, el => el.child(div().text_color(t.dim).child(u?.error && !u?.loading ? "—" : "…")))
       .when(Boolean(l), el => el.child(bar(l))
-        .child(div().text_color(l.percent >= 70 ? color(t, l) : t.muted).child(`${l.percent}%`))
+        .child(div().text_color(l.percent >= 70 ? color(t, l, PROVIDERS[0].tint) : t.muted).child(`${l.percent}%`))
         .child(div().text_color(t.dim).child(until(l.resets))))
       // Numbers kept from before a failed refresh: a dot says they may be old.
       .when(Boolean(u?.error && l), el => el.child(div().size(5).rounded_full().bg(t.working)));

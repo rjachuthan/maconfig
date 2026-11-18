@@ -1,17 +1,21 @@
-// Claude plan usage, as Claude Code's /usage reads it: the OAuth usage endpoint,
-// signed with the login Claude Code keeps (macOS Keychain, else
-// ~/.claude/.credentials.json, which is where it lives on Windows and Linux).
-// The token is only read, never refreshed: refreshing it here would rotate the
-// refresh token under Claude Code and sign it out. An expired one shows as
-// stale until Claude Code next refreshes it.
-// The result goes to shared("claude.usage") (no token in it), so the bar and the
-// popup read the same thing.
+// Plan usage for Claude, Codex and GitHub Copilot, each read the way its own
+// tool reads it, signed with the login that tool keeps. Tokens are only read,
+// never refreshed: refreshing one here would rotate it under the tool and sign
+// it out. An expired one shows as an error until the tool refreshes it.
+// Each provider's result goes to shared(<id>.usage) (no token in it), so the
+// bar and the popup read the same thing. Every limit has one shape:
+// { kind, label, name, percent, severity, resets (ISO), detail? }, and below them
+// one titled list of facts: section { title, rows: [{ name, value }] }.
 import { exec, readTextFile, home, shared, setShared, window } from "herdr";
 
-export const KEY = "claude.usage";
-const URL = "https://api.anthropic.com/api/oauth/usage";
+const cap = s => (s ? s[0].toUpperCase() + s.slice(1) : null);
+// 5500 -> "5,500", the same in every locale.
+const num = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const iso = secs => (secs ? new Date(secs * 1000).toISOString() : null);
 
-async function credentials() {
+// ── Claude: Claude Code's /usage endpoint, its login in the macOS Keychain,
+// else ~/.claude/.credentials.json (Windows, Linux).
+async function claudeLogin() {
   if (window()?.platform === "macos") {
     try {
       const r = await exec("security", ["find-generic-password", "-s", "Claude Code-credentials", "-w"], { timeout: 10000 });
@@ -23,52 +27,186 @@ async function credentials() {
 }
 
 // "default_claude_max_5x" -> "Max 5x"; else the subscription type ("pro" -> "Pro").
-export function planName(tier, type) {
+export function claudePlan(tier, type) {
   const m = /max_(\d+x)/.exec(tier ?? "");
-  if (m) return `Max ${m[1]}`;
-  return type ? type[0].toUpperCase() + type.slice(1) : null;
+  return m ? `Max ${m[1]}` : cap(type);
 }
 
 // The endpoint's `limits`, else its older five_hour / seven_day fields.
-export function parseLimits(body) {
+export function claudeLimits(body) {
   const short = { session: "5h", weekly_all: "wk" };
   if (Array.isArray(body?.limits) && body.limits.length) {
-    return body.limits.map(l => ({
-      kind: l.kind,
-      label: l.scope?.model?.display_name ?? l.scope?.surface?.display_name ?? short[l.kind] ?? l.kind,
-      name: l.kind === "session" ? "Current session" : l.kind === "weekly_all" ? "Weekly · all models" : `Weekly · ${l.scope?.model?.display_name ?? l.scope?.surface?.display_name ?? l.kind}`,
-      percent: Math.round(l.percent ?? 0),
-      severity: l.severity ?? "normal",
-      resets: l.resets_at ?? null,
-    }));
+    return body.limits.map(l => {
+      const scope = l.scope?.model?.display_name ?? l.scope?.surface?.display_name;
+      return {
+        kind: l.kind,
+        label: scope ?? short[l.kind] ?? l.kind,
+        name: l.kind === "session" ? "Current session" : l.kind === "weekly_all" ? "Weekly · all models" : `Weekly · ${scope ?? l.kind}`,
+        percent: Math.round(l.percent ?? 0),
+        severity: l.severity ?? "normal",
+        resets: l.resets_at ?? null,
+      };
+    });
   }
-  return [["five_hour", "5h", "Current session"], ["seven_day", "wk", "Weekly · all models"]]
-    .filter(([k]) => body?.[k]).map(([k, label, name]) => ({ kind: k === "five_hour" ? "session" : "weekly_all", label, name, percent: Math.round(body[k].utilization ?? 0), severity: "normal", resets: body[k].resets_at ?? null }));
+  return [["five_hour", "session", "Current session"], ["seven_day", "weekly_all", "Weekly · all models"]]
+    .filter(([k]) => body?.[k])
+    .map(([k, kind, name]) => ({ kind, label: short[kind], name, percent: Math.round(body[k].utilization ?? 0), severity: "normal", resets: body[k].resets_at ?? null }));
 }
 
-export async function refresh() {
-  // loading is saved with the rest: one left behind by a reload mid-request expires.
-  const prev = shared(KEY) ?? {};
-  if (prev.loading && Date.now() - prev.loading < 30000) return;
-  setShared(KEY, { ...prev, loading: Date.now() });
-  const done = (patch) => setShared(KEY, { ...prev, ...patch, loading: false, checked: Date.now() });
-  try {
-    const cred = await credentials();
-    if (!cred?.accessToken) return done({ error: "Not signed in to Claude Code" });
-    const plan = planName(cred.rateLimitTier, cred.subscriptionType);
-    if (cred.expiresAt && cred.expiresAt < Date.now()) return done({ plan, error: "Login expired: run claude to refresh it" });
-    const res = await fetch(URL, { headers: { Authorization: `Bearer ${cred.accessToken}`, "anthropic-beta": "oauth-2025-04-20", "Content-Type": "application/json" } });
-    if (res.status === 401) return done({ plan, error: "Login expired: run claude to refresh it" });
-    if (res.status === 429) return done({ plan, error: "Rate limited, trying again later" });
-    if (!res.ok) return done({ plan, error: `Usage request failed (${res.status})` });
-    const body = await res.json();
-    const breakdown = (body.seven_day_breakdown?.rows ?? []).filter(r => r.percent > 0).map(r => ({ name: r.display_name, percent: r.percent }));
-    const extra = body.extra_usage?.is_enabled ? { used: body.extra_usage.used_credits, limit: body.extra_usage.monthly_limit, currency: body.extra_usage.currency } : null;
-    done({ plan, limits: parseLimits(body), breakdown, extra, error: null, updated: Date.now() });
-  } catch (e) {
-    done({ error: `Usage unavailable: ${e?.message ?? e}` });
-  }
+async function claude() {
+  const cred = await claudeLogin();
+  if (!cred?.accessToken) return { error: "Not signed in to Claude Code" };
+  const plan = claudePlan(cred.rateLimitTier, cred.subscriptionType);
+  const expired = { plan, error: "Login expired: run claude to refresh it" };
+  if (cred.expiresAt && cred.expiresAt < Date.now()) return expired;
+  const res = await fetch("https://api.anthropic.com/api/oauth/usage", {
+    headers: { Authorization: `Bearer ${cred.accessToken}`, "anthropic-beta": "oauth-2025-04-20", "Content-Type": "application/json" },
+  });
+  if (res.status === 401) return expired;
+  if (!res.ok) return { plan, error: failed(res.status) };
+  const body = await res.json();
+  return {
+    plan,
+    limits: claudeLimits(body),
+    section: {
+      title: "This week by surface",
+      rows: [
+        ...(body.seven_day_breakdown?.rows ?? []).filter(r => r.percent > 0).map(r => ({ name: r.display_name, value: `${r.percent}%` })),
+        ...(body.extra_usage?.is_enabled ? [{ name: "Extra usage", value: `${body.extra_usage.used_credits} / ${body.extra_usage.monthly_limit} ${body.extra_usage.currency}` }] : []),
+      ],
+    },
+  };
 }
+
+// ── Codex: the ChatGPT usage endpoint Codex's /status reads, its login in
+// ~/.codex/auth.json ($CODEX_HOME is not followed).
+// A window's length names it: 5h -> "5-hour", 7d -> "Weekly", 30d -> "30-day".
+function windowName(secs) {
+  const h = Math.round((secs ?? 0) / 3600);
+  return h === 168 ? "Weekly" : h % 24 === 0 && h ? `${h / 24}-day` : h ? `${h}-hour` : "Usage";
+}
+
+export function codexLimits(body) {
+  const out = [];
+  const add = (w, prefix, kind) => w && out.push({
+    kind, label: windowName(w.limit_window_seconds), name: prefix ? `${prefix} · ${windowName(w.limit_window_seconds)}` : `${windowName(w.limit_window_seconds)} limit`,
+    percent: Math.round(w.used_percent ?? 0), severity: body?.rate_limit?.limit_reached ? "reached" : "normal",
+    resets: iso(w.reset_at) ?? (w.reset_after_seconds ? new Date(Date.now() + w.reset_after_seconds * 1000).toISOString() : null),
+  });
+  add(body?.rate_limit?.primary_window, null, "primary");
+  add(body?.rate_limit?.secondary_window, null, "secondary");
+  add(body?.code_review_rate_limit?.primary_window, "Code review", "review");
+  for (const extra of Array.isArray(body?.additional_rate_limits) ? body.additional_rate_limits : []) {
+    const r = extra.rate_limit ?? extra;
+    add(r?.primary_window, extra.limit_name ?? extra.name ?? "Other", "additional");
+  }
+  return out;
+}
+
+async function codex() {
+  const text = await readTextFile(`${home()}/.codex/auth.json`);
+  const tokens = text ? JSON.parse(text).tokens : null;
+  if (!tokens?.access_token) return { error: "Not signed in to Codex with ChatGPT" };
+  const res = await fetch("https://chatgpt.com/backend-api/wham/usage", {
+    headers: { Authorization: `Bearer ${tokens.access_token}`, "ChatGPT-Account-Id": tokens.account_id ?? "", "User-Agent": "codex-cli" },
+  });
+  if (res.status === 401 || res.status === 403) return { error: "Login expired: run codex to refresh it" };
+  if (!res.ok) return { error: failed(res.status) };
+  const body = await res.json();
+  const c = body.credits, plan = cap(body.plan_type);
+  const w = body.rate_limit?.primary_window;
+  return {
+    plan,
+    limits: codexLimits(body),
+    section: {
+      title: "Account",
+      rows: [
+        { name: "Plan", value: plan ? `ChatGPT ${plan}` : "ChatGPT" },
+        ...(w?.limit_window_seconds ? [{ name: "Limit window", value: w.limit_window_seconds >= 86400 ? `${Math.round(w.limit_window_seconds / 86400)} days` : `${Math.round(w.limit_window_seconds / 3600)} hours` }] : []),
+        { name: "Status", value: body.rate_limit?.limit_reached ? "Limit reached" : body.rate_limit?.allowed === false ? "Paused" : "Available" },
+        { name: "Credits", value: c?.unlimited ? "Unlimited" : c?.has_credits && c.balance != null ? num(c.balance) : "None" },
+      ],
+    },
+  };
+}
+
+// ── GitHub Copilot: the quota Copilot's own editors read, signed with gh's
+// active account (`gh auth token`). Business and Enterprise seats included.
+export function copilotLimits(body) {
+  const q = body?.quota_snapshots ?? {};
+  const resets = body?.quota_reset_date_utc ?? (body?.quota_reset_date ? `${body.quota_reset_date}T00:00:00Z` : null);
+  const names = { premium_interactions: "Premium requests", chat: "Chat", completions: "Completions" };
+  return Object.entries(q).filter(([, s]) => s && !s.unlimited).map(([id, s]) => ({
+    kind: id, label: names[id] ?? id, name: names[id] ?? id,
+    percent: Math.round(100 - (s.percent_remaining ?? 100)),
+    severity: s.remaining <= 0 && !s.overage_permitted ? "reached" : "normal",
+    resets,
+    detail: s.entitlement ? `${num(s.entitlement - s.remaining)} / ${num(s.entitlement)}` : null,
+  }));
+}
+
+async function copilot() {
+  let token;
+  try {
+    const r = await exec("gh", ["auth", "token"], { timeout: 10000 });
+    token = r.code === 0 ? r.stdout.trim() : null;
+  } catch { return { error: "gh isn't installed: Copilot is read with gh's login" }; }
+  if (!token) return { error: "Not signed in to gh: run gh auth login" };
+  const res = await fetch("https://api.github.com/copilot_internal/user", {
+    headers: { Authorization: `token ${token}`, Accept: "application/json", "User-Agent": "GitHubCopilotChat/0.26.7", "Editor-Version": "vscode/1.99.0", "X-GitHub-Api-Version": "2025-04-01" },
+  });
+  if (res.status === 401) return { error: "gh login expired: run gh auth login" };
+  if (res.status === 404) return { error: "No Copilot seat on gh's active account" };
+  if (!res.ok) return { error: failed(res.status) };
+  const body = await res.json();
+  const q = body.quota_snapshots ?? {}, premium = q.premium_interactions;
+  return {
+    plan: cap(body.copilot_plan),
+    limits: copilotLimits(body),
+    section: {
+      title: "Seat",
+      rows: [
+        ...(body.organization_login_list?.length ? [{ name: "Organization", value: body.organization_login_list.join(", ") }] : []),
+        ...Object.entries(q).filter(([, s]) => s?.unlimited).map(([id]) => ({ name: { chat: "Chat", completions: "Completions" }[id] ?? id, value: "Unlimited" })),
+        ...(premium ? [{ name: "Overage", value: premium.overage_count ? `${num(premium.overage_count)} requests` : premium.overage_permitted ? "Allowed" : "Not allowed" }] : []),
+      ],
+    },
+  };
+}
+
+const failed = status => (status === 429 ? "Rate limited, trying again later" : `Usage request failed (${status})`);
+
+// The popup's tabs, in order. `key`: where each one's result is kept; `icon`: the
+// company's mark (Lobe Icons, @lobehub/icons-static-svg 1.101.0); `colored`: drawn
+// in its own colors; `tint`: its bars.
+export const PROVIDERS = [
+  { id: "claude", name: "Claude", icon: "claude", colored: true, tint: "#d97757", key: "claude.usage", read: claude },
+  { id: "codex", name: "Codex", icon: "codex", colored: true, tint: "#7b8cff", key: "codex.usage", read: codex },
+  { id: "copilot", name: "Copilot", icon: "copilot", tint: "#a371f7", key: "copilot.usage", read: copilot },
+];
+export const KEY = PROVIDERS[0].key;
+
+// Automatic refreshes skip a provider checked in the last 45s (reloads, bursts of
+// notifications: the endpoints rate-limit); the popup's refresh button forces one.
+export async function refresh(id = "claude", { force = false } = {}) {
+  const p = PROVIDERS.find(x => x.id === id);
+  // loading is saved with the rest: one left behind by a reload mid-request expires.
+  const prev = shared(p.key) ?? {};
+  if (prev.loading && Date.now() - prev.loading < 30000) return;
+  if (!force && Date.now() - (prev.checked ?? 0) < 45000) return;
+  setShared(p.key, { ...prev, loading: Date.now() });
+  let next;
+  try {
+    const got = await p.read();
+    // A failed read keeps the last numbers, marked by the error.
+    next = got.error ? { ...prev, ...got } : { section: null, ...got, error: null, updated: Date.now() };
+  } catch (e) {
+    next = { ...prev, error: `Usage unavailable: ${e?.message ?? e}` };
+  }
+  setShared(p.key, { ...next, loading: false, checked: Date.now() });
+}
+
+export const refreshAll = opts => Promise.all(PROVIDERS.map(p => refresh(p.id, opts)));
 
 // "4h 44m", "3d 19h", "12m".
 export function until(iso, now = Date.now()) {
@@ -83,4 +221,5 @@ export function ago(ms, now = Date.now()) {
   return mins < 1 ? "just now" : mins < 60 ? `${mins}m ago` : `${Math.round(mins / 60)}h ago`;
 }
 
-export const color = (t, l) => l.severity !== "normal" || l.percent >= 90 ? t.blocked : l.percent >= 70 ? t.working : t.accent;
+// A limit's bar: the provider's own color, amber from 70%, red from 90% or once reached.
+export const color = (t, l, tint) => l.severity !== "normal" || l.percent >= 90 ? t.blocked : l.percent >= 70 ? t.working : tint ?? t.accent;
