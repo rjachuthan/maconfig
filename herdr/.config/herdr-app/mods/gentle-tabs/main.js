@@ -1,4 +1,4 @@
-// cloned_from: tabs (herdr-app 0.1.12); changes: right-panel toggle left of "+", asset paths -> mods/gentle-tabs/
+// cloned_from: tabs (herdr-app 0.1.12); changes: right-panel toggle left of "+", asset paths -> mods/gentle-tabs/, To-do column toggle
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";
@@ -105,6 +105,13 @@ export default class Tabs extends View {
           run("layout.show", { id: "panel" });
         }
       }).child(svg("mods/gentle-tabs/panel-right.svg").size(15));
+    // The over9k-todos column (the layout's "todos" block, shown by default): shown or hidden (cmd-alt-t too).
+    const todos = find(root, "todos"), todosOpen = Boolean(todos) && !todos.hidden;
+    const todoButton = h_flex().id("panel-todos").h(26).px(8).gap(5).flex_none().items_center().rounded(6)
+      .text_size(12).bg(todosOpen ? t.selected : t.chrome).text_color(todosOpen ? t.foreground : t.muted)
+      .hover(s => s.bg(t.hover)).on_mouse_down("left", stop)
+      .on_click(() => run("layout.toggle", { id: "todos" }))
+      .child(svg("mods/gentle-chrome/circle-check.svg").size(14)).child("To-do");
     return h_flex().size_full().min_w(0).px(10).pl(lightsPadding).gap(3).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
@@ -114,6 +121,7 @@ export default class Tabs extends View {
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
       .child(panelButton("graph", "Git", "mods/git-graph/icons/graph.svg"))
+      .when(Boolean(todos), el => el.child(todoButton))
       .when(w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/gentle-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/gentle-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/gentle-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));
