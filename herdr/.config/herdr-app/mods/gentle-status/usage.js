@@ -130,8 +130,9 @@ async function codex() {
   };
 }
 
-// ── GitHub Copilot: the quota Copilot's own editors read, signed with gh's
-// active account (`gh auth token`). Business and Enterprise seats included.
+// ── GitHub Copilot: the quota Copilot's own editors read, once for every account
+// gh is signed in to (`gh auth token --user`), so a personal and a work seat both
+// show. Business and Enterprise seats included.
 export function copilotLimits(body) {
   const q = body?.quota_snapshots ?? {};
   const resets = body?.quota_reset_date_utc ?? (body?.quota_reset_date ? `${body.quota_reset_date}T00:00:00Z` : null);
@@ -145,18 +146,22 @@ export function copilotLimits(body) {
   }));
 }
 
-async function copilot() {
-  let token;
-  try {
-    const r = await exec("gh", ["auth", "token"], { timeout: 10000 });
-    token = r.code === 0 ? r.stdout.trim() : null;
-  } catch { return { error: "gh isn't installed: Copilot is read with gh's login" }; }
-  if (!token) return { error: "Not signed in to gh: run gh auth login" };
+// Every github.com login gh keeps, the active one first.
+async function ghAccounts() {
+  const r = await exec("gh", ["auth", "status", "--json", "hosts"], { timeout: 10000 });
+  const list = (r.code === 0 ? JSON.parse(r.stdout).hosts?.["github.com"] : null) ?? [];
+  return list.filter(a => a.login).sort((a, b) => b.active - a.active).map(a => a.login);
+}
+
+async function copilotAccount(login) {
+  const r = await exec("gh", ["auth", "token", "--user", login], { timeout: 10000 });
+  const token = r.code === 0 ? r.stdout.trim() : null;
+  if (!token) return { error: `gh has no token for ${login}: run gh auth login` };
   const res = await fetch("https://api.github.com/copilot_internal/user", {
     headers: { Authorization: `token ${token}`, Accept: "application/json", "User-Agent": "GitHubCopilotChat/0.26.7", "Editor-Version": "vscode/1.99.0", "X-GitHub-Api-Version": "2025-04-01" },
   });
-  if (res.status === 401) return { error: "gh login expired: run gh auth login" };
-  if (res.status === 404) return { error: "No Copilot seat on gh's active account" };
+  if (res.status === 401) return { error: `gh login for ${login} expired: run gh auth login` };
+  if (res.status === 404) return { error: `No Copilot seat on ${login}` };
   if (!res.ok) return { error: failed(res.status) };
   const body = await res.json();
   const q = body.quota_snapshots ?? {}, premium = q.premium_interactions;
@@ -172,6 +177,21 @@ async function copilot() {
       ],
     },
   };
+}
+
+// One result per account in `accounts` ({ login, ...result }); the top level is
+// the first account with a seat, so anything reading only it still works.
+async function copilot() {
+  let logins;
+  try { logins = await ghAccounts(); } catch { return { error: "gh isn't installed: Copilot is read with gh's login" }; }
+  if (!logins.length) return { error: "Not signed in to gh: run gh auth login" };
+  const accounts = await Promise.all(logins.map(async login => {
+    try { return { login, ...(await copilotAccount(login)) }; }
+    catch (e) { return { login, error: `Usage unavailable: ${e?.message ?? e}` }; }
+  }));
+  const main = accounts.find(a => !a.error) ?? accounts[0];
+  const { login: _, ...top } = main;
+  return { ...top, accounts };
 }
 
 const failed = status => (status === 429 ? "Rate limited, trying again later" : `Usage request failed (${status})`);

@@ -10,6 +10,8 @@ import { PROVIDERS, refresh, until, ago, color } from "./usage.js";
 export const POPUP = { width: 360, height: 512 };
 const PAD = 14, INNER = POPUP.width - PAD * 2;
 const TAB = "usage.tab";
+// The Copilot account picked when gh has more than one; the last one picked opens next time.
+const ACCOUNT = "usage.copilot.account";
 const PAGES = {
   claude: ["claude.ai", "https://claude.ai/settings/usage"],
   codex: ["chatgpt.com", "https://chatgpt.com/codex/settings/usage"],
@@ -87,6 +89,21 @@ export class UsagePopup {
         .when(Boolean(l.detail), el => el.child(div().child(`${l.detail} used`))));
   }
 
+  // One pill per gh account, only when there are several.
+  accounts(t, list, current) {
+    return h_flex().gap(6).flex_none().children(list.map(a => {
+      const on = a.login === current;
+      return h_flex().id(`usage-account-${a.login}`).h(22).px(8).gap(6).items_center().rounded(6).cursor_pointer()
+        .text_size(11.5).border(1).border_color(t.border)
+        .text_color(on ? t.foreground : t.muted)
+        .when(on, el => el.bg(t.raised))
+        .when(!on, el => el.hover(s => s.bg(t.hover).text_color(t.foreground)))
+        .on_click((_e, cx) => { setShared(ACCOUNT, a.login); cx.notify(); })
+        .when(Boolean(a.error), el => el.child(div().size(5).rounded_full().bg(t.blocked)))
+        .child(a.login);
+    }));
+  }
+
   section(t, s) {
     return v_flex().gap(2).flex_none()
       .child(div().pb(4).text_size(10.5).font_semibold().text_color(t.dim).child(s.title.toUpperCase()))
@@ -98,7 +115,11 @@ export class UsagePopup {
   render() {
     const t = theme();
     const p = PROVIDERS.find(x => x.id === shared(TAB)) ?? PROVIDERS[0];
-    const u = shared(p.key) ?? {};
+    let u = shared(p.key) ?? {};
+    // Copilot with several gh accounts: the picked one's numbers, the rest kept for the pills.
+    const list = u.accounts?.length > 1 ? u.accounts : null;
+    const acct = list && (list.find(a => a.login === shared(ACCOUNT)) ?? list.find(a => !a.error) ?? list[0]);
+    if (acct) u = { ...u, plan: null, limits: null, section: null, error: null, ...acct };
     const limits = u.limits ?? [];
     const rule = () => div().h(1).bg(t.border).flex_none();
     // A fixed size, not size_full: a popup sizes to its content, and every tab
@@ -106,6 +127,7 @@ export class UsagePopup {
     return v_flex().w(POPUP.width).h(POPUP.height).flex_none().overflow_hidden().bg(t.popover).p(PAD).gap(12).text_size(12.5).text_color(t.muted).id("usage-popup")
       .child(this.tabs(t, p))
       .child(this.header(t, p, u))
+      .when(Boolean(acct), el => el.child(this.accounts(t, list, acct.login)))
       // Nothing to show at all: the reason, where the limits would be.
       .when(Boolean(u.error && !limits.length), el => el.child(h_flex().px(10).py(8).gap(8).items_center().rounded(7).bg(t.raised).flex_none()
         .child(div().size(6).rounded_full().flex_none().bg(t.blocked))
