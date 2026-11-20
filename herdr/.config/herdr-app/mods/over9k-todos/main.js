@@ -482,6 +482,9 @@ export default class Todos extends View {
     this.lists = {}; // slug -> { folder, items, raw }
     this.here = null;
     this.hereFrom = null;
+    this.hereTree = null; // the checkout you're in (a worktree's folder, else the project's)
+    this.hereSpace = null; // the space you're in
+    this.last = null; // the terminal you were last in: {space, cwd}
     // The tabs: "all" (your pinned projects, and the one you're in) or "here"
     // (only the project you're in, following you). this.filter is worked out
     // from it on each render: here's slug, or null for All.
@@ -598,15 +601,27 @@ export default class Todos extends View {
     // A space on another computer: the project is worked out there, and its home
     // (printed second) counts as no project, as home does here.
     const m = s?.machine ?? null;
-    const from = (f?.cwd || s?.folder || (m ? "" : home())).replace(/\/+$/, "");
+    // Where you are: the focused terminal's folder; with this panel (or another
+    // mod) focused, the terminal you were last in, if it's in the shown space;
+    // else a terminal of the shown tab. A space's own folder is only where its
+    // new terminals start (often not where they are now), so it comes last.
+    if (f?.terminal && f?.cwd) this.last = { space: f.space, cwd: f.cwd };
+    const tabCwd = panes().find((p) => p.tab === f?.tab && p.terminal && p.cwd)?.cwd;
+    const lastCwd = this.last?.space === s?.id ? this.last.cwd : null;
+    const from = (f?.cwd || lastCwd || tabCwd || s?.folder || (m ? "" : home())).replace(/\/+$/, "");
+    this.hereSpace = s?.id ?? null;
     if (`${m}|${from}` === this.hereFrom) return;
     this.hereFrom = `${m}|${from}`;
     cx.spawn(async (cx) => {
-      const r = from ? await exec("sh", ["-c", 'c=$(git -C "$1" rev-parse --path-format=absolute --git-common-dir 2>/dev/null); case "$c" in */.git) echo "${c%/.git}" ;; *) git -C "$1" rev-parse --show-toplevel 2>/dev/null || echo "$1" ;; esac; printf "%s\\n" "$HOME"', "sh", from], onM(m)).catch(() => null) : null;
+      const r = from ? await exec("sh", ["-c", 'c=$(git -C "$1" rev-parse --path-format=absolute --git-common-dir 2>/dev/null); case "$c" in */.git) echo "${c%/.git}" ;; *) git -C "$1" rev-parse --show-toplevel 2>/dev/null || echo "$1" ;; esac; printf "%s\\n" "$HOME"; git -C "$1" rev-parse --show-toplevel 2>/dev/null', "sh", from], onM(m)).catch(() => null) : null;
       if (this.hereFrom !== `${m}|${from}`) return; // moved on meanwhile
-      const [top, theirHome] = (r?.stdout ?? "").split("\n");
+      const [top, theirHome, tree] = (r?.stdout ?? "").split("\n");
       let here = (top?.trim() || from).replace(/\/+$/, "") || null;
       if (m && (!here || here === (theirHome ?? "").trim().replace(/\/+$/, ""))) here = null;
+      // The checkout you're in (a worktree's own folder, else the project's):
+      // new conversations for this project start there.
+      const t = here && (tree ?? "").trim().replace(/\/+$/, "");
+      this.hereTree = t || null;
       if (here === this.here && m === HERE.machine) return;
       this.here = here;
       HERE.folder = m ? here : null;
@@ -712,7 +727,7 @@ export default class Todos extends View {
   // A TODO.md suggestion straight to an agent: on the list first, then started.
   startFromFile(a, folder, text, cx, running = null) {
     this.take(folder, [text], cx);
-    if (running) this.sendTo(running, { text, folder, due: null });
+    if (running) this.sendTo(running, { text, folder, due: null }, cx);
     else this.startAgent(a, { text, folder, due: null });
   }
 
@@ -771,14 +786,39 @@ export default class Todos extends View {
     this.unpick();
   }
 
-  // Agents already running in a project (their pane's folder in it), the one
-  // you were last in first.
+  // The checkout a project's new conversations start in: the worktree you're
+  // in when it's that project's, else the project's own folder.
+  treeFor(folder) {
+    return folder && folder === this.here && this.hereTree ? this.hereTree : folder;
+  }
+
+  // The space to start a project's conversation in: the one you're in when it's
+  // the project you're in; else one whose terminals are in that project; else
+  // one made for it.
+  spaceFor(folder, m) {
+    const ss = spaces().filter((s) => (s.machine ?? null) === m);
+    if (folder === this.here) { const s = ss.find((x) => x.id === this.hereSpace); if (s) return s; }
+    const inIt = (c) => { c = (c ?? "").replace(/\/+$/, ""); return c === folder || c.startsWith(folder + "/"); };
+    const tabs = new Set(panes().filter((p) => p.terminal && inIt(p.cwd)).map((p) => p.tab));
+    return ss.find((s) => s.active && (s.tabs ?? []).some((t) => tabs.has(t.id)))
+      ?? ss.find((s) => (s.tabs ?? []).some((t) => tabs.has(t.id)))
+      ?? ss.find((s) => (s.folder ?? "").replace(/\/+$/, "") === folder) ?? null;
+  }
+
+  // The kind of agent new conversations start (last picked, kept for next time).
+  newAgent() {
+    if (this.newPick === undefined) { try { this.newPick = localStorage.getItem("todos.newPick"); } catch { this.newPick = null; } }
+    return this.agentChoices.find((a) => a.key === this.newPick) ?? this.agentChoices[0];
+  }
+
+  // Agents already running in a project (their pane's folder in it, or in the
+  // worktree you're in), the one you were last in first.
   runningIn(folder) {
     if (!folder) return [];
-    const ps = panes();
+    const ps = panes(), roots = [...new Set([folder, this.treeFor(folder)])];
     return agents().filter((a) => {
       const c = (ps.find((p) => p.terminal === a.address)?.cwd ?? "").replace(/\/+$/, "");
-      return c === folder || c.startsWith(folder + "/");
+      return roots.some((r) => c === r || c.startsWith(r + "/"));
     }).sort((a, b) => (b.address === this.lastAgent) - (a.address === this.lastAgent));
   }
 
@@ -791,36 +831,43 @@ export default class Todos extends View {
     return named || agentTask(a, p?.cwd) || a.tab_name || a.program?.name || "Agent";
   }
 
-  // To-do `x` to agent `a` that's already running: into its conversation, shown.
-  sendTo(a, x) {
+  // To-do `x` to agent `a` that's already running: its text pasted into the
+  // agent's input (not sent, so you can add to it), the agent shown and focused.
+  // Pasted through the clipboard, which gets its old text back afterwards.
+  sendTo(a, x, cx) {
     this.startFor = null;
     const xs = [x].flat();
-    hc(["send", a.address, this.taskFor(xs)]).catch(() => null);
+    const text = xs.length === 1 ? xs[0].text : xs.map((y, i) => `${i + 1}. ${y.text}`).join("\n");
+    const old = cx.read_from_clipboard();
+    cx.write_to_clipboard(text);
     run("pane.focus", { terminal: a.address });
-    notify({ title: `Sent to ${a.tab_name || a.program?.name || "the agent"}`, body: xs.map((y) => y.text).join("\n"), level: "info" });
+    run("terminal.paste");
+    if (old !== undefined && old !== text) cx.spawn(async (cx) => { await cx.sleep(1000); if (cx.read_from_clipboard() === text) cx.write_to_clipboard(old); });
   }
 
-  // Starts agent `a` on to-do `x` in its project's space (made if needed).
-  // Several to-dos (all of one project): one agent on them all.
+  // Starts agent `a` on to-do `x` in its project's space (made if needed), in
+  // the worktree you're in when it's that project's. Several to-dos (all of
+  // one project): one agent on them all.
   startAgent(a, x) {
     this.startFor = null;
-    const xs = [x].flat(), folder = xs[0].folder, task = this.taskFor(xs);
+    const xs = [x].flat(), task = this.taskFor(xs);
+    const folder = this.treeFor(xs[0].folder);
     const first = xs.length > 1 ? `${xs.length} to-dos` : xs[0].text;
     const name = first.length > 28 ? `${first.slice(0, 27)}\u2026` : first;
-    const m = mOf(folder);
-    const there = spaces().find((s) => (s.machine ?? null) === m && (s.folder ?? "").replace(/\/+$/, "") === folder);
+    const m = mOf(xs[0].folder);
+    const there = this.spaceFor(xs[0].folder, m);
     if (there) run("tab.new", { space: there.id, name, folder, argv: a.run, task });
-    else run("space.new", { name: this.name(folder), folder, tab: name, argv: a.run, task, machine: m ?? "" });
+    else run("space.new", { name: this.name(xs[0].folder), folder, tab: name, argv: a.run, task, machine: m ?? "" });
     if (there && !there.active) run("space.select", { id: there.id });
     notify({ title: `${a.name} is on it`, body: xs.map((y) => y.text).join("\n"), level: "info" });
   }
 
   // The picked open to-dos to agents: one already running (when they're all
   // one project's), or a new one per project.
-  sendPicked(a, target) {
+  sendPicked(a, target, cx) {
     const xs = this.picked().filter((x) => !x.done);
     if (!xs.length) return;
-    if (target) this.sendTo(target, xs);
+    if (target) this.sendTo(target, xs, cx);
     else for (const f of new Set(xs.map((x) => x.folder))) this.startAgent(a, xs.filter((x) => x.folder === f));
     this.unpick();
   }
@@ -981,6 +1028,11 @@ export default class Todos extends View {
         // In All, its project's name, in its colour, last so every row's lines up
         // on the right (the tabs above filter by it).
         .when(!this.filter && !editing && !(hovered && !x.done), (el) => el.child(div().flex_none().max_w(110).truncate().text_right().text_size(11).text_color(c).child(this.name(x.folder))))
+        // One click: a new conversation on it, of the kind last picked in the agent menu.
+        .when(hovered && !editing && !x.done && this.agentChoices.length > 0, (el) => el.child(div().id(`new-${key}`).size(20).flex_none().flex().items_center().justify_center().rounded(5).cursor_pointer()
+          .hover((s) => s.bg(t.raised)).tooltip(`New ${this.newAgent()?.name ?? "agent"} conversation on this`)
+          .on_click((_e, cx) => { cx.stop_propagation(); const a = this.newAgent(); if (a) this.startAgent(a, x); cx.notify(); })
+          .child(svg("mods/workspace-chrome/plus.svg").size(12).text_color(t.muted))))
         .when((hovered || this.startFor === key) && !editing && !x.done && this.agentChoices.length > 0, (el) => el.child(div().id(`start-${key}`).size(20).flex_none().flex().items_center().justify_center().rounded(5).cursor_pointer()
           .when(this.startFor === key, (el) => el.bg(t.selected))
           .hover((s) => s.bg(t.raised)).on_click((_e, cx) => { this.pickOpen = false; this.startFor = this.startFor === key ? null : key; cx.notify(); })
@@ -1013,7 +1065,7 @@ export default class Todos extends View {
     // shows (click the pill to pick; kept for next time).
     const starter = (x, go) => {
       const running = this.runningIn(x.folder).slice(0, 4), make = go ?? ((a) => this.startAgent(a, x));
-      const pick = this.agentChoices.find((a) => a.key === this.newPick) ?? this.agentChoices[0];
+      const pick = this.newAgent();
       const label = (text) => div().px(7).pt(4).pb(1).text_size(10.5).text_color(t.dim).child(text);
       const kind = (a) => this.agentChoices.find((c) => c.key === a.program?.key || c.key === a.app);
       return v_flex().relative().ml(30).mr(6).mb(6).p(3).gap(1).rounded(8).border_1().border_color(t.border).bg(t.popover)
@@ -1023,7 +1075,7 @@ export default class Todos extends View {
           .on_click((_e, cx) => { this.startFor = null; this.pickOpen = false; cx.notify(); })
           .child(svg("mods/workspace-chrome/x.svg").size(10).text_color(t.muted)))
         .when(running.length > 0, (el) => el.child(label(running.length > 1 ? "Current conversations" : "Current conversation"))
-          .children(running.map((r) => option(`send-${r.address}`, (cx) => (go ? go(null, cx, r) : this.sendTo(r, x)), [
+          .children(running.map((r) => option(`send-${r.address}`, (cx) => (go ? go(null, cx, r) : this.sendTo(r, x, cx)), [
             icon(kind(r), 13),
             div().flex_1().min_w(0).truncate().child(this.agentName(r)),
             div().size(6).flex_none().rounded(3).bg(t[r.status] ?? t.idle),
@@ -1038,7 +1090,7 @@ export default class Todos extends View {
               .child(icon(pick, 11)).child(pick?.name ?? "").child(svg(`mods/workspace-chrome/chevron-${this.pickOpen ? "right" : "down"}.svg`).size(8)),
           ])))
         .when(Boolean(this.pickOpen), (el) => el.child(v_flex().ml(20).pt(1).border_t_1().border_color(t.border)
-          .children(this.agentChoices.map((a) => option(`pick-${a.key}`, () => { this.newPick = a.key; this.pickOpen = false; }, [
+          .children(this.agentChoices.map((a) => option(`pick-${a.key}`, () => { this.newPick = a.key; this.pickOpen = false; try { localStorage.setItem("todos.newPick", a.key); } catch {} }, [
             icon(a, 12), div().flex_1().text_size(11.5).child(a.name),
             ...(a.key === pick?.key ? [svg("mods/workspace-chrome/check.svg").size(10).flex_none().text_color(t.accent)] : []),
           ])))));
@@ -1070,7 +1122,7 @@ export default class Todos extends View {
             this.delArmed = true; cx.spawn(async (cx) => { await cx.sleep(3000); this.delArmed = false; cx.notify(); });
           }, this.delArmed ? t.ansi1 : null, true))))
         .when(this.startFor === "sel" && open.length > 0, (el) => el.child(
-          starter({ ...open[0], folder: many ? null : open[0].folder }, (a, _cx, to) => this.sendPicked(a, to)).ml(0).mr(0).mb(0)))
+          starter({ ...open[0], folder: many ? null : open[0].folder }, (a, cx, to) => this.sendPicked(a, to, cx)).ml(0).mr(0).mb(0)))
         .when(this.startFor === "sel" && many, (el) => el.child(div().px(4).text_size(11).text_color(t.dim).child(`A new agent in each of the ${folders.size} projects`)));
     };
     const withStarter = (x, grouped = false) => [row(x, grouped), ...(this.startFor === `${x.slug}:${x.i}` ? [starter(x)] : [])];
