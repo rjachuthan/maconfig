@@ -263,7 +263,7 @@ export default class Files extends View {
     cx.notify();
   }
 
-  // A file opens as its own tab holding gentle-editor; reopening it selects that tab.
+  // A file opens as its own tab holding gentle-editor (excalidraw for diagrams); reopening it selects that tab.
   open(path) {
     const space = spaces().find(p => p.active);
     if (!space) return;
@@ -272,7 +272,9 @@ export default class Files extends View {
     const known = this.tabs.get(full);
     if (known && space.tabs.some(c => c.id === known)) return run("tab.select", { id: known });
     const before = new Set(space.tabs.map(c => c.id));
-    run("tab.new", { name, space: space.id, mod: "gentle-editor", props: { root: this.root, path, on: this.on } });
+    // Diagrams open in the excalidraw mod; everything else in the text editor.
+    const mod = /\.excalidraw(\.json)?$/i.test(path) ? "excalidraw" : "gentle-editor";
+    run("tab.new", { name, space: space.id, mod, props: { root: this.root, path, on: this.on } });
     // The new tab's id is not returned; find it on the next tick so a second click selects it.
     this.waiting = { full, before, space: space.id };
   }
