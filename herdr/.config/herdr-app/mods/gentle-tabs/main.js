@@ -1,7 +1,7 @@
-// cloned_from: tabs (herdr-app 0.1.12); changes: right-panel toggle left of "+", asset paths -> mods/gentle-tabs/, To-do column toggle
+// cloned_from: tabs (herdr-app 0.1.12); changes: asset paths -> mods/gentle-tabs/, To-do in the right panel stack (cmd-alt-t: gentle-tabs.todos)
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";
+import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings, nextCommand } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -13,9 +13,19 @@ function find(node, id) {
 }
 
 export default class Tabs extends View {
-  init() {
+  init(_props, cx) {
     this.pressed = null;
     this.panels = JSON.parse(localStorage.getItem("panels") ?? "{}");
+    cx.spawn(async () => {
+      for (;;) if ((await nextCommand()) === "todos") this.showPanel("todos");
+    });
+  }
+
+  // Show a child of the right panel, or hide the panel if that child is already shown.
+  showPanel(id) {
+    const root = layout(), panel = find(root, "panel"), body = find(root, "panel-body");
+    if (panel && !panel.hidden && body?.active === id) run("layout.hide", { id: "panel" });
+    else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
   }
 
   // The side panel is remembered per space: switching shows that space's choice
@@ -81,47 +91,25 @@ export default class Tabs extends View {
       ? Math.max(10, (root.traffic_lights[0] + 64) / settings().zoom - (sidebar?.hidden ? 0 : sidebar?.size?.px ?? 0))
       : 10;
     const panel = find(root, "panel"), body = find(root, "panel-body");
-    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "graph"];
+    const todos = find(root, "todos");
+    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "graph", ...(todos ? ["todos"] : [])];
     this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
       return h_flex().id(`panel-${id}`).h(26).px(8).gap(5).flex_none().items_center().rounded(6)
         .text_size(12).bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
         .hover(s => s.bg(t.hover)).on_mouse_down("left", stop)
-        .on_click(() => {
-          if (on) run("layout.hide", { id: "panel" });
-          else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
-        }).child(svg(icon).size(14)).child(label);
+        .on_click(() => this.showPanel(id)).child(svg(icon).size(14)).child(label);
     };
-    // Dedicated right-panel toggle: shows the remembered child (syncPanel records the choice), or hides.
-    const panelOpen = Boolean(panel) && !panel.hidden;
-    const panelToggle = div().id("panel-toggle").size(26).flex_none().flex().items_center().justify_center().rounded(6)
-      .bg(panelOpen ? t.selected : t.chrome).text_color(panelOpen ? t.foreground : t.muted).hover(s => s.bg(t.hover))
-      .on_mouse_down("left", stop)
-      .on_click(() => {
-        if (panelOpen) run("layout.hide", { id: "panel" });
-        else {
-          if (!enabled.includes(body?.active)) { const first = enabled[0]; if (first) run("layout.select", { stack: "panel-body", child: first }); }
-          run("layout.show", { id: "panel" });
-        }
-      }).child(svg("mods/gentle-tabs/panel-right.svg").size(15));
-    // The over9k-todos column (the layout's "todos" block, shown by default): shown or hidden (cmd-alt-t too).
-    const todos = find(root, "todos"), todosOpen = Boolean(todos) && !todos.hidden;
-    const todoButton = h_flex().id("panel-todos").h(26).px(8).gap(5).flex_none().items_center().rounded(6)
-      .text_size(12).bg(todosOpen ? t.selected : t.chrome).text_color(todosOpen ? t.foreground : t.muted)
-      .hover(s => s.bg(t.hover)).on_mouse_down("left", stop)
-      .on_click(() => run("layout.toggle", { id: "todos" }))
-      .child(svg("mods/gentle-chrome/circle-check.svg").size(14)).child("To-do");
     return h_flex().size_full().min_w(0).px(10).pl(lightsPadding).gap(3).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
       .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().gap(3).overflow_x_scrollbar().children(shown.map(item)))
-      .child(panelToggle)
       .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
       .child(panelButton("graph", "Git", "mods/git-graph/icons/graph.svg"))
-      .when(Boolean(todos), el => el.child(todoButton))
+      .when(Boolean(todos), el => el.child(panelButton("todos", "To-do", "mods/gentle-chrome/circle-check.svg")))
       .when(w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/gentle-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/gentle-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/gentle-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

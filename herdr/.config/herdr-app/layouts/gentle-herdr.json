@@ -53,7 +53,7 @@
               },
               "min": 90,
               "content": {
-                "mod": "spaces"
+                "mod": "better-sidebar"
               }
             },
             {
@@ -64,7 +64,10 @@
               },
               "min": 90,
               "content": {
-                "mod": "agents"
+                "mod": "better-sidebar",
+                "props": {
+                  "view": "agents"
+                }
               }
             }
           ]
@@ -90,15 +93,36 @@
       "resizable": false,
       "children": [
         {
-          "id": "tabs",
-          "type": "block",
+          "id": "tabs-row",
+          "type": "row",
           "size": {
             "px": 42
           },
-          "window_drag": true,
-          "content": {
-            "mod": "gentle-tabs"
-          }
+          "children": [
+            {
+              "id": "tabs",
+              "type": "block",
+              "window_drag": true,
+              "content": {
+                "mod": "gentle-tabs"
+              }
+            },
+            {
+              "id": "panel-toggle",
+              "type": "block",
+              "size": {
+                "px": 36
+              },
+              "window_drag": true,
+              "content": {
+                "mod": "better-sidebar",
+                "props": {
+                  "view": "panel-toggle",
+                  "target": "panel"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "work-body",
@@ -170,6 +194,13 @@
                       "content": {
                         "mod": "git-graph"
                       }
+                    },
+                    {
+                      "id": "todos",
+                      "type": "block",
+                      "content": {
+                        "mod": "over9k-todos"
+                      }
                     }
                   ]
                 }
@@ -188,16 +219,6 @@
           }
         }
       ]
-    },
-    {
-      "id": "todos",
-      "type": "block",
-      "size": {
-        "px": 368
-      },
-      "content": {
-        "mod": "over9k-todos"
-      }
     }
   ]
 }
