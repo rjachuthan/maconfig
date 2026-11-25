@@ -4,7 +4,7 @@
   "id": "root",
   "type": "row",
   "titlebar": "none",
-  "toast": "gentle-toast",
+  "toast": "notifications",
   "traffic_lights": [
     12,
     16
@@ -38,39 +38,15 @@
           },
           "window_drag": true,
           "content": {
-            "mod": "gentle-chrome"
+            "mod": "window-chrome"
           }
         },
         {
-          "id": "sidebar-lists",
-          "type": "column",
-          "children": [
-            {
-              "id": "spaces",
-              "type": "block",
-              "size": {
-                "weight": 1
-              },
-              "min": 90,
-              "content": {
-                "mod": "better-sidebar"
-              }
-            },
-            {
-              "id": "agents",
-              "type": "block",
-              "size": {
-                "weight": 1
-              },
-              "min": 90,
-              "content": {
-                "mod": "better-sidebar",
-                "props": {
-                  "view": "agents"
-                }
-              }
-            }
-          ]
+          "id": "agent-sidebar",
+          "type": "block",
+          "content": {
+            "mod": "agent-sidebar"
+          }
         },
         {
           "id": "sidebar-footer",
@@ -79,7 +55,7 @@
             "px": 69
           },
           "content": {
-            "mod": "gentle-chrome",
+            "mod": "window-chrome",
             "props": {
               "footer": true
             }
@@ -104,22 +80,7 @@
               "type": "block",
               "window_drag": true,
               "content": {
-                "mod": "gentle-tabs"
-              }
-            },
-            {
-              "id": "panel-toggle",
-              "type": "block",
-              "size": {
-                "px": 36
-              },
-              "window_drag": true,
-              "content": {
-                "mod": "better-sidebar",
-                "props": {
-                  "view": "panel-toggle",
-                  "target": "panel"
-                }
+                "mod": "tab-bar"
               }
             }
           ]
@@ -178,28 +139,21 @@
                       "id": "files",
                       "type": "block",
                       "content": {
-                        "mod": "gentle-files"
+                        "mod": "file-tree"
                       }
                     },
                     {
                       "id": "changes",
                       "type": "block",
                       "content": {
-                        "mod": "gentle-changes"
-                      }
-                    },
-                    {
-                      "id": "graph",
-                      "type": "block",
-                      "content": {
-                        "mod": "git-graph"
+                        "mod": "git-changes"
                       }
                     },
                     {
                       "id": "todos",
                       "type": "block",
                       "content": {
-                        "mod": "over9k-todos"
+                        "mod": "todos"
                       }
                     }
                   ]
@@ -215,7 +169,7 @@
             "px": 28
           },
           "content": {
-            "mod": "gentle-status"
+            "mod": "status-bar"
           }
         }
       ]

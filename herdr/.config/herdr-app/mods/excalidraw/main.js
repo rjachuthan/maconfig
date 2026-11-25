@@ -1,7 +1,7 @@
 // An .excalidraw file as a tab: view, draw, edit and save diagrams without leaving Herdr.
 // Herdr mods can't host a web view, so this is a native editor over the same file format:
 // files round-trip with excalidraw.com and the Obsidian/VS Code plugins.
-// Opened with tab.new { mod: "excalidraw", props: { file } } (Neovim's `o`) or { root, path, on } (gentle-files).
+// Opened with tab.new { mod: "excalidraw", props: { file } } (Neovim's `o`) or { root, path, on } (file-tree).
 import { View, div, svg, image, PathBuilder, Background } from "gpui-kit";
 import { v_flex, h_flex, TextareaState, Textarea } from "gpui-base";
 import { props, readTextFile, writeTextFile, theme, settings, exec, run, spaces, panes, shared, setShared, appHome, checking, window as host } from "herdr";
@@ -32,7 +32,7 @@ const BLANK = () => ({ type: "excalidraw", version: 2, source: "https://excalidr
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export default class Excalidraw extends View {
-  // Setting dirty also renames the tab ("● name" while unsaved), as gentle-editor does.
+  // Setting dirty also renames the tab ("● name" while unsaved), as file-editor does.
   get dirty() { return this._dirty; }
   set dirty(value) {
     if (value === this._dirty) return;

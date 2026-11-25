@@ -2,7 +2,7 @@
   "programs": {
     "gentle-shell": {
       "name": "Gentle Shell",
-      "icon": "mods/gentle-theme/flower.svg",
+      "icon": "mods/window-chrome/flower.svg",
       "tint": true,
       "tile": "#342230",
       "color": "#f095c8",

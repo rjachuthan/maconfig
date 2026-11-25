@@ -52,3 +52,7 @@ pi/.pi/agent/sessions/
 # Local settings files that may hold credentials or machine-specific config
 *.local.json
 claude/.claude/.credentials.json
+
+# Herdr app: written by herdr-app on every start
+herdr/.config/herdr-app/mods/**/gpui-kit.d.ts
+herdr/.config/herdr-app/mods/**/jsconfig.json
