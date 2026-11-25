@@ -30,6 +30,7 @@ M.groups = {
   { "<leader>d", group = "debug", icon = "\u{f188} " }, -- nf-fa-bug
   { "<leader>f", group = "file/find", icon = "\u{f002} " }, -- nf-fa-search
   { "<leader>g", group = "git", icon = "\u{f1d3} " }, -- nf-fa-git
+  { "<leader>ga", group = "atlas (PRs/issues)", icon = "\u{f407} " }, -- nf-oct-git_pull_request
   { "<leader>gh", group = "hunk", icon = "\u{f440} " }, -- nf-oct-diff
   { "<leader>j", group = "jq", icon = "\u{f0b0} " }, -- nf-fa-filter
   { "<leader>n", group = "notebook", icon = "\u{f0e7} " }, -- nf-fa-bolt

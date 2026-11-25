@@ -165,11 +165,18 @@ return {
     },
     cmd = "Atlas",
     keys = {
-      { "<leader>gq", "<cmd>Atlas pulls .<cr>", desc = "Pull requests" },
-      { "<leader>gr", "<cmd>Atlas review .<cr>", desc = "Review current branch PR" },
-      { "<leader>gR", "<cmd>Atlas review<cr>", desc = "Review PR (pick)" },
-      { "<leader>gi", "<cmd>Atlas issues .<cr>", desc = "Issues / work items" },
-      { "<leader>gC", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
+      { "<leader>gap", "<cmd>Atlas pulls .<cr>", desc = "Pull requests" },
+      { "<leader>gar", "<cmd>Atlas review .<cr>", desc = "Review current branch PR" },
+      { "<leader>gaR", "<cmd>Atlas review<cr>", desc = "Review PR (pick)" },
+      { "<leader>gai", "<cmd>Atlas issues .<cr>", desc = "Issues / work items" },
+      { "<leader>gac", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
+      { "<leader>gaI", "<cmd>Atlas create issue .<cr>", desc = "Create issue" },
+      { "<leader>gaa", "<cmd>Atlas<cr>", desc = "Atlas commands (picker)" },
+      { "<leader>gao", "<cmd>Atlas open .<cr>", desc = "Open current branch PR" },
+      { "<leader>gas", "<cmd>Atlas search .<cr>", desc = "Search" },
+      { "<leader>gab", "<cmd>Atlas browse .<cr>", desc = "Browse repository" },
+      { "<leader>gaP", "<cmd>Atlas pipelines .<cr>", desc = "Pipelines" },
+      { "<leader>gan", "<cmd>Atlas notes .<cr>", desc = "Review notes" },
     },
     opts = function()
       local defaults = {}
