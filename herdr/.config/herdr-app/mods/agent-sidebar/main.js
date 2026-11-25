@@ -385,6 +385,11 @@ export default class Spaces extends View {
         // Cmd+Tab for agents (agent-switcher), most recent first.
         if (c === "switcher") { this.trackRecent(); openOverlay({ mod: "agent-switcher", kind: "dialog", width: 460, height: Math.min(520, 12 + 35 * Math.max(1, agents().length)) }); }
         if (c === "close-pane") { const f = focused(); if (f?.pane) closeAsk({ panes: [f.pane] }); }
+        // Local change (maconfig): the filter from keys (All, Agents, or the other one).
+        if (c === "show-all" || c === "show-agents" || c === "toggle-filter") {
+          this.filter = c === "show-agents" || (c === "toggle-filter" && !this.filter) ? "agents" : null;
+          try { localStorage.setItem("agents.filter", this.filter ?? ""); } catch {}
+        }
         cx.notify();
       }
     });
@@ -1869,15 +1874,16 @@ export default class Spaces extends View {
         })
         .when(collapsed, (el) => el.text_color(projects ? MARK[hue(name)] : t.foreground).child([...name][0]?.toUpperCase() ?? "?"))
         .when(!collapsed, (el) => el
-          .child(div().flex_shrink(0).max_w(150).truncate().text_color(projects ? MARK[hue(name)] : t.foreground).child(name))
+          .child(h_flex().flex_none().gap(6).items_center()
+            .child(this.chevron(key, t, this.hasTerms(key)))
+            .child(this.logo(name, t))
+            .child(div().flex_shrink(0).max_w(150).truncate().font_semibold().text_color(t.foreground).child(name)))
           .when(Boolean(g?.web) && this.frame.options.github, (el) => el.child(this.ghLink(g, t)))
           .when(Boolean(g), (el) => el.children(this.counts(g, t, (cx) => this.showChanges({ name, folder: dir }, cx))))
-          .child(h_flex().w(FOLD).flex_none().items_center().justify_center()
-            .child(svg(`mods/workspace-chrome/chevron-${folded ? "right" : "down"}.svg`).size(10).text_color(t.dim).opacity(this.hoverSpace === key ? 1 : 0)))
           .child(this.tail(g, null, name, t, this.hoverSpace === key && dir))
           .children(this.closedBot(dir, t, null, key))
           .child(this.plusButton(`loose-add-${name}`, this.hoverSpace === key, t, () => this.openProject(dir))));
-      return [row, ...(collapsed || folded ? [] : this.termRows(key, t))];
+      return [row, ...(collapsed || folded ? [] : this.guide(t, this.termRows(key, t)))];
     });
   }
 
@@ -1921,16 +1927,16 @@ export default class Spaces extends View {
             localStorage.setItem("agents.folded", JSON.stringify([...this.agentsFolded]));
             cx.notify();
           })
-          .child(h_flex().flex_none().pl(16).child(svg("mods/workspace-chrome/branch.svg").size(13).text_color(t.dim)))
-          .child(div().flex_shrink(0).max_w(150).truncate().text_color(this.spaceColor(r.w, t) ?? t.foreground).child(name))
+          .child(h_flex().flex_none().gap(6).items_center()
+            .child(this.chevron(key, t, true))
+            .child(svg("mods/workspace-chrome/branch.svg").size(13).text_color(t.dim))
+            .child(div().flex_shrink(0).max_w(150).truncate().text_color(t.foreground).child(name)))
           // Its own files and commits; the repo's pull requests, issues and stars are on the space's row.
           .when(Boolean(g), (el) => el.children(this.counts({ ...g, slug: null }, t, (cx) => this.showChanges({ name, folder: dir }, cx))))
-          .child(h_flex().w(FOLD).flex_none().items_center().justify_center()
-            .child(svg(`mods/workspace-chrome/chevron-${folded ? "right" : "down"}.svg`).size(10).text_color(t.dim).opacity(this.hoverSpace === key ? 1 : 0)))
           .child(this.tail(g, true, name, t, this.hoverSpace === key && dir))
           .children(this.closedBot(dir, t, null, key))
           .child(this.plusButton(`worktree-add-${dir}`, this.hoverSpace === key, t, () => this.openProject(dir)));
-        return [row, ...(folded ? [] : [...this.termRows(key, t, TREE), ...(on ? [] : this.visitorRows(this.wtSpace(dir), t, TREE))])];
+        return [row, ...(folded ? [] : this.guide(t, [...this.termRows(key, t, 0), ...(on ? [] : this.visitorRows(this.wtSpace(dir), t, 0))]))];
       });
   }
 
@@ -2248,11 +2254,11 @@ export default class Spaces extends View {
     const on = Boolean(this.filter);
     // With a filter on, a space also stays for an agent in one of its worktrees.
     const inWorktree = (r) => on && [...this.busyWorktrees()].some(([d, main]) => main === r.w.id && this.spaceMatches(`d:${d}`));
-    const draw = (r) => (on && !this.spaceMatches(r.w.id) && !inWorktree(r) ? [] : r.under && this.agentsFolded.has(r.under) && !on ? [] : collapsed ? [this.compact(r, t), ...this.railAgents(r.w.id, t)] : [this.row(r, t), ...(this.agentsFolded.has(r.w.id) && !on ? [] : this.termRows(r.w.id, t, r.tree ? TREE : 0)),
+    const draw = (r) => (on && !this.spaceMatches(r.w.id) && !inWorktree(r) ? [] : r.under && this.agentsFolded.has(r.under) && !on ? [] : collapsed ? [this.compact(r, t), ...this.railAgents(r.w.id, t)] : [this.row(r, t), ...(this.agentsFolded.has(r.w.id) && !on ? [] : this.termRows(r.w.id, t, 0)),
       // Another computer's space: this computer's agents connected and working in it.
       ...(r.w.machine && r.w.folder && !on ? this.sshRows(r.w.machine, t, r.w.folder.replace(/\/+$/, "")) : []),
       // Sub-agents started elsewhere that are working in this space.
-      ...(this.agentsFolded.has(r.w.id) || on ? [] : this.visitorRows(r.w, t, r.tree ? TREE : 0)),
+      ...(this.agentsFolded.has(r.w.id) || on ? [] : this.visitorRows(r.w, t, 0)),
       // Worktrees of its repo that something works in, without a space of their own.
       ...(this.agentsFolded.has(r.w.id) && !on ? [] : this.worktreeRows(r, t))]);
     const remote = [...new Set([...rows.map(r => r.w.machine).filter(Boolean), ...this.machines.map(m => m.name)])].sort();
@@ -2272,7 +2278,25 @@ export default class Spaces extends View {
     const others = () => on ? [] : this.looseRows(t, collapsed, false);
     const atHome = (r) => !r.w.machine && (r.w.folder ?? "").replace(/\/+$/, "") === homeDir();
     const homeAt = rows.findIndex(atHome);
-    const drawAll = (list) => list.flatMap((r) => [...draw(r), ...(r === rows[homeAt] ? others() : [])]);
+    // Local change (maconfig): a file tree. Each space's row, then its terminals,
+    // agents and worktrees under a guide line (a worktree's own under another).
+    const drawCards = (list) => {
+      if (collapsed) return list.flatMap((r) => [...draw(r), ...(r === rows[homeAt] ? others() : [])]);
+      const out = [];
+      let cur = null;
+      const flush = () => { if (cur) out.push(cur.head, ...this.guide(t, cur.kids)); cur = null; };
+      for (const r of list) {
+        const els = draw(r);
+        if (!els.length) continue;
+        if (r.under && cur?.r.w.id === r.under) { cur.kids.push(els[0], ...this.guide(t, els.slice(1))); continue; }
+        flush();
+        cur = { r, head: els[0], kids: els.slice(1) };
+        if (r === rows[homeAt]) { flush(); out.push(...others()); }
+      }
+      flush();
+      return out;
+    };
+    const drawAll = drawCards;
     // This computer always gets its heading (its +, local servers), others too.
     const machineNames = [null, ...remote];
     let listedBefore = 0; // computers drawn above this one: each further one starts under a line
@@ -2303,7 +2327,7 @@ export default class Spaces extends View {
             .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
             .on_click((_e, cx) => { cx.stop_propagation(); this.addHome(m); })
             .child(svg("mods/workspace-chrome/plus.svg").size(12)))));
-      const drawn = m ? [...(on || collapsed ? [] : this.sshRows(m, t)), ...mine.flatMap(draw), ...busy(m)] : [...(homeAt < 0 ? others() : []), ...drawAll(mine)];
+      const drawn = m ? [...(on || collapsed ? [] : this.sshRows(m, t)), ...drawCards(mine), ...busy(m)] : [...(homeAt < 0 ? others() : []), ...drawAll(mine)];
       const extra = on ? [] : m ? this.closedSection(t, collapsed, m) : closed();
       // Filtered: a computer with nothing that passes isn't listed at all.
       if (on && !drawn.length) return [];
@@ -2507,7 +2531,8 @@ export default class Spaces extends View {
     const on = w.active;
     const color = this.frame.colors[w.id];
     // Home (here or on another computer) stays uncoloured.
-    const fill = !color || this.title(w) === "~" ? t.foreground : color.startsWith("#") ? color : (MARK[color] ?? t[color]);
+    const fill = t.foreground; // Local change (maconfig): no colours
+    const kids = this.hasTerms(w.id) || (this.drawn ?? []).some((x) => x.under === w.id) || [...this.busyWorktrees()].some(([, main]) => main === w.id);
     return v_flex()
       .relative()
       .id(`space-${w.id}`)
@@ -2560,15 +2585,45 @@ export default class Spaces extends View {
         h_flex()
           .gap(9)
           .items_center()
-          .when(Boolean(tree), el => el.pl(16).child(svg("mods/workspace-chrome/branch.svg").size(13).text_color(t.dim)))
-          .child(div().flex_shrink(0).max_w(150).truncate().text_color(fill).child(this.title(w)))
+          .child(h_flex().flex_none().gap(6).items_center()
+            .child(this.chevron(w.id, t, kids))
+            .child(tree ? svg("mods/workspace-chrome/branch.svg").size(13).text_color(t.dim) : this.logo(this.title(w), t))
+            .child(div().flex_shrink(0).max_w(150).truncate().text_color(fill).when(!tree, (el) => el.font_semibold()).child(this.title(w))))
           .when(Boolean(g?.web) && !tree && this.frame.options.github, el => el.child(this.ghLink(g, t)))
           .when(Boolean(g), el => el.children(this.counts(g, t, (cx) => this.showChanges({ id: w.id }, cx))))
-          .child(this.agentFold(w, t))
           .child(this.tail(g, tree, w.name, t, this.hoverSpace === w.id && w.folder))
           .children(this.spaceBot(w, t))
           .child(this.addSlot(w, t)),
       );
+  }
+
+  // Local change (maconfig): the list reads as a file tree. A chevron in front of
+  // each row with children (click: fold/unfold), a project's monogram, and its
+  // children under a thin guide line one step in.
+  chevron(key, t, has) {
+    if (!has) return div().w(FOLD).flex_none();
+    const folded = this.agentsFolded.has(key) && !this.filter;
+    return h_flex().id(`fold-${key}`).size(FOLD).flex_none().items_center().justify_center().rounded(4).cursor_pointer().text_color(t.dim)
+      .hover((s) => s.bg(t.hover).text_color(t.foreground))
+      .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
+      .on_click((_e, cx) => {
+        cx.stop_propagation();
+        folded ? this.agentsFolded.delete(key) : this.agentsFolded.add(key);
+        localStorage.setItem("agents.folded", JSON.stringify([...this.agentsFolded]));
+        cx.notify();
+      })
+      .child(svg(`mods/workspace-chrome/chevron-${folded ? "right" : "down"}.svg`).size(10));
+  }
+  logo(name, t) {
+    const words = (name ?? "").split(/[^\p{L}\p{N}~]+/u).filter(Boolean);
+    const text = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] ?? "?").slice(0, 2)).toUpperCase();
+    return h_flex().w(20).h(20).min_w(20).min_h(20).flex_none().items_center().justify_center().rounded(3).bg((t.foreground ?? "#ffffff").slice(0, 7) + "24")
+      .text_size(9.5).font_bold().text_color(t.foreground).child(text);
+  }
+  guide(t, els) {
+    return els.length ? [h_flex().flex_none().items_stretch()
+      .child(div().w(1).flex_none().ml(15).my(1).bg(t.border))
+      .child(v_flex().flex_1().min_w(0).children(els))] : [];
   }
 
   // Right after the name, when the repo is on GitHub: its icon, which opens the repo.
