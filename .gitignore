@@ -56,3 +56,6 @@ claude/.claude/.credentials.json
 # Herdr app: written by herdr-app on every start
 herdr/.config/herdr-app/mods/**/gpui-kit.d.ts
 herdr/.config/herdr-app/mods/**/jsconfig.json
+
+# Herdr better-alerts: notifier built per machine by helper/build.sh
+herdr/.config/herdr-app/mods/better-alerts/bin/
