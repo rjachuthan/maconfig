@@ -47,6 +47,27 @@ local function git_picker_highlights()
   apply()
 end
 
+--- Run `git <args>` in the current repo without blocking the editor, then
+--- report the result as a notification and refresh buffers/git signs.
+local function git_async(args, label)
+  local cwd = vim.fn.expand("%:p:h")
+  if cwd == "" or vim.fn.isdirectory(cwd) == 0 then
+    cwd = vim.uv.cwd()
+  end
+  vim.notify(label .. "…", vim.log.levels.INFO, { title = "git" })
+  vim.system(vim.list_extend({ "git" }, args), { cwd = cwd, text = true }, function(res)
+    vim.schedule(function()
+      local out = vim.trim((res.stdout or "") .. (res.stderr or ""))
+      if res.code == 0 then
+        vim.notify(out ~= "" and out or (label .. " done"), vim.log.levels.INFO, { title = "git " .. args[1] })
+        vim.cmd("checktime")
+      else
+        vim.notify(out, vim.log.levels.ERROR, { title = "git " .. args[1] .. " failed" })
+      end
+    end)
+  end)
+end
+
 -- Called at require-time (not via the plugin's `init`) because ui.lua already
 -- sets `init` on this same "folke/snacks.nvim" spec, and lazy.nvim's spec
 -- merge keeps only the last-registered `init` function rather than composing
@@ -58,6 +79,8 @@ return {
     "folke/snacks.nvim",
     keys = {
       { "<leader>gb", git_branches, desc = "Git branches" },
+      { "<leader>gp", function() git_async({ "push" }, "Pushing") end, desc = "Git push" },
+      { "<leader>gP", function() git_async({ "pull" }, "Pulling") end, desc = "Git pull" },
       -- Every uncommitted hunk in the repo, one entry each with a diff
       -- preview -- the quick way to review what an agent just changed.
       { "<leader>gH", function() Snacks.picker.git_diff() end, desc = "Changed hunks (picker)" },
@@ -142,11 +165,11 @@ return {
     },
     cmd = "Atlas",
     keys = {
-      { "<leader>gp", "<cmd>Atlas pulls .<cr>", desc = "Pull requests" },
+      { "<leader>gq", "<cmd>Atlas pulls .<cr>", desc = "Pull requests" },
       { "<leader>gr", "<cmd>Atlas review .<cr>", desc = "Review current branch PR" },
       { "<leader>gR", "<cmd>Atlas review<cr>", desc = "Review PR (pick)" },
       { "<leader>gi", "<cmd>Atlas issues .<cr>", desc = "Issues / work items" },
-      { "<leader>gP", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
+      { "<leader>gC", "<cmd>Atlas create pr<cr>", desc = "Create pull request" },
     },
     opts = function()
       local defaults = {}
