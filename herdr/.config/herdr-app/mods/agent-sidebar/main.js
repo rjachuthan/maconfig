@@ -297,6 +297,18 @@ export function tone(t, status) {
   return t[status] ?? t.unknown;
 }
 
+// Local change (maconfig): folded rows. What you folded (kept, and what iterating
+// gives), plus rows folded because nothing in them is active (auto), unless you
+// opened one (open: until it's active again).
+const IDLE_FOLD = 90 * 60000; // how long a project or worktree is idle before it folds
+class FoldSet extends Set {
+  auto = new Set();
+  open = new Set();
+  has(k) { return super.has(k) || Boolean(this.auto?.has(k) && !this.open?.has(k)); }
+  add(k) { this.open?.delete(k); return super.add(k); } // (Set's constructor adds before the fields exist)
+  delete(k) { if (this.auto?.has(k)) this.open.add(k); return super.delete(k); }
+}
+
 export default class Spaces extends View {
   init(_props, cx) {
     this.git = {}; // where() -> { name, branch, ahead, behind, repo, linked }, null: not a repo
@@ -329,7 +341,7 @@ export default class Spaces extends View {
     this.lastCmd = {};
     cx.timer.every(4000, (cx) => this.readCommands(cx));
     // Spaces whose agents are folded away, and whether the not-open projects show.
-    this.agentsFolded = new Set(JSON.parse(localStorage.getItem("agents.folded") ?? "[]"));
+    this.agentsFolded = new FoldSet(JSON.parse(localStorage.getItem("agents.folded") ?? "[]"));
     this.closedOpen = localStorage.getItem("projects.closedOpen") === "true";
     this.scanProjects(cx);
     // Other computers' Projects and Chats (sidebar-settings, per computer) and
@@ -2597,6 +2609,42 @@ export default class Spaces extends View {
       );
   }
 
+  // Local change (maconfig): a project or worktree folds away (agentsFolded.auto)
+  // once it has been idle for IDLE_FOLD: no agent in it working, waiting on you
+  // or just done, and you haven't been in it. A project stays open while one of
+  // its worktrees does. When it was last active is kept (sidebar.activeAt).
+  autoFold() {
+    const { groups, byPane } = this.frame;
+    const now = Date.now();
+    if (!this.activeAt) { try { this.activeAt = JSON.parse(localStorage.getItem("sidebar.activeAt") ?? "{}"); } catch { this.activeAt = {}; } }
+    const f = focused();
+    const here = f?.pane ? this.frame.keyOf.get(f.pane) : null;
+    const rows = this.ordered();
+    const wt = [...this.busyWorktrees()];
+    const busyNow = (key) => key === here || (groups.get(key) ?? []).some(({ p }) => ["working", "blocked", "done"].includes(byPane.get(p.pane)?.status));
+    // Its agents' last work (as "6h" on their rows shows it), or when it was last busy here.
+    const lastAt = (key) => Math.max(this.activeAt[key] ?? 0, ...(groups.get(key) ?? []).map(({ p }) => {
+      const a = byPane.get(p.pane);
+      return a ? Math.max(this.lastWork[a.address] ?? 0, ((this.info[a.address] ?? this.piInfo?.[a.address])?.lastAt ?? 0) * 1000) : 0;
+    }));
+    const recent = new Set();
+    const keys = [...(this.loose ?? []).map((d) => `d:${d}`), ...rows.map((r) => r.w.id)];
+    for (const key of keys) {
+      const active = rows.find((r) => r.w.id === key)?.w.active;
+      if (busyNow(key) || active) this.activeAt[key] = now;
+      if (now - lastAt(key) < IDLE_FOLD) recent.add(key);
+    }
+    for (const r of rows) if (!r.tree && (rows.some((k) => k.under === r.w.id && recent.has(k.w.id)) || wt.some(([d, main]) => main === r.w.id && recent.has(`d:${d}`)))) recent.add(r.w.id);
+    if (now - (this.activeSaved ?? 0) > 30000) {
+      this.activeSaved = now;
+      for (const k of Object.keys(this.activeAt)) if (now - this.activeAt[k] > 7 * 86400000) delete this.activeAt[k];
+      localStorage.setItem("sidebar.activeAt", JSON.stringify(this.activeAt));
+    }
+    const fold = this.agentsFolded;
+    fold.auto = new Set(keys.filter((k) => !recent.has(k)));
+    for (const k of recent) fold.open.delete(k);
+  }
+
   // Local change (maconfig): the list reads as a file tree. A chevron in front of
   // each row with children (click: fold/unfold), a project's monogram, and its
   // children under a thin guide line one step in.
@@ -2908,6 +2956,7 @@ export default class Spaces extends View {
     this.subPicks = new Map(); // a sub-row's pick -> how it closes (subRows)
     this.loose = [...this.frame.groups.keys()].filter((k) => k.startsWith("d:")).map((k) => k.slice(2))
       .sort((a, b) => base(a).localeCompare(base(b), undefined, { sensitivity: "base" }));
+    this.autoFold();
     const list = this.grouped(t, collapsed);
     this.visible = this.vis;
     // Agents in the order the list shows them (agent.next / prev follow it).
